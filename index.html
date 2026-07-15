@@ -1618,6 +1618,17 @@
   <!-- JAVASCRIPT FRONTEND LOGIC -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    // Global Error Handlers for debugging
+    window.onerror = function(message, source, lineno, colno, error) {
+      alert("Unhandled Error:\n" + message + "\nLine: " + lineno + "\nSource: " + source);
+      return false;
+    };
+    window.onunhandledrejection = function(event) {
+      const reason = event.reason;
+      const msg = reason ? (reason.message || reason.error_description || JSON.stringify(reason)) : "Unknown Promise Error";
+      alert("Unhandled Promise Rejection:\n" + msg);
+    };
+
     // ----------------------------------------------------
     // SUPABASE CONFIGURATION & COMPATIBILITY ADAPTER
     // ----------------------------------------------------
