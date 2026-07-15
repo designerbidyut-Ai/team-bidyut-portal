@@ -2969,12 +2969,14 @@
     function fetchFundLedger() {
       google.script.run
         .withSuccessHandler(function(data) {
-          state.fundLedger = data.ledger;
+          if (!data) return;
+          state.fundLedger = data.ledger || [];
           
           // Render fund outputs
-          document.getElementById('fundTotalCollected').innerText = '৳' + data.summary.totalDeposits;
-          document.getElementById('fundTotalSpent').innerText = '৳' + data.summary.totalExpenses;
-          document.getElementById('fundNetBalance').innerText = '৳' + data.summary.balance;
+          const summary = data.summary || { totalDeposits: 0, totalExpenses: 0, balance: 0 };
+          document.getElementById('fundTotalCollected').innerText = '৳' + (summary.totalDeposits || 0);
+          document.getElementById('fundTotalSpent').innerText = '৳' + (summary.totalExpenses || 0);
+          document.getElementById('fundNetBalance').innerText = '৳' + (summary.balance || 0);
           
           renderFundLedgerTable();
           
@@ -2991,8 +2993,9 @@
     function fetchAccountsAndPrompts() {
       google.script.run
         .withSuccessHandler(function(data) {
-          state.accounts = data.accounts;
-          state.prompts = data.prompts;
+          if (!data) return;
+          state.accounts = data.accounts || [];
+          state.prompts = data.prompts || [];
           
           renderAccountsGrid();
           renderPromptsContainer();
