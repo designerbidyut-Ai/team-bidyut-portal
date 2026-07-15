@@ -1,0 +1,4356 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Bidyut Content Tracker</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Design Tokens / CSS Variables for Dark & Light Themes */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-base: #0b0f19;
+      --bg-surface: #141b2d;
+      --bg-surface-hover: #1f2a40;
+      --border-color: #233044;
+      
+      --text-main: #f5f6f8;
+      --text-muted: #8e9bb2;
+      --text-inverse: #0b0f19;
+      
+      --primary: #4f46e5;
+      --primary-hover: #6366f1;
+      --primary-light: #c7d2fe;
+      
+      --accent-neon: #10b981;
+      --accent-pink: #ec4899;
+      --accent-yellow: #f59e0b;
+      --accent-cyan: #06b6d4;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --glass-bg: rgba(20, 27, 45, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      
+      --status-pending: #f59e0b;
+      --status-running: #06b6d4;
+      --status-completed: #10b981;
+      --status-revision: #3b82f6;
+      --status-error: #ef4444;
+    }
+
+    [data-theme="light"] {
+      /* Light Theme */
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #f1f5f9;
+      --border-color: #e2e8f0;
+      
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-inverse: #ffffff;
+      
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #e0e7ff;
+      
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(0, 0, 0, 0.06);
+    }
+
+    /* Core Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.25s, border-color 0.25s, color 0.15s;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .font-outfit {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Main Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-box {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-pink));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    }
+
+    .logo-text h2 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-links {
+      list-style: none;
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-grow: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: var(--text-main);
+      background-color: var(--bg-surface-hover);
+    }
+
+    .nav-item.active {
+      border-left: 4px solid var(--primary);
+      background-color: var(--bg-surface-hover);
+      padding-left: 12px;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Content Area Layout */
+    .main-content {
+      flex-grow: 1;
+      margin-left: 260px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0; /* Prevents flex items from breaking layouts */
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title h1 {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .page-title p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Modern Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--bg-surface-hover);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--bg-surface-hover);
+    }
+
+    /* Role Profile Selector */
+    .role-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .role-badge:hover {
+      background-color: var(--bg-surface-hover);
+    }
+
+    .role-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .role-dot.admin { background-color: var(--accent-pink); }
+    .role-dot.member { background-color: var(--accent-neon); }
+
+    /* Dashboard Grid Elements */
+    .metric-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .metric-card.pink::before { background: var(--accent-pink); }
+    .metric-card.neon::before { background: var(--accent-neon); }
+    .metric-card.yellow::before { background: var(--accent-yellow); }
+
+    .metric-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .metric-subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Charts and details Layout */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .chart-container {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    /* Form Styles */
+    .card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
+    }
+
+    .form-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select, textarea {
+      padding: 12px 16px;
+      border-radius: 8px;
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge.not-started { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .status-badge.in-progress { background-color: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+    .status-badge.submitted { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+    .status-badge.completed { background-color: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .status-badge.revision { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      padding: 14px 16px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border-color);
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    tr:hover {
+      background-color: var(--bg-surface-hover);
+    }
+
+    /* MPRO Link styles */
+    .mpro-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .mpro-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Tab Contents hidden by default */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Accounts Grid */
+    .accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .account-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .account-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .account-field {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .account-field label {
+      font-size: 10px;
+    }
+
+    .account-val-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--bg-base);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .account-val {
+      font-size: 13px;
+      font-family: monospace;
+      flex-grow: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .icon-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* Prompts layout */
+    .prompts-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .prompt-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .prompt-category {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .prompt-text-box {
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      margin-top: 10px;
+      position: relative;
+      white-space: pre-wrap;
+    }
+
+    /* Modal dialogs */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 480px;
+      padding: 30px;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* Toasts/Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background-color: var(--bg-surface);
+      border-left: 4px solid var(--primary);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 250px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .toast.active {
+      transform: translateX(0);
+    }
+
+    .toast.success { border-left-color: var(--accent-neon); }
+    .toast.error { border-left-color: var(--status-error); }
+    
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(11, 15, 25, 0.7);
+      backdrop-filter: blur(2px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      color: white;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-left-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Fund transaction summary items */
+    .fund-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .fund-summary-item {
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .fund-summary-item.balance {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(16, 185, 129, 0.1));
+      border-color: var(--primary-light);
+    }
+
+    /* Grid for prompts and accounts header */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <p id="loadingMessage">Processing request...</p>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- App Structure -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-box">⚡</div>
+        <div class="logo-text">
+          <h2>Team Bidyut</h2>
+          <span>Content Tracker Portal</span>
+        </div>
+      </div>
+      
+      <ul class="nav-links">
+        <li>
+          <a class="nav-item active" onclick="switchTab('dashboard', this)">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="switchTab('logwork', this)">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Log Daily Work
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="switchTab('assignments', this)">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            Assignments
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="switchTab('fund', this)">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Team Fund
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="switchTab('accounts', this)">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            Shared Logins
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="switchTab('prompts', this)">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            AI Prompts
+          </a>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <!-- System Migration Button for Bidyut -->
+        <button id="btnMigrate" class="btn btn-outline btn-sm" onclick="triggerMigration()" style="display:none;">
+          🔄 Migrate Sheets
+        </button>
+        <div class="role-badge" onclick="openLoginModal()">
+          <div id="roleDot" class="role-dot member"></div>
+          <span id="roleText">Member Mode</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Local Simulation Preview Banner -->
+      <div id="localPreviewBanner" style="display:none; background: linear-gradient(90deg, #f59e0b, #ec4899); color: white; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 13px; text-align: center; box-shadow: var(--shadow-sm);">
+        ⚠️ LOCAL PREVIEW MODE: You are viewing the page locally with simulation data. To connect live, deploy this HTML in Google Apps Script.
+      </div>
+      
+      <!-- Top Header Bar -->
+      <header class="top-bar">
+        <div class="page-title">
+          <h1 id="pageHeading">Dashboard</h1>
+          <p id="pageSubheading">Overview of the team content creation metrics</p>
+        </div>
+        <div class="controls-group">
+          <!-- Light/Dark Toggle -->
+          <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+            <svg id="themeIcon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+            </svg>
+          </button>
+          
+          <button class="btn btn-primary btn-sm" onclick="refreshAllData()">
+            🔄 Sync Data
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: DASHBOARD -->
+      <section id="dashboardTab" class="tab-content active">
+        <!-- Top Summary Row (Metrics + Content Breakdown Doughnut Chart) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 30px;">
+          <!-- Left: 2 Metrics Cards Stacked -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="metric-card" style="flex: 1; min-height: 120px; padding: 25px 24px; display: flex; flex-direction: column; justify-content: center;">
+              <span class="metric-title" style="font-size: 12px; margin-bottom: 6px;">Total Full Content</span>
+              <div id="metricTotalMotion" class="metric-value" style="font-size: 36px;">0</div>
+              <span class="metric-subtext">Sum of all video durations completed</span>
+            </div>
+            <div class="metric-card pink" style="flex: 1; min-height: 120px; padding: 25px 24px; display: flex; flex-direction: column; justify-content: center;">
+              <span class="metric-title" style="font-size: 12px; margin-bottom: 6px;">Total Social Post</span>
+              <div id="metricTotalStatic" class="metric-value" style="font-size: 36px;">0</div>
+              <span class="metric-subtext">Static designs completed</span>
+            </div>
+          </div>
+          
+          <!-- Middle: Content Breakdown Chart Card -->
+          <div class="chart-container" style="margin-bottom: 0; display: flex; flex-direction: column;">
+            <div class="chart-header" style="margin-bottom: 10px;">
+              <h3 style="font-size: 16px;">Content Breakdown</h3>
+            </div>
+            <div style="position: relative; flex-grow: 1; min-height: 220px; height: 220px;">
+              <canvas id="contentBreakdownChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Right: Today's Overview Card -->
+          <div class="metric-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(16, 185, 129, 0.25); background: linear-gradient(135deg, rgba(16, 185, 129, 0.03) 0%, rgba(5, 150, 105, 0.08) 100%); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); border-radius: 12px;">
+            <div>
+              <!-- Header Row -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 16px;">📊</span>
+                  <span class="metric-title" style="font-size: 12px; text-transform: uppercase; font-weight:800; letter-spacing: 0.8px; color: #10b981;">Daily Work Progress</span>
+                </div>
+                <input type="date" id="overviewDateSelector" onchange="updateAssignmentsAnalytics()" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 5px 10px; color: var(--text-main); font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; outline: none; transition: border-color 0.2s;">
+              </div>
+              
+              <!-- Metrics Layout -->
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- 1. Work Submitted Block -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(245, 158, 11, 0.1); border-radius: 50%; font-size: 16px;">📤</div>
+                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main); letter-spacing: 0.2px;">Work Submitted</div>
+                  </div>
+                  <div id="todaySubmittedVal" style="font-size: 24px; font-weight: 900; color: #f59e0b; font-family: 'Outfit', sans-serif;">0 items</div>
+                </div>
+                
+                <!-- 2. Work Approved Block -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.1); border-radius: 50%; font-size: 16px;">✅</div>
+                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main); letter-spacing: 0.2px;">Work Approved</div>
+                  </div>
+                  <div id="todayApprovedVal" style="font-size: 24px; font-weight: 900; color: #10b981; font-family: 'Outfit', sans-serif;">0 items</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Footer text -->
+            <div style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 20px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <span>⚡</span> Real-time Performance Tracking
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Performer Podium -->
+        <h3 class="font-outfit" style="font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          👑 Top Performers Podium
+        </h3>
+        
+        <div class="podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-bottom: 30px; margin-top: 10px;">
+          <!-- 2nd Place -->
+          <div class="podium-card silver" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 155px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #94a3b8; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">2</div>
+            <div id="podium2ndName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">-</div>
+            <div id="podium2ndPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
+          </div>
+          
+          <!-- 1st Place -->
+          <div class="podium-card gold" style="background: var(--bg-surface); border: 2px solid #eab308; border-radius: 16px; padding: 24px; width: 220px; height: 185px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-lg); transform: translateY(-10px);">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #eab308; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; margin-bottom: 12px; box-shadow: 0 6px 12px rgba(234,179,8,0.3);">1</div>
+            <div id="podium1stName" style="font-weight: 800; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; color: #eab308;">-</div>
+            <div id="podium1stPoints" style="font-size: 14px; color: var(--text-main); font-weight: 700; margin-top: 6px;">0 pts</div>
+          </div>
+          
+          <!-- 3rd Place -->
+          <div class="podium-card bronze" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 135px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #ca8a04; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">3</div>
+            <div id="podium3rdName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">-</div>
+            <div id="podium3rdPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
+          </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="card" style="margin-bottom: 30px;">
+          <div class="form-title">Team Performance Leaderboard</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Member Name</th>
+                  <th>6s Video</th>
+                  <th>10s Video</th>
+                  <th>15s Video</th>
+                  <th>20s Video</th>
+                  <th>30s Video</th>
+                  <th>1m Video</th>
+                  <th>Total Motion</th>
+                  <th>Total Static</th>
+                  <th style="font-weight: 700;">Best Performer Score</th>
+                  <th>Work Level</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardTableBody">
+                <tr>
+                  <td colspan="12" style="text-align: center; color: var(--text-muted);">Syncing leaderboard...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Charts Layout (Only Bar Chart remains here) -->
+        <div class="dashboard-layout">
+          <!-- Performance Bar Chart -->
+          <div class="chart-container" style="margin-bottom: 0;">
+            <div class="chart-header">
+              <h3>Content Creators Performance</h3>
+            </div>
+            <div style="position: relative; height: 320px;">
+              <canvas id="performanceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Feed -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="form-title">Recent Activity Feed</div>
+          <div id="activityFeedContainer" style="display: flex; flex-direction: column; gap: 16px; padding: 10px 0;">
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">No recent activities found.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: LOG DAILY WORK -->
+      <section id="logworkTab" class="tab-content">
+        <!-- 1. Member Login Card (shown if not logged in) -->
+        <div id="memberLoginCard" class="card" style="max-width: 480px; margin: 40px auto; padding: 30px;">
+          <div class="form-title" style="text-align: center; border-bottom: none; margin-bottom: 24px;">Member Logger Login</div>
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="loginMemberDropdown">Select Your Name</label>
+            <select id="loginMemberDropdown" required style="padding: 12px;">
+              <option value="">Choose your name...</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label for="loginMemberPin">Enter Your PIN</label>
+            <input type="password" id="loginMemberPin" placeholder="Default PIN is 1234" required style="padding: 12px;">
+          </div>
+          <button class="btn btn-primary" onclick="submitMemberLogin()" style="width: 100%; padding: 12px; font-size: 15px;">Verify & Open Logger</button>
+        </div>
+
+        <!-- 2. Member Logger Container (shown when logged in) -->
+        <div id="memberLoggerContainer" style="display: none;">
+          <!-- Logged in status banner -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: 16px; margin-bottom: 24px; box-shadow: var(--shadow-md);">
+            <div>
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Active Logger Account</span>
+              <h4 id="loggedInNameText" style="font-size: 20px; font-weight: 800; color: var(--accent-neon); margin-top: 2px;">-</h4>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn btn-outline btn-sm" onclick="openChangePinModal()">🔑 Change PIN</button>
+              <button class="btn btn-outline btn-sm" onclick="submitMemberLogout()" style="color: var(--status-error); border-color: rgba(239, 68, 68, 0.3);">🚪 Log Out</button>
+            </div>
+          </div>
+
+          <!-- Left-Right Split Grid Layout -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; align-items: start;">
+            
+            <!-- Left: Daily Logger Card Form -->
+            <div class="card" style="margin-bottom: 0;">
+              <div id="loggerFormTitle" class="form-title">Record Daily Content Work</div>
+              <form id="dailyWorkForm" onsubmit="submitDailyWork(event)">
+                <input type="hidden" id="editLogRowIndex" value="">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="logDate">Work Date</label>
+                    <input type="date" id="logDate" required>
+                  </div>
+                  <div class="form-group" id="memberNameLockedGroup">
+                    <label>Member Name (Locked)</label>
+                    <input type="text" id="logMemberNameLocked" readonly style="background-color: var(--bg-surface-hover); font-weight: 700; color: var(--accent-cyan);">
+                  </div>
+                  <div class="form-group" id="memberNameSelectGroup" style="display: none;">
+                    <label for="logMemberNameSelect">Member Name</label>
+                    <select id="logMemberNameSelect" style="padding: 12px;"></select>
+                  </div>
+                </div>
+
+                <h3 class="font-outfit" style="font-size: 16px; margin: 24px 0 12px 0; color: var(--primary);">Content Quantities Done</h3>
+                
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="qty6s">6 Sec Full Content</label>
+                    <input type="number" id="qty6s" min="0" value="0">
+                  </div>
+                  <div class="form-group">
+                    <label for="qty10s">10 Sec Full Content</label>
+                    <input type="number" id="qty10s" min="0" value="0">
+                  </div>
+                </div>
+                
+                <div class="form-grid" style="margin-top: 15px;">
+                  <div class="form-group">
+                    <label for="qty15s">15 Sec Full Content</label>
+                    <input type="number" id="qty15s" min="0" value="0">
+                  </div>
+                  <div class="form-group">
+                    <label for="qty20s">20 Sec Full Content</label>
+                    <input type="number" id="qty20s" min="0" value="0">
+                  </div>
+                </div>
+                
+                <div class="form-grid" style="margin-top: 15px;">
+                  <div class="form-group">
+                    <label for="qty30s">30 Sec Full Content</label>
+                    <input type="number" id="qty30s" min="0" value="0">
+                  </div>
+                  <div class="form-group">
+                    <label for="qty1m">1 Min Full Content</label>
+                    <input type="number" id="qty1m" min="0" value="0">
+                  </div>
+                </div>
+                
+                <div class="form-grid" style="margin-top: 15px;">
+                  <div class="form-group text-field">
+                    <label for="qtySp">Social Post Design</label>
+                    <input type="number" id="qtySp" min="0" value="0">
+                  </div>
+                </div>
+
+                <div class="form-group full-width" style="margin-top: 20px;">
+                  <label for="logNote">Note / Comments (Optional)</label>
+                  <textarea id="logNote" rows="3" placeholder="Any specific group name or feedback..."></textarea>
+                </div>
+
+                <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+                  <button type="button" id="btnCancelEdit" class="btn btn-outline" style="display:none;" onclick="cancelLogEdit()">Cancel Edit</button>
+                  <span id="editSpacer" style="flex-grow:1;"></span>
+                  <button type="submit" id="btnSubmitLog" class="btn btn-primary">Submit Daily Log</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Right: My Recent Logs Table -->
+            <div class="card" style="margin-bottom: 0;">
+              <div class="section-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="form-title" id="logsTableTitle" style="border-bottom: none; margin-bottom: 0; font-size: 20px;">My Recent Log Entries</h3>
+                <div class="form-group" id="logsFilterGroup" style="display: none; flex-direction: row; align-items: center; gap: 8px; width: auto; margin-bottom: 0;">
+                  <label style="white-space: nowrap; margin-bottom: 0; font-size: 13px;">Filter:</label>
+                  <select id="logsMemberFilter" onchange="fetchMemberLogs()" style="padding: 6px 12px; width: 180px; font-size: 13px;"></select>
+                </div>
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th id="colHeaderMember" style="display:none;">Member</th>
+                      <th>6s</th>
+                      <th>10s</th>
+                      <th>15s</th>
+                      <th>20s</th>
+                      <th>30s</th>
+                      <th>1m</th>
+                      <th>Static</th>
+                      <th>Note</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="myLogsTableBody">
+                    <tr>
+                      <td colspan="10" style="text-align: center; color: var(--text-muted);">Syncing logs...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: ASSIGNMENTS -->
+      <section id="assignmentsTab" class="tab-content">
+        <!-- Admin-only Work Assign Section -->
+        <div id="adminAssignSection" class="card">
+          <div class="form-title">Assign Team Work</div>
+          <form id="assignTaskForm" onsubmit="submitTaskAssignment(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="assignDate">Assign Date <span style="color: var(--accent-pink);">*</span></label>
+                <input type="date" id="assignDate" required>
+              </div>
+              <div class="form-group">
+                <label for="assignMember">Assign To <span style="color: var(--accent-pink);">*</span></label>
+                <select id="assignMember" required onchange="showMemberBrandRecommendation(this.value)">
+                  <option value="">Select Member...</option>
+                </select>
+                <div id="assignMemberRecommendation" style="font-size: 11px; margin-top: 5px; color: #10b981; font-weight: 700; display: none;"></div>
+              </div>
+              <div class="form-group">
+                <label for="mproId">MPRO ID <span style="color: var(--accent-pink);">*</span></label>
+                <input type="text" id="mproId" placeholder="e.g. 17889" required>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 15px;">
+              <div class="form-group">
+                <label for="mproLink">MPRO Link <span style="color: var(--accent-pink);">*</span></label>
+                <input type="url" id="mproLink" placeholder="http://mpro.prangroup.com/..." required>
+              </div>
+              <div class="form-group">
+                <label for="assignGroup" style="display: flex; align-items: center; gap: 4px;">
+                  Brands <span style="color: var(--accent-pink);">*</span>
+                </label>
+                <div style="display: flex; gap: 6px;">
+                  <select id="assignGroup" required style="flex: 1;">
+                    <option value="">Select Brand...</option>
+                  </select>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="promptAddBrand()" style="padding: 0 10px; font-weight: 700;" title="Add New Brand">➕</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="promptDeleteBrand()" style="padding: 0 10px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Delete Brand">➖</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="assignQty">Quantity <span style="color: var(--accent-pink);">*</span></label>
+                <select id="assignQty" required>
+                  <option value="">Select Quantity...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 15px;">
+              <div class="form-group">
+                <label for="assignDeadline">Deadline</label>
+                <input type="text" id="assignDeadline" placeholder="e.g. 25-Jul-2026 or 2 days">
+              </div>
+              <div class="form-group">
+                <label for="assignStatus">Initial Status</label>
+                <select id="assignStatus">
+                  <option value="Not Started" selected>Not Started</option>
+                  <option value="Work in Progress">Work in Progress</option>
+                  <option value="Running">Running</option>
+                  <option value="Motion Running">Motion Running</option>
+                  <option value="Work Submitted">Work Submitted</option>
+                  <option value="Hold">Hold</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="assignNote">Notes</label>
+                <input type="text" id="assignNote" placeholder="Additional details...">
+              </div>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-primary">Assign Work</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Assignments Board -->
+        <div class="card">
+          <div class="section-header">
+            <h3 class="font-outfit" style="font-size: 20px; font-weight: 700;">Task Assignments Board</h3>
+            <div class="form-group" style="width: 220px; flex-direction: row; align-items: center; gap: 8px;">
+              <label style="white-space: nowrap; margin-bottom: 0;">Filter By:</label>
+              <select id="assignFilterSelect" onchange="filterAssignments(this.value)">
+                <option value="ALL" selected>All Members</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Workload Analysis Section -->
+          <div id="workloadAnalysisContainer" style="margin-bottom: 24px; padding: 16px; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius: 8px;">
+            <!-- Overall Team Stats Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+              <div class="stat-mini-card" style="padding: 12px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
+                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Active Tasks</div>
+                <div id="analActiveTasks" style="font-size: 24px; font-weight: 800; color: var(--accent-pink); margin-top: 4px;">0</div>
+              </div>
+              <div class="stat-mini-card" style="padding: 12px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
+                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Pending Items (Left)</div>
+                <div id="analPendingItems" style="font-size: 24px; font-weight: 800; color: #f59e0b; margin-top: 4px;">0</div>
+              </div>
+              <div class="stat-mini-card" style="padding: 12px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
+                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Completion Rate</div>
+                <div id="analCompletionRate" style="font-size: 24px; font-weight: 800; color: #10b981; margin-top: 4px;">0%</div>
+              </div>
+            </div>
+            
+            <!-- Per-Member Workload Distribution Grid -->
+            <h4 class="font-outfit" style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+              📊 Member Workload Breakdown & Top Brands
+            </h4>
+            <div id="memberWorkloadGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; max-height: 240px; overflow-y: auto; padding-right: 6px;">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Assign Date</th>
+                  <th>MPRO ID</th>
+                  <th>MPRO Details</th>
+                  <th>Brands</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Deadline</th>
+                  <th>Assigned To</th>
+                  <th>Note</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="assignmentsTableBody">
+                <tr>
+                  <td colspan="10" style="text-align: center; color: var(--text-muted);">No assignments loaded.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: TEAM FUND -->
+      <section id="fundTab" class="tab-content">
+        <!-- Fund Summaries -->
+        <div class="fund-summary-grid">
+          <div class="fund-summary-item">
+            <label>Total Collected</label>
+            <h3 id="fundTotalCollected" class="font-outfit" style="font-size: 24px; color: var(--accent-neon); margin-top: 8px;">৳0</h3>
+          </div>
+          <div class="fund-summary-item">
+            <label>Total Spent</label>
+            <h3 id="fundTotalSpent" class="font-outfit" style="font-size: 24px; color: var(--status-error); margin-top: 8px;">৳0</h3>
+          </div>
+          <div class="fund-summary-item balance">
+            <label>Remaining Balance</label>
+            <h3 id="fundNetBalance" class="font-outfit" style="font-size: 24px; color: var(--primary); margin-top: 8px;">৳0</h3>
+          </div>
+        </div>
+
+        <!-- Admin Only Transaction Logger -->
+        <div id="adminFundSection" class="card" style="display:none;">
+          <div class="form-title">Record Fund Transaction (Admin Tools)</div>
+          <form id="fundTransactionForm" onsubmit="submitFundTransaction(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="txDate">Transaction Date</label>
+                <input type="date" id="txDate" required>
+              </div>
+              <div class="form-group">
+                <label for="txType">Type</label>
+                <select id="txType" required onchange="toggleFundFields(this.value)">
+                  <option value="Deposit" selected>Deposit (Income)</option>
+                  <option value="Expense">Expense (Spends)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="txAmount">Amount (Taka)</label>
+                <input type="number" id="txAmount" min="1" placeholder="e.g. 500" required>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 15px;">
+              <div id="txMemberGroup" class="form-group">
+                <label for="txMember">Deposited By (Member Name)</label>
+                <select id="txMember">
+                  <option value="">General Deposit (No member specific)</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label for="txNote">Description / Purpose</label>
+                <input type="text" id="txNote" placeholder="Monthly collection, picnic, color purchase, Adobe account..." required>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-primary">Record Transaction</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Fund Transactions Ledger -->
+        <div class="card">
+          <div class="form-title">Fund Transaction Ledger</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Transaction Type</th>
+                  <th>Amount</th>
+                  <th>Name / Details</th>
+                  <th>Purpose / Note</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="fundTableBody">
+                <tr>
+                  <td colspan="6" style="text-align: center; color: var(--text-muted);">No transaction logs loaded.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: SHARED LOGINS -->
+      <section id="accountsTab" class="tab-content">
+        <div class="section-header">
+          <h3 class="font-outfit" style="font-size: 20px; font-weight: 700;">Shared Team Logins</h3>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="adminImportAccountsBtn" class="btn btn-outline btn-sm" onclick="triggerImportAccounts()" style="display:none;">
+              📥 Import JSON
+            </button>
+            <button id="adminAddAccountBtn" class="btn btn-primary btn-sm" onclick="openAddAccountModal()" style="display:none;">
+              ➕ Add Shared Account
+            </button>
+          </div>
+        </div>
+        <input type="file" id="importAccountsFileInput" accept=".json" style="display:none;" onchange="handleImportAccountsFile(event)">
+        
+        <div id="accountsContainer" class="accounts-grid">
+          <!-- Account cards appended dynamically -->
+        </div>
+      </section>
+
+      <!-- TAB 6: AI PROMPTS -->
+      <section id="promptsTab" class="tab-content">
+        <div class="section-header">
+          <h3 class="font-outfit" style="font-size: 20px; font-weight: 700;">AI Prompt Library</h3>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="adminImportPromptsBtn" class="btn btn-outline btn-sm" onclick="triggerImportPrompts()" style="display:none;">
+              📥 Import JSON
+            </button>
+            <button id="adminAddPromptBtn" class="btn btn-primary btn-sm" onclick="openAddPromptModal()" style="display:none;">
+              ➕ Add Design Prompt
+            </button>
+          </div>
+        </div>
+        <input type="file" id="importPromptsFileInput" accept=".json" style="display:none;" onchange="handleImportPromptsFile(event)">
+
+        <div id="promptsContainer" class="prompts-container">
+          <!-- Prompt cards appended dynamically -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- 1. Password Verification Login Modal -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Portal Verification</h3>
+        <button class="icon-btn" onclick="closeLoginModal()">✖</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label for="adminRoleSelect">Access Role</label>
+        <select id="adminRoleSelect" onchange="toggleLoginPassField(this.value)">
+          <option value="MEMBER">Member Portal (General View)</option>
+          <option value="ADMIN">Admin Portal (Full Controls)</option>
+        </select>
+      </div>
+      <div id="passwordFieldGroup" class="form-group" style="display:none; margin-bottom: 20px;">
+        <label for="adminPassword">Admin Password</label>
+        <input type="password" id="adminPassword" placeholder="Enter password...">
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-outline" onclick="closeLoginModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="verifyRoleAccess()">Verify Access</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Update Task Status Modal (For Members) -->
+  <div id="taskStatusModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Update Task Details</h3>
+        <button class="icon-btn" onclick="closeStatusModal()">✖</button>
+      </div>
+      <input type="hidden" id="statusTaskId">
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label for="statusSelect">Work Status</label>
+        <select id="statusSelect">
+          <option value="Not Started">Not Started</option>
+          <option value="Work in Progress">Work in Progress</option>
+          <option value="Running">Running</option>
+          <option value="Motion Running">Motion Running</option>
+          <option value="BM NOT RESPONDING">BM NOT RESPONDING</option>
+          <option value="Revision">Revision</option>
+          <option value="Work Submitted">Work Submitted</option>
+          <option value="BM Ok - HoM Pending">BM Ok - HoM Pending</option>
+          <option value="HOM Approved">HOM Approved</option>
+          <option value="Static Approved">Static Approved</option>
+          <option value="Cancelled">Cancelled</option>
+          <option value="Hold">Hold</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label for="statusMproLink">MPRO Link (Edit if needed)</label>
+        <input type="url" id="statusMproLink" placeholder="http://mpro.prangroup.com/...">
+      </div>
+      
+      <!-- Quantity Progress Tracking (Completed vs Pending) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div class="form-group">
+          <label for="statusCompletedQty">Completed Qty</label>
+          <select id="statusCompletedQty" onchange="updatePendingQtyDisplay()">
+            <!-- Options dynamically populated up to total quantity -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pending Qty</label>
+          <input type="text" id="statusPendingQty" readonly style="background: rgba(0,0,0,0.05); font-weight: 700; color: var(--accent-pink); border-color: rgba(0,0,0,0.1);">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label for="statusNote">Progress Note / Feedback</label>
+        <textarea id="statusNote" rows="3" placeholder="Add comment, screenshot links, or updates..."></textarea>
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-outline" onclick="closeStatusModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitStatusUpdate()">Save Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Add Shared Account Modal -->
+  <div id="addAccountModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Shared Credentials</h3>
+        <button class="icon-btn" onclick="closeAddAccountModal()">✖</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="newAccService">Service Name</label>
+        <input type="text" id="newAccService" placeholder="e.g. Freepik Premium" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="newAccUrl">Website Link</label>
+        <input type="url" id="newAccUrl" placeholder="https://www.freepik.com">
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="newAccEmail">Username / Email</label>
+        <input type="text" id="newAccEmail" placeholder="sctdesign@prangroup.com" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="newAccPass">Password</label>
+        <input type="text" id="newAccPass" placeholder="Enter password" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label for="newAccExpiry">Expiry Date / Note</label>
+        <input type="text" id="newAccExpiry" placeholder="e.g. Exp: 31-Dec-2026">
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-outline" onclick="closeAddAccountModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAddAccount()">Add Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Add Prompt Modal -->
+  <div id="addPromptModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Design AI Prompt</h3>
+        <button class="icon-btn" onclick="closeAddPromptModal()">✖</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="newPromptTitle">Prompt Title</label>
+        <input type="text" id="newPromptTitle" placeholder="e.g. 3D Glassmorphism Icon Generator" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="newPromptCategory">Category (AI Tool)</label>
+        <select id="newPromptCategory">
+          <option value="Grok" selected>Grok</option>
+          <option value="Suno">Suno</option>
+          <option value="Leonardo">Leonardo</option>
+          <option value="AI Voice">AI Voice</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="newPromptText">Prompt String</label>
+        <textarea id="newPromptText" rows="5" placeholder="Enter prompt text here..." required></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label for="newPromptDesc">Usage Description</label>
+        <input type="text" id="newPromptDesc" placeholder="e.g. Used for dynamic social media banners">
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-outline" onclick="closeAddPromptModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAddPrompt()">Add Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Change PIN Modal -->
+  <div id="changePinModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Change Personal PIN</h3>
+        <button class="icon-btn" onclick="closeChangePinModal()">✖</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label>Member Name</label>
+        <input type="text" id="changePinName" readonly style="background-color: var(--bg-surface-hover); font-weight: 700; color: var(--accent-cyan);">
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label for="changePinOld">Current PIN</label>
+        <input type="password" id="changePinOld" placeholder="Enter current PIN" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label for="changePinNew">New PIN (at least 4 characters)</label>
+        <input type="password" id="changePinNew" placeholder="Enter new PIN" required>
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-outline" onclick="closeChangePinModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitChangePIN()">Change PIN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT FRONTEND LOGIC -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ----------------------------------------------------
+    // SUPABASE CONFIGURATION & COMPATIBILITY ADAPTER
+    // ----------------------------------------------------
+    const SUPABASE_URL = "https://zyeuvkqusnpuvjqyynbf.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_cEC7zYgGdHJA6yLLcNkXCQ_t6dZt9pq";
+    
+    // Initialize Supabase Client
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // google.script.run Mock Adapter mapping frontend requests to Supabase Client SDK
+    const google = {
+      script: {
+        run: {
+          successHandler: null,
+          failureHandler: null,
+          withSuccessHandler: function(handler) {
+            this.successHandler = handler;
+            return this;
+          },
+          withFailureHandler: function(handler) {
+            this.failureHandler = handler;
+            return this;
+          },
+          
+          // 1. getDashboardData()
+          getDashboardData: async function() {
+            try {
+              // Fetch Members
+              const { data: members, error: errMem } = await supabaseClient.from('members').select('*').order('name', { ascending: true });
+              if (errMem) throw errMem;
+              
+              // Fetch Daily Logs
+              const { data: logs, error: errLogs } = await supabaseClient.from('daily_logs').select('*').order('date', { ascending: false });
+              if (errLogs) throw errLogs;
+              
+              // Fetch Assignments
+              const { data: assignments, error: errAssign } = await supabaseClient.from('assignments').select('*').order('created_at', { ascending: false });
+              if (errAssign) throw errAssign;
+              
+              // Fetch Fund Transactions
+              const { data: fundTrans, error: errFund } = await supabaseClient.from('fund_transactions').select('*').order('date', { ascending: false });
+              if (errFund) throw errFund;
+              
+              // Map DB keys to frontend structure
+              const mappedMembers = members.map(m => ({
+                Name: m.name,
+                Email: m.email,
+                Role: m.role,
+                Phone: m.phone,
+                Status: m.status,
+                PIN: m.pin,
+                RecommendedBrands: m.recommended_brands
+              }));
+              
+              const mappedLogs = logs.map(l => ({
+                RowIndex: l.id,
+                Date: l.date,
+                MemberName: l.member_name,
+                Content6s: l.content_6s,
+                Content10s: l.content_10s,
+                Content15s: l.content_15s,
+                Content20s: l.content_20s,
+                Content30s: l.content_30s,
+                Content1m: l.content_1m,
+                SocialPost: l.social_post,
+                Note: l.note
+              }));
+              
+              // Totals aggregation
+              let totals = { content6s: 0, content10s: 0, content15s: 0, content20s: 0, content30s: 0, content1m: 0, socialPost: 0, grandTotal: 0 };
+              const memberPerformance = {};
+              
+              mappedLogs.forEach(log => {
+                const c6 = Number(log.Content6s || 0);
+                const c10 = Number(log.Content10s || 0);
+                const c15 = Number(log.Content15s || 0);
+                const c20 = Number(log.Content20s || 0);
+                const c30 = Number(log.Content30s || 0);
+                const c1m = Number(log.Content1m || 0);
+                const sp = Number(log.SocialPost || 0);
+                const rowTotal = c6 + c10 + c15 + c20 + c30 + c1m + sp;
+                
+                totals.content6s += c6;
+                totals.content10s += c10;
+                totals.content15s += c15;
+                totals.content20s += c20;
+                totals.content30s += c30;
+                totals.content1m += c1m;
+                totals.socialPost += sp;
+                totals.grandTotal += rowTotal;
+                
+                const mName = log.MemberName;
+                if (mName) {
+                  if (!memberPerformance[mName]) {
+                    memberPerformance[mName] = { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0, total: 0 };
+                  }
+                  memberPerformance[mName].c6s += c6;
+                  memberPerformance[mName].c10s += c10;
+                  memberPerformance[mName].c15s += c15;
+                  memberPerformance[mName].c20s += c20;
+                  memberPerformance[mName].c30s += c30;
+                  memberPerformance[mName].c1m += c1m;
+                  memberPerformance[mName].sp += sp;
+                  memberPerformance[mName].total += rowTotal;
+                }
+              });
+              
+              const mappedAssignments = assignments.map(a => ({
+                MPROID: a.mpro_id,
+                AssignDate: a.assign_date,
+                Group: a.brands,
+                MemberName: a.member_name,
+                Quantity: a.quantity,
+                CompletedQty: a.completed_qty,
+                Status: a.status,
+                SubmitDate: a.submit_date,
+                ApproveDate: a.approve_date
+              }));
+              
+              const taskStats = {
+                total: mappedAssignments.length,
+                pending: mappedAssignments.filter(t => t.Status === "Not Started").length,
+                inProgress: mappedAssignments.filter(t => t.Status === "Work in Progress" || t.Status === "Running" || t.Status === "Motion Running").length,
+                submitted: mappedAssignments.filter(t => t.Status === "Work Submitted").length,
+                completed: mappedAssignments.filter(t => t.Status === "HOM Approved" || t.Status === "Static Approved" || t.Status === "Approved").length
+              };
+              
+              // Fund calculations
+              let totalDeposit = 0;
+              let totalExpense = 0;
+              fundTrans.forEach(t => {
+                if (t.type === 'Deposit') totalDeposit += Number(t.amount) || 0;
+                else if (t.type === 'Expense') totalExpense += Number(t.amount) || 0;
+              });
+              const fundBalance = totalDeposit - totalExpense;
+              
+              if (this.successHandler) {
+                this.successHandler({
+                  members: mappedMembers,
+                  totals: totals,
+                  memberPerformance: memberPerformance,
+                  taskStats: taskStats,
+                  fundBalance: fundBalance,
+                  recentLogs: [...mappedLogs].slice(0, 10),
+                  dailyLogs: mappedLogs
+                });
+              }
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 2. getAssignments()
+          getAssignments: async function() {
+            try {
+              const { data, error } = await supabaseClient.from('assignments').select('*').order('created_at', { ascending: false });
+              if (error) throw error;
+              
+              const mapped = data.map(a => ({
+                MPROID: a.mpro_id,
+                AssignDate: a.assign_date,
+                Group: a.brands,
+                MemberName: a.member_name,
+                Quantity: a.quantity,
+                CompletedQty: a.completed_qty,
+                Status: a.status,
+                SubmitDate: a.submit_date,
+                ApproveDate: a.approve_date
+              }));
+              if (this.successHandler) this.successHandler(mapped);
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 3. updateAssignmentStatus()
+          updateAssignmentStatus: async function(mproId, status, completedQty, dateStr) {
+            try {
+              const updateData = { status: status, completed_qty: Number(completedQty) || 0 };
+              const stLower = status.toLowerCase();
+              if (stLower.includes("submit")) {
+                updateData.submit_date = dateStr;
+              }
+              if (stLower.includes("approved") || stLower.includes("completed") || stLower.includes("pass") || stLower.includes("ok")) {
+                updateData.approve_date = dateStr;
+              }
+              const { error } = await supabaseClient.from('assignments').update(updateData).eq('mpro_id', mproId);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 4. addAssignment()
+          addAssignment: async function(mproId, assignDate, brands, memberName, quantity, status) {
+            try {
+              const { error } = await supabaseClient.from('assignments').insert({
+                mpro_id: mproId,
+                assign_date: assignDate,
+                brands: brands,
+                member_name: memberName,
+                quantity: Number(quantity) || 0,
+                status: status
+              });
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 5. deleteAssignment()
+          deleteAssignment: async function(mproId) {
+            try {
+              const { error } = await supabaseClient.from('assignments').delete().eq('mpro_id', mproId);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 6. getDailyLogs()
+          getDailyLogs: async function(memberName) {
+            try {
+              let query = supabaseClient.from('daily_logs').select('*');
+              if (memberName) {
+                query = query.eq('member_name', memberName);
+              }
+              const { data, error } = await query.order('date', { ascending: false }).order('created_at', { ascending: false });
+              if (error) throw error;
+              
+              const mapped = data.map(l => ({
+                RowIndex: l.id,
+                Date: l.date,
+                MemberName: l.member_name,
+                Content6s: l.content_6s,
+                Content10s: l.content_10s,
+                Content15s: l.content_15s,
+                Content20s: l.content_20s,
+                Content30s: l.content_30s,
+                Content1m: l.content_1m,
+                SocialPost: l.social_post,
+                Note: l.note
+              }));
+              if (this.successHandler) this.successHandler(mapped);
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 7. addDailyLog()
+          addDailyLog: async function(date, memberName, c6, c10, c15, c20, c30, c1m, sp, note) {
+            try {
+              const { error } = await supabaseClient.from('daily_logs').insert({
+                date: date,
+                member_name: memberName,
+                content_6s: Number(c6) || 0,
+                content_10s: Number(c10) || 0,
+                content_15s: Number(c15) || 0,
+                content_20s: Number(c20) || 0,
+                content_30s: Number(c30) || 0,
+                content_1m: Number(c1m) || 0,
+                social_post: Number(sp) || 0,
+                note: note
+              });
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 8. deleteDailyLog()
+          deleteDailyLog: async function(id) {
+            try {
+              const { error } = await supabaseClient.from('daily_logs').delete().eq('id', id);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 9. updateDailyLog()
+          updateDailyLog: async function(id, logData) {
+            try {
+              const { error } = await supabaseClient.from('daily_logs').update({
+                content_6s: Number(logData.c6) || 0,
+                content_10s: Number(logData.c10) || 0,
+                content_15s: Number(logData.c15) || 0,
+                content_20s: Number(logData.c20) || 0,
+                content_30s: Number(logData.c30) || 0,
+                content_1m: Number(logData.c1m) || 0,
+                social_post: Number(logData.sp) || 0,
+                note: logData.note
+              }).eq('id', id);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 10. getFundLedger()
+          getFundLedger: async function() {
+            try {
+              const { data, error } = await supabaseClient.from('fund_transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
+              if (error) throw error;
+              
+              const transactions = data.map(t => ({
+                RowIndex: t.id,
+                Date: t.date,
+                Type: t.type,
+                Amount: Number(t.amount) || 0,
+                Category: t.category,
+                Description: t.description
+              }));
+              
+              let totalDeposit = 0;
+              let totalExpense = 0;
+              transactions.forEach(t => {
+                if (t.Type === 'Deposit') totalDeposit += t.Amount;
+                else if (t.Type === 'Expense') totalExpense += t.Amount;
+              });
+              
+              if (this.successHandler) {
+                this.successHandler({
+                  transactions: transactions,
+                  summary: {
+                    deposit: totalDeposit,
+                    expense: totalExpense,
+                    balance: totalDeposit - totalExpense
+                  }
+                });
+              }
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 11. addFundTransaction()
+          addFundTransaction: async function(date, type, amount, category, description) {
+            try {
+              const { error } = await supabaseClient.from('fund_transactions').insert({
+                date: date,
+                type: type,
+                amount: Number(amount) || 0,
+                category: category,
+                description: description
+              });
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 12. deleteFundTransaction()
+          deleteFundTransaction: async function(id) {
+            try {
+              const { error } = await supabaseClient.from('fund_transactions').delete().eq('id', id);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 13. addMember()
+          addMember: async function(name, email, role, phone, status, pin, recommendedBrands) {
+            try {
+              const { error } = await supabaseClient.from('members').insert({
+                name: name,
+                email: email,
+                role: role,
+                phone: phone,
+                status: status,
+                pin: pin,
+                recommended_brands: recommendedBrands
+              });
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 14. updateMember()
+          updateMember: async function(name, email, role, phone, status, pin, recommendedBrands) {
+            try {
+              const { error } = await supabaseClient.from('members').update({
+                email: email,
+                role: role,
+                phone: phone,
+                status: status,
+                pin: pin,
+                recommended_brands: recommendedBrands
+              }).eq('name', name);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 15. getAccounts()
+          getAccounts: async function() {
+            try {
+              const { data, error } = await supabaseClient.from('accounts').select('*').order('service_name', { ascending: true });
+              if (error) throw error;
+              
+              const mapped = data.map(a => ({
+                RowIndex: a.id,
+                ServiceName: a.service_name,
+                LoginUrl: a.login_url,
+                UsernameEmail: a.username,
+                Password: a.password,
+                ExpiryDate: a.expiry_date,
+                Note: a.note
+              }));
+              if (this.successHandler) this.successHandler(mapped);
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 16. addAccount()
+          addAccount: async function(serviceName, loginUrl, username, password, expiryDate, note) {
+            try {
+              const { error } = await supabaseClient.from('accounts').insert({
+                service_name: serviceName,
+                login_url: loginUrl,
+                username: username,
+                password: password,
+                expiry_date: expiryDate,
+                note: note
+              });
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 17. deleteAccount()
+          deleteAccount: async function(id) {
+            try {
+              const { error } = await supabaseClient.from('accounts').delete().eq('id', id);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 18. getPrompts()
+          getPrompts: async function() {
+            try {
+              const { data, error } = await supabaseClient.from('prompts').select('*').order('title', { ascending: true });
+              if (error) throw error;
+              
+              const mapped = data.map(p => ({
+                RowIndex: p.id,
+                Title: p.title,
+                Category: p.category,
+                PromptText: p.prompt_text,
+                Description: p.description
+              }));
+              if (this.successHandler) this.successHandler(mapped);
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 19. addPrompt()
+          addPrompt: async function(title, category, promptText, description) {
+            try {
+              const { error } = await supabaseClient.from('prompts').insert({
+                title: title,
+                category: category,
+                prompt_text: promptText,
+                description: description
+              });
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 20. deletePrompt()
+          deletePrompt: async function(id) {
+            try {
+              const { error } = await supabaseClient.from('prompts').delete().eq('id', id);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          }
+        }
+      }
+    };
+
+    const isLocalPreview = false;
+
+    if (isLocalPreview) {
+      document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('localPreviewBanner').style.display = 'block';
+      });
+
+      // Initialize mock database in sessionStorage
+      if (!sessionStorage.getItem('mock_db_initialized')) {
+        const initialMembers = [
+          { Name: "Bidyut Kumar", Email: "designer.bidyut@gmail.com" },
+          { Name: "Emon Kumer", Email: "getemonkumar@gmail.com" },
+          { Name: "Md. Maruf Hossain", Email: "marufgd2525@gmail.com" },
+          { Name: "Mst. Airen Akter Orni", Email: "aa.orni2001@gmail.com" },
+          { Name: "Most. Shumaya Khatun", Email: "shumayasimu549@gmail.com" },
+          { Name: "Md. Shobuj Hossain", Email: "shobuzvisualz@gmail.com" },
+          { Name: "Md. Mahafujur Rahaman", Email: "mdmahafujurrahaman11@gmail.com" },
+          { Name: "Md. Sabbir Ahmed", Email: "mssabbir121@gmail.com" },
+          { Name: "Md. A. Malek", Email: "maleksct@gmail.com" },
+          { Name: "Pranto Sarkar", Email: "prantosarkar32@gmail.com" },
+          { Name: "MD Naimur Rahman", Email: "naimursct@gmail.com" },
+          { Name: "Arman Hossain", Email: "armansct@gmail.com" },
+          { Name: "Nurjahan Akter Sumy", Email: "nurjahansct@gmail.com" },
+          { Name: "Md Nuruzzaman Jehady", Email: "jehadysct@gmail.com" }
+        ];
+        
+        // Realistic logs to populate a beautiful leaderboard matching user screenshot
+        const initialLogs = [
+          // Arman Hossain - Rank 1st - 14.0 points
+          { Date: "2026-07-05", MemberName: "Arman Hossain", Content6s: 0, Content10s: 2, Content15s: 1, Content20s: 4, Content30s: 1, Content1m: 0, SocialPost: 0, Note: "Completed Rydo and Italiano campaigns" },
+          
+          // Md. Maruf Hossain - Rank 2nd - 11.0 points
+          { Date: "2026-07-05", MemberName: "Md. Maruf Hossain", Content6s: 0, Content10s: 0, Content15s: 0, Content20s: 1, Content30s: 0, Content1m: 3, SocialPost: 0, Note: "Done 1min videos for group congroup" },
+          
+          // Pranto Sarkar - Rank 3rd - 7.0 points
+          { Date: "2026-07-04", MemberName: "Pranto Sarkar", Content6s: 0, Content10s: 0, Content15s: 1, Content20s: 0, Content30s: 1, Content1m: 1, SocialPost: 0, Note: "Finished 3 assignments" },
+          
+          // Md. Mahafujur Rahaman - Rank 4th - 4.0 points
+          { Date: "2026-07-04", MemberName: "Md. Mahafujur Rahaman", Content6s: 0, Content10s: 2, Content15s: 0, Content20s: 1, Content30s: 0, Content1m: 0, SocialPost: 0, Note: "falcon work submitted" },
+          
+          // Most. Shumaya Khatun - Rank 5th - 3.0 points
+          { Date: "2026-07-03", MemberName: "Most. Shumaya Khatun", Content6s: 0, Content10s: 1, Content15s: 0, Content20s: 1, Content30s: 0, Content1m: 0, SocialPost: 0, Note: "Vision Emporium motion graphics" },
+          
+          // Md. Sabbir Ahmed - Rank 5th - 3.0 points
+          { Date: "2026-07-03", MemberName: "Md. Sabbir Ahmed", Content6s: 0, Content10s: 1, Content15s: 0, Content20s: 1, Content30s: 0, Content1m: 0, SocialPost: 0, Note: "Monthly motion graphics complete" },
+          
+          // Emon Kumer - Rank 7th - 1.0 point (2 static social posts)
+          { Date: "2026-07-02", MemberName: "Emon Kumer", Content6s: 0, Content10s: 0, Content15s: 0, Content20s: 0, Content30s: 0, Content1m: 0, SocialPost: 2, Note: "Freepik social banners" },
+          
+          // Mst. Airen Akter Orni - Rank 7th - 1.0 point
+          { Date: "2026-07-02", MemberName: "Mst. Airen Akter Orni", Content6s: 0, Content10s: 1, Content15s: 0, Content20s: 0, Content30s: 0, Content1m: 0, SocialPost: 0, Note: "Bumper pack completed" },
+          
+          // Bidyut Kumar - 0 points
+          { Date: "2026-07-01", MemberName: "Bidyut Kumar", Content6s: 0, Content10s: 0, Content15s: 0, Content20s: 0, Content30s: 0, Content1m: 0, SocialPost: 0, Note: "Administrative work done" }
+        ];
+        
+        const initialAssignments = [
+          { TaskID: "T-100001", AssignDate: "2026-07-05", MPROID: "17889", MPROLink: "http://mpro.prangroup.com:4000/CreativeBriefs/Edit/17889", Group: "RYDO", Quantity: "6/20", Status: "Work Submitted", Deadline: "2026-07-10", AssignedTo: "Bidyut Kumar", Note: "Submitted first draft, waiting for BM feedback" },
+          { TaskID: "T-100002", AssignDate: "2026-07-04", MPROID: "14076", MPROLink: "http://mpro.prangroup.com:4000/CreativeBriefs/Edit/14076", Group: "Italiano", Quantity: "1.0", Status: "Work in Progress", Deadline: "2026-07-08", AssignedTo: "Emon Kumer", Note: "Animating the intro slide" },
+          { TaskID: "T-100003", AssignDate: "2026-07-03", MPROID: "20595", MPROLink: "http://mpro.prangroup.com:4000/CreativeBriefs/Edit/15478", Group: "Vision Emporium", Quantity: "1.0", Status: "Hold", Deadline: "2026-07-12", AssignedTo: "Maruf Hossain", Note: "Client requested revision on color guidelines" },
+          { TaskID: "T-100004", AssignDate: "2026-07-02", MPROID: "36785", MPROLink: "http://mpro.prangroup.com:4000/CreativeBriefs/Edit/36785", Group: "RPLE", Quantity: "3.0", Status: "BM Ok - HoM Pending", Deadline: "2026-07-07", AssignedTo: "Airen Akter Orni", Note: "Static frames approved" }
+        ];
+        
+        const initialTransactions = [
+          { Date: "2026-07-01", Type: "Deposit", Amount: 2200, MemberName: "Bidyut Kumar", Note: "Monthly collection - July", Status: "Paid" },
+          { Date: "2026-07-01", Type: "Deposit", Amount: 2200, MemberName: "Emon Kumer", Note: "Monthly collection - July", Status: "Paid" },
+          { Date: "2026-07-02", Type: "Deposit", Amount: 2200, MemberName: "Maruf Hossain", Note: "Monthly collection - July", Status: "Paid" },
+          { Date: "2026-07-03", Type: "Expense", Amount: 850, MemberName: "", Note: "Football for office tournament", Status: "Paid" },
+          { Date: "2026-07-04", Type: "Expense", Amount: 1160, MemberName: "", Note: "Adobe Account sharing fees", Status: "Paid" }
+        ];
+        
+        const initialAccounts = [
+          { ServiceName: "Grok AI Studio", LoginURL: "https://grok.com", UsernameEmail: "sctdesign3@prangroup.com", Password: "prG@DesignHouse1", ExpiryDate: "Exp: 31-Dec-2026", Note: "Do not change password" },
+          { ServiceName: "Freepik Unlimited", LoginURL: "https://www.freepik.com", UsernameEmail: "sctdesign@prangroup.com", Password: "pran@1981", ExpiryDate: "Exp: 15-Nov-2026", Note: "Shared graphic designer login" },
+          { ServiceName: "Suno Music Generator", LoginURL: "https://suno.com", UsernameEmail: "sctdesignhouseraj@gmail.com", Password: "prg@admin", ExpiryDate: "Monthly billing", Note: "Login using Google credentials" }
+        ];
+        
+        const initialPrompts = [
+          { Title: "Lofi BG Music (Suno)", Category: "Suno", PromptText: "[Genre: Lofi hip-hop chill] warm dusty vinyl crackle, jazzy piano chords, laid-back boom bap drums, smooth saxophone melody.", Description: "Perfect for 15s/30s promotional clips" },
+          { Title: "Photorealistic Food Shot (Leonardo)", Category: "Leonardo", PromptText: "A top-down photorealistic studio lighting shot of spicy biryani on a clay plate, steam rising, high contrast, commercial food photography style, 8k.", Description: "Used for static social post designs" },
+          { Title: "Catchy Tech Voiceover Script (AI Voice)", Category: "AI Voice", PromptText: "[Tone: energetic, confident, premium] Introducing the brand new vision product. Faster. Sleeker. Made for creators like you.", Description: "Template voice prompt script" }
+        ];
+        
+        sessionStorage.setItem('mock_members', JSON.stringify(initialMembers));
+        sessionStorage.setItem('mock_logs', JSON.stringify(initialLogs));
+        sessionStorage.setItem('mock_assignments', JSON.stringify(initialAssignments));
+        sessionStorage.setItem('mock_transactions', JSON.stringify(initialTransactions));
+        sessionStorage.setItem('mock_accounts', JSON.stringify(initialAccounts));
+        sessionStorage.setItem('mock_prompts', JSON.stringify(initialPrompts));
+        sessionStorage.setItem('mock_db_initialized', 'true');
+      }
+
+      // Intercept calls with simulation
+      window.google = {
+        script: {
+          run: {
+            withSuccessHandler: function(cb) { this._success = cb; return this; },
+            withFailureHandler: function(cb) { this._failure = cb; return this; },
+            
+            getDashboardData: function() {
+              const self = this;
+              setTimeout(() => {
+                const members = JSON.parse(sessionStorage.getItem('mock_members'));
+                const logs = JSON.parse(sessionStorage.getItem('mock_logs'));
+                const assignments = JSON.parse(sessionStorage.getItem('mock_assignments'));
+                const transactions = JSON.parse(sessionStorage.getItem('mock_transactions'));
+                
+                let totals = { content6s: 0, content10s: 0, content15s: 0, content20s: 0, content30s: 0, content1m: 0, socialPost: 0, grandTotal: 0 };
+                let performance = {};
+                
+                logs.forEach(l => {
+                  const c6 = Number(l.Content6s || 0);
+                  const c10 = Number(l.Content10s || 0);
+                  const c15 = Number(l.Content15s || 0);
+                  const c20 = Number(l.Content20s || 0);
+                  const c30 = Number(l.Content30s || 0);
+                  const c1m = Number(l.Content1m || 0);
+                  const sp = Number(l.SocialPost || 0);
+                  const total = c6 + c10 + c15 + c20 + c30 + c1m + sp;
+                  
+                  totals.content6s += c6;
+                  totals.content10s += c10;
+                  totals.content15s += c15;
+                  totals.content20s += c20;
+                  totals.content30s += c30;
+                  totals.content1m += c1m;
+                  totals.socialPost += sp;
+                  totals.grandTotal += total;
+                  
+                  if (!performance[l.MemberName]) {
+                    performance[l.MemberName] = { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0, total: 0 };
+                  }
+                  performance[l.MemberName].c6s += c6;
+                  performance[l.MemberName].c10s += c10;
+                  performance[l.MemberName].c15s += c15;
+                  performance[l.MemberName].c20s += c20;
+                  performance[l.MemberName].c30s += c30;
+                  performance[l.MemberName].c1m += c1m;
+                  performance[l.MemberName].sp += sp;
+                  performance[l.MemberName].total += total;
+                });
+                
+                let balance = 0;
+                transactions.forEach(t => {
+                  if (t.Type === "Deposit") balance += t.Amount;
+                  else balance -= t.Amount;
+                });
+
+                if (self._success) self._success({
+                  members: members,
+                  totals: totals,
+                  memberPerformance: performance,
+                  taskStats: {
+                    inProgress: assignments.filter(a => a.Status.includes("Progress") || a.Status.includes("Running") || a.Status.includes("Motion")).length
+                  },
+                  fundBalance: balance,
+                  recentLogs: logs.slice(0, 10)
+                });
+              }, 400);
+            },
+            
+            getAssignments: function() {
+              const self = this;
+              setTimeout(() => {
+                const data = JSON.parse(sessionStorage.getItem('mock_assignments'));
+                if (self._success) self._success(data);
+              }, 400);
+            },
+            
+            getFundLedger: function() {
+              const self = this;
+              setTimeout(() => {
+                const transactions = JSON.parse(sessionStorage.getItem('mock_transactions'));
+                let dep = 0, exp = 0;
+                transactions.forEach(t => {
+                  if (t.Type === "Deposit") dep += t.Amount;
+                  else exp += t.Amount;
+                });
+                if (self._success) self._success({
+                  ledger: transactions,
+                  summary: { totalDeposits: dep, totalExpenses: exp, balance: dep - exp }
+                });
+              }, 400);
+            },
+            
+            getAccountsAndPrompts: function() {
+              const self = this;
+              setTimeout(() => {
+                const accounts = JSON.parse(sessionStorage.getItem('mock_accounts'));
+                const prompts = JSON.parse(sessionStorage.getItem('mock_prompts'));
+                if (self._success) self._success({ accounts: accounts, prompts: prompts });
+              }, 400);
+            },
+            
+            verifyAdminPassword: function(pass) {
+              const self = this;
+              setTimeout(() => {
+                if (self._success) self._success(pass === 'admin1234');
+              }, 200);
+            },
+            
+            verifyMemberPIN: function(name, pin) {
+              const self = this;
+              setTimeout(() => {
+                const members = JSON.parse(sessionStorage.getItem('mock_members')) || [];
+                const m = members.find(x => x.Name === name);
+                const storedPin = m ? (m.PIN || '1234') : '1234';
+                if (self._success) self._success(storedPin === String(pin).trim());
+              }, 200);
+            },
+
+            changeMemberPIN: function(name, oldPin, newPin) {
+              const self = this;
+              setTimeout(() => {
+                const members = JSON.parse(sessionStorage.getItem('mock_members')) || [];
+                const m = members.find(x => x.Name === name);
+                const storedPin = m ? (m.PIN || '1234') : '1234';
+                
+                if (storedPin !== String(oldPin).trim()) {
+                  if (self._failure) self._failure(new Error("Incorrect current PIN"));
+                  return;
+                }
+                
+                if (m) {
+                  m.PIN = String(newPin).trim();
+                  sessionStorage.setItem('mock_members', JSON.stringify(members));
+                }
+                if (self._success) self._success({ success: true, message: "PIN changed successfully (Mock Mode)!" });
+              }, 200);
+            },
+
+            getDailyLogs: function(name) {
+              const self = this;
+              setTimeout(() => {
+                const logs = JSON.parse(sessionStorage.getItem('mock_logs')) || [];
+                // Add index and row indices
+                const formatted = logs.map((l, idx) => {
+                  return {
+                    Date: l.Date,
+                    MemberName: l.MemberName,
+                    Content6s: l.Content6s,
+                    Content10s: l.Content10s,
+                    Content15s: l.Content15s,
+                    Content20s: l.Content20s,
+                    Content30s: l.Content30s,
+                    Content1m: l.Content1m,
+                    SocialPost: l.SocialPost,
+                    Note: l.Note,
+                    RowIndex: logs.length - idx + 1 // mock spreadsheet row
+                  };
+                });
+                const filtered = name ? formatted.filter(l => l.MemberName === name) : formatted;
+                if (self._success) self._success(filtered);
+              }, 300);
+            },
+
+            logDailyWork: function(log) {
+              const self = this;
+              setTimeout(() => {
+                const logs = JSON.parse(sessionStorage.getItem('mock_logs'));
+                logs.unshift({
+                  Date: log.date,
+                  MemberName: log.memberName,
+                  Content6s: Number(log.content6s || 0),
+                  Content10s: Number(log.content10s || 0),
+                  Content15s: Number(log.content15s || 0),
+                  Content20s: Number(log.content20s || 0),
+                  Content30s: Number(log.content30s || 0),
+                  Content1m: Number(log.content1m || 0),
+                  SocialPost: Number(log.socialPost || 0),
+                  Note: log.note || ''
+                });
+                sessionStorage.setItem('mock_logs', JSON.stringify(logs));
+                if (self._success) self._success({ success: true, message: "Work logged successfully (Mock Mode)!" });
+              }, 300);
+            },
+
+            updateDailyLog: function(rowIndex, log, name, pin) {
+              const self = this;
+              setTimeout(() => {
+                const logs = JSON.parse(sessionStorage.getItem('mock_logs')) || [];
+                const arrayIdx = logs.length - rowIndex + 1;
+                if (arrayIdx >= 0 && arrayIdx < logs.length) {
+                  logs[arrayIdx] = {
+                    Date: log.date,
+                    MemberName: name,
+                    Content6s: Number(log.content6s || 0),
+                    Content10s: Number(log.content10s || 0),
+                    Content15s: Number(log.content15s || 0),
+                    Content20s: Number(log.content20s || 0),
+                    Content30s: Number(log.content30s || 0),
+                    Content1m: Number(log.content1m || 0),
+                    SocialPost: Number(log.socialPost || 0),
+                    Note: log.note || ''
+                  };
+                  sessionStorage.setItem('mock_logs', JSON.stringify(logs));
+                  if (self._success) self._success({ success: true, message: "Daily log updated successfully (Mock Mode)!" });
+                } else {
+                  if (self._failure) self._failure(new Error("Log row index not found"));
+                }
+              }, 300);
+            },
+
+            deleteDailyLog: function(rowIndex, name, pin) {
+              const self = this;
+              setTimeout(() => {
+                const logs = JSON.parse(sessionStorage.getItem('mock_logs')) || [];
+                const arrayIdx = logs.length - rowIndex + 1;
+                if (arrayIdx >= 0 && arrayIdx < logs.length) {
+                  logs.splice(arrayIdx, 1);
+                  sessionStorage.setItem('mock_logs', JSON.stringify(logs));
+                  if (self._success) self._success({ success: true, message: "Daily log deleted successfully (Mock Mode)!" });
+                } else {
+                  if (self._failure) self._failure(new Error("Log row index not found"));
+                }
+              }, 300);
+            },
+            
+            assignTask: function(task) {
+              const self = this;
+              setTimeout(() => {
+                const list = JSON.parse(sessionStorage.getItem('mock_assignments'));
+                list.unshift({
+                  TaskID: "T-" + Math.floor(100000 + Math.random() * 900000),
+                  AssignDate: task.assignDate,
+                  MPROID: task.mproId,
+                  MPROLink: task.mproLink,
+                  Group: task.group,
+                  Quantity: task.quantity,
+                  Status: task.status,
+                  Deadline: task.deadline,
+                  AssignedTo: task.assignedTo,
+                  Note: task.note
+                });
+                sessionStorage.setItem('mock_assignments', JSON.stringify(list));
+                if (self._success) self._success({ success: true, message: "Task assigned successfully (Mock Mode)!" });
+              }, 300);
+            },
+            
+            updateAssignmentStatus: function(id, status, note, link) {
+              const self = this;
+              setTimeout(() => {
+                const list = JSON.parse(sessionStorage.getItem('mock_assignments'));
+                const item = list.find(a => a.TaskID === id);
+                if (item) {
+                  if (status) item.Status = status;
+                  if (note !== undefined) item.Note = note;
+                  if (link) item.MPROLink = link;
+                  sessionStorage.setItem('mock_assignments', JSON.stringify(list));
+                }
+                if (self._success) self._success({ success: true, message: "Task updated (Mock Mode)!" });
+              }, 300);
+            },
+            
+            addFundTransaction: function(tx) {
+              const self = this;
+              setTimeout(() => {
+                const list = JSON.parse(sessionStorage.getItem('mock_transactions'));
+                list.unshift({
+                  Date: tx.date,
+                  Type: tx.type,
+                  Amount: Number(tx.amount || 0),
+                  MemberName: tx.memberName || '',
+                  Note: tx.note,
+                  Status: "Paid"
+                });
+                sessionStorage.setItem('mock_transactions', JSON.stringify(list));
+                if (self._success) self._success({ success: true, message: "Transaction added (Mock Mode)!" });
+              }, 300);
+            },
+
+            addAccount: function(acc) {
+              const self = this;
+              setTimeout(() => {
+                const list = JSON.parse(sessionStorage.getItem('mock_accounts'));
+                list.unshift({
+                  ServiceName: acc.serviceName,
+                  LoginURL: acc.loginUrl,
+                  UsernameEmail: acc.username,
+                  Password: acc.password,
+                  ExpiryDate: acc.expiryDate,
+                  Note: ""
+                });
+                sessionStorage.setItem('mock_accounts', JSON.stringify(list));
+                if (self._success) self._success({ success: true, message: "Account credentials added (Mock Mode)!" });
+              }, 300);
+            },
+
+            addPrompt: function(pr) {
+              const self = this;
+              setTimeout(() => {
+                const list = JSON.parse(sessionStorage.getItem('mock_prompts'));
+                list.unshift({
+                  Title: pr.title,
+                  Category: pr.category,
+                  PromptText: pr.promptText,
+                  Description: pr.description
+                });
+                sessionStorage.setItem('mock_prompts', JSON.stringify(list));
+                if (self._success) self._success({ success: true, message: "Prompt added (Mock Mode)!" });
+              }, 300);
+            },
+
+            runMigration: function() {
+              const self = this;
+              setTimeout(() => {
+                if (self._success) self._success({ success: true, message: "Migration simulation complete!" });
+              }, 1000);
+            },
+
+            importAccounts: function(accounts) {
+              const self = this;
+              setTimeout(() => {
+                if (Array.isArray(accounts)) {
+                  const formatted = accounts.map(acc => {
+                    return {
+                      ServiceName: acc.serviceName,
+                      LoginURL: acc.loginUrl || "",
+                      UsernameEmail: acc.username || "",
+                      Password: acc.password || "",
+                      ExpiryDate: acc.expiryDate || "",
+                      Note: acc.note || ""
+                    };
+                  });
+                  sessionStorage.setItem('mock_accounts', JSON.stringify(formatted));
+                }
+                if (self._success) self._success({ success: true, message: "Accounts imported successfully (Mock Mode)!" });
+              }, 400);
+            },
+
+            importPrompts: function(prompts) {
+              const self = this;
+              setTimeout(() => {
+                if (Array.isArray(prompts)) {
+                  const formatted = prompts.map(pr => {
+                    return {
+                      Title: pr.title,
+                      Category: pr.category || "General",
+                      PromptText: pr.promptText || "",
+                      Description: pr.description || ""
+                    };
+                  });
+                  sessionStorage.setItem('mock_prompts', JSON.stringify(formatted));
+                }
+                if (self._success) self._success({ success: true, message: "Prompts imported successfully (Mock Mode)!" });
+              }, 400);
+            }
+          }
+        }
+      };
+    }
+
+    // State management
+    let state = {
+      theme: 'dark',
+      userRole: 'MEMBER', // MEMBER or ADMIN
+      members: [],
+      totals: {},
+      memberPerformance: {},
+      taskStats: {},
+      fundBalance: 0,
+      recentLogs: [],
+      assignments: [],
+      fundLedger: [],
+      accounts: [],
+      prompts: [],
+      loggedInMember: localStorage.getItem('sct_member_name') || '',
+      loggedInPin: localStorage.getItem('sct_member_pin') || '',
+      myLogs: []
+    };
+
+    // Charts objects
+    let performanceChartObj = null;
+    let contentBreakdownChartObj = null;
+
+    // Load initial configurations
+    document.addEventListener("DOMContentLoaded", function() {
+      // Setup current dates in forms
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('logDate').value = today;
+      document.getElementById('assignDate').value = today;
+      document.getElementById('txDate').value = today;
+      
+      // Load Theme from localStorage
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
+      
+      // Check member login status
+      checkMemberLoginStatus();
+      
+      // Load initial spreadsheet data
+      refreshAllData();
+    });
+
+    // Toggle Themes (Light / Dark)
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      state.theme = theme;
+      
+      // Update theme toggle icon
+      const themeIcon = document.getElementById('themeIcon');
+      if (theme === 'light') {
+        themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>`;
+      } else {
+        themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>`;
+      }
+      
+      // Re-render charts to adjust styles if instantiated
+      if (performanceChartObj) {
+        performanceChartObj.options.scales.x.grid.color = theme === 'dark' ? '#233044' : '#e2e8f0';
+        performanceChartObj.options.scales.y.grid.color = theme === 'dark' ? '#233044' : '#e2e8f0';
+        performanceChartObj.options.scales.x.ticks.color = theme === 'dark' ? '#8e9bb2' : '#64748b';
+        performanceChartObj.options.scales.y.ticks.color = theme === 'dark' ? '#8e9bb2' : '#64748b';
+        performanceChartObj.update();
+      }
+    }
+
+    // Toggle Loading Spinners
+    function showLoading(show, message = "Processing request...") {
+      const overlay = document.getElementById('loadingOverlay');
+      const msg = document.getElementById('loadingMessage');
+      msg.innerText = message;
+      if (show) {
+        overlay.classList.add('active');
+      } else {
+        overlay.classList.remove('active');
+      }
+    }
+
+    // Show Toast Notification
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      let icon = '🔔';
+      if (type === 'success') icon = '✅';
+      if (type === 'error') icon = '❌';
+      
+      toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+      container.appendChild(toast);
+      
+      // Trigger animation
+      setTimeout(() => toast.classList.add('active'), 50);
+      
+      // Dismiss after 4 seconds
+      setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Switch between Navigation Tabs
+    function switchTab(tabId, navElement) {
+      // Remove active from all tabs
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      // Add active to selected tab
+      document.getElementById(tabId + 'Tab').classList.add('active');
+      navElement.classList.add('active');
+      
+      // Set header titles
+      const headings = {
+        dashboard: { h1: "Dashboard", p: "Overview of the team content creation metrics" },
+        logwork: { h1: "Log Daily Work", p: "Quickly record the content sizes you completed today" },
+        assignments: { h1: "Task Assignments", p: "Track, manage and assign MPRO works" },
+        fund: { h1: "Team Fund Ledger", p: "Accounting details for collections and expenses" },
+        accounts: { h1: "Shared Credentials", p: "Shared premium logins and website access" },
+        prompts: { h1: "Design Prompts", p: "High-quality prompts for creative AI tools" }
+      };
+      
+      document.getElementById('pageHeading').innerText = headings[tabId].h1;
+      document.getElementById('pageSubheading').innerText = headings[tabId].p;
+    }
+
+    // Fetch and Sync all data from Google Sheets Backend
+    function refreshAllData() {
+      showLoading(true, "Synchronizing portal with Google Sheets...");
+      
+      // Verify connection and load dashboard
+      google.script.run
+        .withSuccessHandler(function(data) {
+          state.members = data.members;
+          state.totals = data.totals;
+          state.memberPerformance = data.memberPerformance;
+          state.taskStats = data.taskStats;
+          state.fundBalance = data.fundBalance;
+          state.recentLogs = data.recentLogs;
+          state.dailyLogs = data.dailyLogs;
+          
+          // Render Dashboard metrics
+          // Total Full Content = sum of motion videos (c6s + c10s + c15s + c20s + c30s + c1m)
+          const totalFullContent = (state.totals.content6s || 0) + 
+                                   (state.totals.content10s || 0) + 
+                                   (state.totals.content15s || 0) + 
+                                   (state.totals.content20s || 0) + 
+                                   (state.totals.content30s || 0) + 
+                                   (state.totals.content1m || 0);
+          
+          document.getElementById('metricTotalMotion').innerText = totalFullContent || 0;
+          document.getElementById('metricTotalStatic').innerText = state.totals.socialPost || 0;
+          const metricActive = document.getElementById('metricActiveTasks');
+          if (metricActive) metricActive.innerText = state.taskStats.inProgress || 0;
+          const metricFund = document.getElementById('metricFund');
+          if (metricFund) metricFund.innerText = '৳' + (state.fundBalance || 0);
+          
+          // Populate member selection lists in forms
+          populateMemberDropdowns();
+          populateQtyDropdown();
+          fetchBrands();
+          
+          // Render Leaderboard (which also updates Podium top performers)
+          renderLeaderboard();
+          
+          // Render Timeline Activity Feed
+          renderActivityFeed();
+          
+          // Draw charts
+          renderCharts();
+          
+          // Now fetch Assignments
+          fetchAssignments();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Sync Error: " + err.message, "error");
+        })
+        .getDashboardData();
+    }
+
+    function fetchAssignments() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          state.assignments = data;
+          renderAssignmentsTable();
+          
+          // Now fetch Funds ledger
+          fetchFundLedger();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to load assignments: " + err.message, "error");
+        })
+        .getAssignments();
+    }
+
+    function fetchFundLedger() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          state.fundLedger = data.ledger;
+          
+          // Render fund outputs
+          document.getElementById('fundTotalCollected').innerText = '৳' + data.summary.totalDeposits;
+          document.getElementById('fundTotalSpent').innerText = '৳' + data.summary.totalExpenses;
+          document.getElementById('fundNetBalance').innerText = '৳' + data.summary.balance;
+          
+          renderFundLedgerTable();
+          
+          // Now fetch Accounts & Prompts
+          fetchAccountsAndPrompts();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to load fund ledger: " + err.message, "error");
+        })
+        .getFundLedger();
+    }
+
+    function fetchAccountsAndPrompts() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          state.accounts = data.accounts;
+          state.prompts = data.prompts;
+          
+          renderAccountsGrid();
+          renderPromptsContainer();
+          
+          showLoading(false);
+          showToast("Sync completed successfully!", "success");
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to load credentials: " + err.message, "error");
+        })
+        .getAccountsAndPrompts();
+    }
+
+    // Populate Member dropdown select elements
+    function populateMemberDropdowns() {
+      const loginMemberSelect = document.getElementById('loginMemberDropdown');
+      const assignMemberSelect = document.getElementById('assignMember');
+      const txMemberSelect = document.getElementById('txMember');
+      const filterSelect = document.getElementById('assignFilterSelect');
+      const logMemberNameSelect = document.getElementById('logMemberNameSelect');
+      const logsMemberFilter = document.getElementById('logsMemberFilter');
+      
+      // Store current selections
+      const currentLogSel = loginMemberSelect ? loginMemberSelect.value : '';
+      const currentAssignSel = assignMemberSelect ? assignMemberSelect.value : '';
+      const currentTxSel = txMemberSelect ? txMemberSelect.value : '';
+      const currentFilterSel = filterSelect ? filterSelect.value : '';
+      const currentSelectSel = logMemberNameSelect ? logMemberNameSelect.value : '';
+      const currentLogsFilterSel = logsMemberFilter ? logsMemberFilter.value : '';
+      
+      // Clear dropdowns
+      if (loginMemberSelect) loginMemberSelect.innerHTML = `<option value="">Choose your name...</option>`;
+      if (assignMemberSelect) assignMemberSelect.innerHTML = `<option value="">Select Member...</option>`;
+      if (txMemberSelect) txMemberSelect.innerHTML = `<option value="">General Deposit (No member specific)</option>`;
+      if (filterSelect) filterSelect.innerHTML = `<option value="ALL">All Members</option>`;
+      if (logMemberNameSelect) logMemberNameSelect.innerHTML = '';
+      if (logsMemberFilter) logsMemberFilter.innerHTML = `<option value="">All Members</option>`;
+      
+      state.members.forEach(member => {
+        const optionHTML = `<option value="${member.Name}">${member.Name}</option>`;
+        if (loginMemberSelect) loginMemberSelect.innerHTML += optionHTML;
+        if (assignMemberSelect) assignMemberSelect.innerHTML += optionHTML;
+        if (txMemberSelect) txMemberSelect.innerHTML += optionHTML;
+        if (filterSelect) filterSelect.innerHTML += optionHTML;
+        if (logMemberNameSelect) logMemberNameSelect.innerHTML += optionHTML;
+        if (logsMemberFilter) logsMemberFilter.innerHTML += optionHTML;
+      });
+      
+      // Restore selections
+      if (loginMemberSelect) loginMemberSelect.value = currentLogSel;
+      if (assignMemberSelect) assignMemberSelect.value = currentAssignSel;
+      if (txMemberSelect) txMemberSelect.value = currentTxSel;
+      if (filterSelect) filterSelect.value = currentFilterSel;
+      if (logMemberNameSelect) logMemberNameSelect.value = currentSelectSel;
+      if (logsMemberFilter) logsMemberFilter.value = currentLogsFilterSel;
+    }
+
+    // Process daily log sizes and render Leaderboard & Podium Top Performers
+    function renderLeaderboard() {
+      const tbody = document.getElementById('leaderboardTableBody');
+      if (state.members.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--text-muted);">No members details loaded.</td></tr>`;
+        return;
+      }
+      
+      // Calculate performance and points for each member
+      const leaderboard = state.members.map(member => {
+        const perf = state.memberPerformance[member.Name] || { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0 };
+        
+        // Weighting formula: 6s=0.5, 10s=1, 15s=1.5, 20s=2, 30s=2.5, 1m=3, static=0.5
+        const points = (perf.c6s * 1.0) + 
+                       (perf.c10s * 1.0) + 
+                       (perf.c15s * 1.7) + 
+                       (perf.c20s * 1.7) + 
+                       (perf.c30s * 2.0) + 
+                       (perf.c1m * 3.0) + 
+                       (perf.sp * 0.5);
+                       
+        const totalMotion = perf.c6s + perf.c10s + perf.c15s + perf.c20s + perf.c30s + perf.c1m;
+        
+        return {
+          name: member.Name,
+          c6s: perf.c6s,
+          c10s: perf.c10s,
+          c15s: perf.c15s,
+          c20s: perf.c20s,
+          c30s: perf.c30s,
+          c1m: perf.c1m,
+          totalMotion: totalMotion,
+          sp: perf.sp,
+          points: points
+        };
+      });
+
+      // Sort by points descending to determine ranks
+      leaderboard.sort((a, b) => b.points - a.points);
+      
+      // Update Podium UI (Top 3)
+      updatePodium(leaderboard);
+      
+      // Calculate min & max scores for gradient calculation
+      const scores = leaderboard.map(x => x.points);
+      const maxScore = Math.max(...scores, 1.0);
+      const minScore = Math.min(...scores, 0.0);
+
+      // Render rows
+      tbody.innerHTML = '';
+      leaderboard.forEach((item, index) => {
+        const rank = index + 1;
+        
+        // Add ordinals suffix
+        let suffix = "th";
+        if (rank === 1) suffix = "st";
+        else if (rank === 2) suffix = "nd";
+        else if (rank === 3) suffix = "rd";
+        
+        // Calculate gradient ratio
+        let ratio = 0;
+        if (maxScore > minScore) {
+          ratio = (item.points - minScore) / (maxScore - minScore);
+        } else {
+          ratio = 1.0;
+        }
+        
+        // Hue rotates from 0 (Red) to 120 (Green). 
+        // Semi-transparent backgrounds look very clean on both themes
+        const cellBg = `hsla(${ratio * 120}, 75%, 40%, 0.22)`;
+        const cellText = state.theme === 'light' 
+          ? `hsl(${ratio * 120}, 85%, 25%)` 
+          : `hsl(${ratio * 120}, 95%, 48%)`;
+        
+        // Determine Work Level
+        let workLevel = "A+";
+        let workLevelColor = "var(--accent-neon)"; // Green/Neon for A+
+        if (item.points < 15.0) {
+          workLevel = "Red Signal";
+          workLevelColor = "#ef4444"; // Red
+        } else if (item.points <= 20.0) {
+          workLevel = "Pass";
+          workLevelColor = "#f59e0b"; // Yellow/Orange
+        } else {
+          workLevel = "A+";
+          workLevelColor = "#10b981"; // Bright Green
+        }
+
+        tbody.innerHTML += `
+          <tr>
+            <td style="font-weight: 700; color: var(--text-muted);">${rank}${suffix}</td>
+            <td style="font-weight: 600;">${item.name}</td>
+            <td>${item.c6s}</td>
+            <td>${item.c10s}</td>
+            <td>${item.c15s}</td>
+            <td>${item.c20s}</td>
+            <td>${item.c30s}</td>
+            <td>${item.c1m}</td>
+            <td style="font-weight: 600;">${item.totalMotion}</td>
+            <td>${item.sp}</td>
+            <!-- Gradient Heatmap cell -->
+            <td style="background-color: ${cellBg}; color: ${cellText}; font-weight: 800; text-align: center; border-radius: 6px;">
+              ${item.points.toFixed(2)}
+            </td>
+            <td style="font-weight: 700; color: ${workLevelColor};">${workLevel}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Update Top 3 Performers Podium
+    function updatePodium(leaderboard) {
+      const top1 = leaderboard[0] || { name: "-", points: 0 };
+      const top2 = leaderboard[1] || { name: "-", points: 0 };
+      const top3 = leaderboard[2] || { name: "-", points: 0 };
+      
+      document.getElementById('podium1stName').innerText = top1.name;
+      document.getElementById('podium1stPoints').innerText = top1.points.toFixed(2) + " pts";
+      
+      document.getElementById('podium2ndName').innerText = top2.name;
+      document.getElementById('podium2ndPoints').innerText = top2.points.toFixed(2) + " pts";
+      
+      document.getElementById('podium3rdName').innerText = top3.name;
+      document.getElementById('podium3rdPoints').innerText = top3.points.toFixed(2) + " pts";
+    }
+
+    // Render modern timeline-like Activity Feed
+    function renderActivityFeed() {
+      const container = document.getElementById('activityFeedContainer');
+      if (state.recentLogs.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;">No recent activities found.</div>`;
+        return;
+      }
+      
+      container.innerHTML = '';
+      state.recentLogs.forEach(log => {
+        // Initials badge
+        const initials = log.MemberName.split(' ')
+          .map(n => n[0])
+          .join('')
+          .substring(0, 2)
+          .toUpperCase();
+          
+        container.innerHTML += `
+          <div style="display: flex; gap: 16px; padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; align-items: flex-start; box-shadow: var(--shadow-sm); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-cyan)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+              ${initials}
+            </div>
+            <div style="flex-grow: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-weight: 700; font-size: 14px;">${log.MemberName}</span>
+                <span style="font-size: 11px; color: var(--text-muted);">${log.Date}</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-main); line-height: 1.4;">
+                Completed: ${getLogDetailsText(log)}
+              </p>
+              ${log.Note ? `<p style="font-size: 12px; color: var(--text-muted); margin-top: 6px; padding-left: 8px; border-left: 2px solid var(--border-color); font-style: italic;">"${log.Note}"</p>` : ''}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function getLogDetailsText(log) {
+      const parts = [];
+      if (log.Content6s > 0) parts.push(`<b>${log.Content6s}x</b> 6s Content`);
+      if (log.Content10s > 0) parts.push(`<b>${log.Content10s}x</b> 10s Content`);
+      if (log.Content15s > 0) parts.push(`<b>${log.Content15s}x</b> 15s Content`);
+      if (log.Content20s > 0) parts.push(`<b>${log.Content20s}x</b> 20s Content`);
+      if (log.Content30s > 0) parts.push(`<b>${log.Content30s}x</b> 30s Content`);
+      if (log.Content1m > 0) parts.push(`<b>${log.Content1m}x</b> 1m Content`);
+      if (log.SocialPost > 0) parts.push(`<b>${log.SocialPost}x</b> Social Post / Static`);
+      return parts.length > 0 ? parts.join(', ') : "Logged daily report (no metrics)";
+    }
+
+    // Draw Chart.js Visualizations
+    function renderCharts() {
+      const labels = state.members.map(m => m.Name);
+      const dataValues = labels.map(name => {
+        const perf = state.memberPerformance[name];
+        if (!perf) return 0;
+        // Map total points for bar chart
+        return (perf.c6s * 0.5) + (perf.c10s * 1.0) + (perf.c15s * 1.5) + (perf.c20s * 2.0) + (perf.c30s * 2.5) + (perf.c1m * 3.0) + (perf.sp * 0.5);
+      });
+      
+      // 1. Performance Bar Chart
+      const ctxBar = document.getElementById('performanceChart').getContext('2d');
+      if (performanceChartObj) performanceChartObj.destroy();
+      
+      performanceChartObj = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Total Performance Points',
+            data: dataValues,
+            backgroundColor: 'rgba(79, 70, 229, 0.7)',
+            borderColor: '#4f46e5',
+            borderWidth: 1,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { color: state.theme === 'dark' ? '#233044' : '#e2e8f0' },
+              ticks: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b' }
+            },
+            y: {
+              grid: { color: state.theme === 'dark' ? '#233044' : '#e2e8f0' },
+              ticks: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b', stepSize: 2 }
+            }
+          }
+        }
+      });
+      
+      // 2. Content Type Breakdown Chart (Doughnut Chart)
+      const ctxPie = document.getElementById('contentBreakdownChart').getContext('2d');
+      if (contentBreakdownChartObj) contentBreakdownChartObj.destroy();
+      
+      contentBreakdownChartObj = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: ['6s', '10s', '15s', '20s', '30s', '1m', 'Social Post'],
+          datasets: [{
+            data: [
+              state.totals.content6s || 0,
+              state.totals.content10s || 0,
+              state.totals.content15s || 0,
+              state.totals.content20s || 0,
+              state.totals.content30s || 0,
+              state.totals.content1m || 0,
+              state.totals.socialPost || 0
+            ],
+            backgroundColor: [
+              '#ec4899', // Pink
+              '#10b981', // Neon
+              '#f59e0b', // Yellow
+              '#06b6d4', // Cyan
+              '#8b5cf6', // Violet
+              '#3b82f6', // Blue
+              '#6366f1'  // Indigo
+            ],
+            borderWidth: 2,
+            borderColor: state.theme === 'dark' ? '#141b2d' : '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b' }
+            }
+          }
+        }
+      });
+    }
+
+    // Render Assignments Board
+    function renderAssignmentsTable(filteredMember = "ALL") {
+      updateAssignmentsAnalytics();
+      const tbody = document.getElementById('assignmentsTableBody');
+      const visibleTasks = filteredMember === "ALL" 
+        ? state.assignments 
+        : state.assignments.filter(t => t.AssignedTo === filteredMember);
+      
+      if (visibleTasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted);">No task assignments found for this filter.</td></tr>`;
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      visibleTasks.forEach(task => {
+        // Status formatting
+        let stClass = 'not-started';
+        const st = task.Status.toLowerCase();
+        if (st.includes('progress') || st.includes('running')) stClass = 'in-progress';
+        if (st.includes('submitted')) stClass = 'submitted';
+        if (st.includes('approved') || st.includes('static approved')) stClass = 'completed';
+        if (st.includes('revision') || st.includes('clear')) stClass = 'revision';
+        
+        tbody.innerHTML += `
+          <tr>
+            <td>${task.AssignDate}</td>
+            <td style="font-family:monospace; font-size:12px; font-weight:700;">${task.MPROID}</td>
+            <td>
+              <a href="${task.MPROLink}" target="_blank" class="mpro-link">Open MPRO Link</a>
+            </td>
+            <td><span class="status-badge" style="background-color:rgba(0,0,0,0.1); color:var(--text-main); border: 1px solid var(--border-color);">${task.Group}</span></td>
+            <td>
+              <div style="font-weight:700; font-size: 14px;">Total: ${task.Quantity}</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; white-space: nowrap;">
+                Done: <span style="color: #10b981; font-weight: 700;">${task.CompletedQty || 0}</span> | 
+                Left: <span style="color: var(--accent-pink); font-weight: 700;">${Math.max(0, Number(task.Quantity) - (Number(task.CompletedQty) || 0))}</span>
+              </div>
+            </td>
+            <td><span class="status-badge ${stClass}">${task.Status}</span></td>
+            <td style="color:var(--accent-pink); font-weight:600;">${task.Deadline || '-'}</td>
+            <td style="font-weight:600;">${task.AssignedTo}</td>
+            <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${task.Note}">${task.Note || '-'}</td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-outline btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})">
+                  ✏️ Update
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="deleteAssignment('${task.TaskID}')" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
+                  🗑️ Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Filter assignments by member name
+    function filterAssignments(memberName) {
+      renderAssignmentsTable(memberName);
+    }
+
+    // Render Fund Ledger Table
+    function renderFundLedgerTable() {
+      const tbody = document.getElementById('fundTableBody');
+      if (state.fundLedger.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No fund transaction records found.</td></tr>`;
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      state.fundLedger.forEach(tx => {
+        const isDep = tx.Type === "Deposit";
+        const amtColor = isDep ? 'var(--accent-neon)' : 'var(--status-error)';
+        const prefix = isDep ? '+' : '-';
+        
+        tbody.innerHTML += `
+          <tr>
+            <td>${tx.Date}</td>
+            <td style="font-weight:700; color: ${isDep ? 'var(--accent-neon)' : 'var(--accent-pink)'};">${tx.Type}</td>
+            <td style="font-weight:700; color:${amtColor};">${prefix}৳${tx.Amount}</td>
+            <td style="font-weight:600;">${tx.MemberName || 'General Account'}</td>
+            <td style="font-size:13px; color:var(--text-muted);">${tx.Note}</td>
+            <td><span class="status-badge completed">${tx.Status}</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    // Render Shared logins Grid
+    function renderAccountsGrid() {
+      const container = document.getElementById('accountsContainer');
+      if (state.accounts.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 30px;">No shared credentials found.</div>`;
+        return;
+      }
+      
+      container.innerHTML = '';
+      state.accounts.forEach((acc, idx) => {
+        container.innerHTML += `
+          <div class="account-card">
+            <h3>
+              <span>${acc.ServiceName}</span>
+              ${acc.LoginURL ? `<a href="${acc.LoginURL}" target="_blank" title="Go to login page" class="icon-btn">🔗</a>` : ''}
+            </h3>
+            
+            <div class="account-field">
+              <label>Username / Email</label>
+              <div class="account-val-wrap">
+                <span class="account-val" id="acc_user_${idx}">${acc.UsernameEmail}</span>
+                <button class="icon-btn" onclick="copyToClipboard('${acc.UsernameEmail}', 'Username copied!')">📋</button>
+              </div>
+            </div>
+            
+            <div class="account-field">
+              <label>Password</label>
+              <div class="account-val-wrap">
+                <input type="password" class="account-val" id="acc_pass_${idx}" value="${acc.Password}" readonly style="padding:0; border:none; background:none; height:auto; box-shadow:none;">
+                <button class="icon-btn" onclick="togglePassVisibility(${idx})">👁</button>
+                <button class="icon-btn" onclick="copyToClipboard('${acc.Password}', 'Password copied!')">📋</button>
+              </div>
+            </div>
+            
+            ${acc.ExpiryDate ? `
+              <div class="account-field" style="margin-top:12px; font-size:11px; color: var(--text-muted);">
+                <span>🔑 Expiry/Taka: ${acc.ExpiryDate}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function togglePassVisibility(idx) {
+      const input = document.getElementById(`acc_pass_${idx}`);
+      if (input.type === "password") {
+        input.type = "text";
+      } else {
+        input.type = "password";
+      }
+    }
+
+    // Render Prompts Container
+    function renderPromptsContainer() {
+      const container = document.getElementById('promptsContainer');
+      if (state.prompts.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px;">No prompts logged yet.</div>`;
+        return;
+      }
+      
+      container.innerHTML = '';
+      state.prompts.forEach((pr, idx) => {
+        container.innerHTML += `
+          <div class="prompt-card">
+            <div class="prompt-header">
+              <div>
+                <h3 class="font-outfit" style="font-size:18px; font-weight:700;">${pr.Title}</h3>
+                <span style="font-size:12px; color: var(--text-muted);">${pr.Description || ''}</span>
+              </div>
+              <span class="prompt-category">${pr.Category}</span>
+            </div>
+            
+            <div class="prompt-text-box">
+              <div style="position: absolute; top: 12px; right: 12px;">
+                <button class="btn btn-outline btn-sm" onclick="copyToClipboard(\`${pr.PromptText.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 'Prompt copied to clipboard!')" style="padding:4px 8px;">
+                  📋 Copy
+                </button>
+              </div>
+              <div>${pr.PromptText}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Copy Utility
+    function copyToClipboard(text, successMsg) {
+      navigator.clipboard.writeText(text).then(function() {
+        showToast(successMsg, "success");
+      }, function() {
+        showToast("Clipboard copy failed", "error");
+      });
+    }
+
+    // Modal Control Utils
+    function openLoginModal() {
+      document.getElementById('loginModal').classList.add('active');
+    }
+    
+    function closeLoginModal() {
+      document.getElementById('loginModal').classList.remove('active');
+    }
+
+    function toggleLoginPassField(role) {
+      const passGroup = document.getElementById('passwordFieldGroup');
+      if (role === 'ADMIN') {
+        passGroup.style.display = 'flex';
+      } else {
+        passGroup.style.display = 'none';
+      }
+    }
+
+    // Verify Passwords for Admin Mode
+    function verifyRoleAccess() {
+      const role = document.getElementById('adminRoleSelect').value;
+      
+      if (role === 'MEMBER') {
+        setRoleAccess('MEMBER');
+        closeLoginModal();
+        showToast("Switched to Member mode", "success");
+        return;
+      }
+      
+      const pass = document.getElementById('adminPassword').value;
+      showLoading(true, "Verifying Admin credentials...");
+      
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          showLoading(false);
+          if (isValid) {
+            setRoleAccess('ADMIN');
+            closeLoginModal();
+            showToast("Successfully verified Admin controls!", "success");
+          } else {
+            showToast("Invalid admin password. Try again.", "error");
+          }
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Access Verification failed: " + err.message, "error");
+        })
+        .verifyAdminPassword(pass);
+    }
+
+    function setRoleAccess(role) {
+      state.userRole = role;
+      const dot = document.getElementById('roleDot');
+      const text = document.getElementById('roleText');
+      
+      // Admin elements to toggle
+      const adminAssign = document.getElementById('adminAssignSection');
+      const adminFund = document.getElementById('adminFundSection');
+      const adminAddAcc = document.getElementById('adminAddAccountBtn');
+      const adminImportAcc = document.getElementById('adminImportAccountsBtn');
+      const adminImportPr = document.getElementById('adminImportPromptsBtn');
+      const adminAddPr = document.getElementById('adminAddPromptBtn');
+      const migrateBtn = document.getElementById('btnMigrate');
+      
+      if (role === 'ADMIN') {
+        dot.className = 'role-dot admin';
+        text.innerText = 'Admin Mode';
+        adminFund.style.display = 'block';
+        adminAddAcc.style.display = 'inline-flex';
+        adminImportAcc.style.display = 'inline-flex';
+        adminImportPr.style.display = 'inline-flex';
+        adminAddPr.style.display = 'inline-flex';
+        migrateBtn.style.display = 'block';
+      } else {
+        dot.className = 'role-dot member';
+        text.innerText = 'Member Mode';
+        adminFund.style.display = 'none';
+        adminAddAcc.style.display = 'none';
+        adminImportAcc.style.display = 'none';
+        adminImportPr.style.display = 'none';
+        adminAddPr.style.display = 'none';
+        migrateBtn.style.display = 'none';
+      }
+      
+      // Sync logger portal view
+      checkMemberLoginStatus();
+    }
+
+    // ----------------------------------------------------
+    // MEMBER PORTAL LOGIN & CRUD OPERATIONS
+    // ----------------------------------------------------
+
+    function checkMemberLoginStatus() {
+      const loginCard = document.getElementById('memberLoginCard');
+      const loggerContainer = document.getElementById('memberLoggerContainer');
+      const memberLockedGroup = document.getElementById('memberNameLockedGroup');
+      const memberSelectGroup = document.getElementById('memberNameSelectGroup');
+      const filterGroup = document.getElementById('logsFilterGroup');
+      const colHeaderMember = document.getElementById('colHeaderMember');
+      const logsTableTitle = document.getElementById('logsTableTitle');
+      
+      const isAdmin = state.userRole === 'ADMIN';
+      
+      if (isAdmin || (state.loggedInMember && state.loggedInPin)) {
+        if (loginCard) loginCard.style.display = 'none';
+        if (loggerContainer) loggerContainer.style.display = 'block';
+        
+        if (isAdmin) {
+          document.getElementById('loggedInNameText').innerText = "Admin (Full Control)";
+          if (memberLockedGroup) memberLockedGroup.style.display = 'none';
+          if (memberSelectGroup) memberSelectGroup.style.display = 'block';
+          if (filterGroup) filterGroup.style.display = 'flex';
+          if (colHeaderMember) colHeaderMember.style.display = '';
+          if (logsTableTitle) logsTableTitle.innerText = "All Member Log Entries";
+        } else {
+          document.getElementById('loggedInNameText').innerText = state.loggedInMember;
+          document.getElementById('logMemberNameLocked').value = state.loggedInMember;
+          if (memberLockedGroup) memberLockedGroup.style.display = 'block';
+          if (memberSelectGroup) memberSelectGroup.style.display = 'none';
+          if (filterGroup) filterGroup.style.display = 'none';
+          if (colHeaderMember) colHeaderMember.style.display = 'none';
+          if (logsTableTitle) logsTableTitle.innerText = "My Recent Log Entries";
+        }
+        
+        // Load member logs
+        fetchMemberLogs();
+      } else {
+        if (loginCard) loginCard.style.display = 'block';
+        if (loggerContainer) loggerContainer.style.display = 'none';
+      }
+    }
+
+    function submitMemberLogin() {
+      const name = document.getElementById('loginMemberDropdown').value;
+      const pin = document.getElementById('loginMemberPin').value;
+      
+      if (!name) {
+        showToast("Please select your name", "error");
+        return;
+      }
+      
+      showLoading(true, "Verifying member PIN...");
+      
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          showLoading(false);
+          if (isValid) {
+            state.loggedInMember = name;
+            state.loggedInPin = pin;
+            localStorage.setItem('sct_member_name', name);
+            localStorage.setItem('sct_member_pin', pin);
+            
+            document.getElementById('loginMemberPin').value = ''; // clear password input
+            checkMemberLoginStatus();
+            showToast("Logged in as " + name, "success");
+          } else {
+            showToast("Invalid PIN. Default PIN is 1234.", "error");
+          }
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Authentication Error: " + err.message, "error");
+        })
+        .verifyMemberPIN(name, pin);
+    }
+
+    function submitMemberLogout() {
+      if (confirm("Are you sure you want to log out of member portal?")) {
+        state.loggedInMember = '';
+        state.loggedInPin = '';
+        localStorage.removeItem('sct_member_name');
+        localStorage.removeItem('sct_member_pin');
+        
+        cancelLogEdit(); // reset any editing state
+        checkMemberLoginStatus();
+        showToast("Logged out successfully", "success");
+      }
+    }
+
+    function fetchMemberLogs() {
+      const isAdmin = state.userRole === 'ADMIN';
+      let selectedMemberName = "";
+      
+      if (isAdmin) {
+        // Read logs filter selection
+        const filterVal = document.getElementById('logsMemberFilter');
+        selectedMemberName = filterVal ? filterVal.value : ''; // if "", fetches all
+      } else {
+        selectedMemberName = state.loggedInMember;
+        if (!selectedMemberName) return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(logs) {
+          state.myLogs = logs;
+          renderMemberLogsTable();
+        })
+        .withFailureHandler(function(err) {
+          showToast("Failed to fetch logs: " + err.message, "error");
+        })
+        .getDailyLogs(selectedMemberName);
+    }
+
+    function renderMemberLogsTable() {
+      const tbody = document.getElementById('myLogsTableBody');
+      if (!tbody) return;
+      
+      const isAdmin = state.userRole === 'ADMIN';
+      const colHeaderMember = document.getElementById('colHeaderMember');
+      if (colHeaderMember) {
+        colHeaderMember.style.display = isAdmin ? '' : 'none';
+      }
+      
+      if (state.myLogs.length === 0) {
+        const colSpanCount = isAdmin ? 11 : 10;
+        tbody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align: center; color: var(--text-muted);">No logs recorded. Select Work Date and log your quantities above!</td></tr>`;
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      state.myLogs.forEach(log => {
+        const memberColHTML = isAdmin ? `<td style="color: var(--accent-cyan); font-weight:600;">${log.MemberName}</td>` : '';
+        
+        tbody.innerHTML += `
+          <tr>
+            <td style="font-weight:600;">${log.Date}</td>
+            ${memberColHTML}
+            <td>${log.Content6s || 0}</td>
+            <td>${log.Content10s || 0}</td>
+            <td>${log.Content15s || 0}</td>
+            <td>${log.Content20s || 0}</td>
+            <td>${log.Content30s || 0}</td>
+            <td>${log.Content1m || 0}</td>
+            <td>${log.SocialPost || 0}</td>
+            <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${log.Note || ''}">${log.Note || '-'}</td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;" onclick="editDailyLog(${log.RowIndex}, '${log.Date}', ${log.Content6s || 0}, ${log.Content10s || 0}, ${log.Content15s || 0}, ${log.Content20s || 0}, ${log.Content30s || 0}, ${log.Content1m || 0}, ${log.SocialPost || 0}, \`${(log.Note || '').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${log.MemberName}')">✏️ Edit</button>
+                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; color:var(--status-error); border-color:rgba(239,68,68,0.2);" onclick="deleteDailyLog(${log.RowIndex}, '${log.MemberName}')">🗑️ Del</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Submit Daily Log Work Form (either Add or Update)
+    function submitDailyWork(e) {
+      e.preventDefault();
+      
+      const rowIndex = document.getElementById('editLogRowIndex').value;
+      const isEdit = rowIndex !== "";
+      
+      const isAdmin = state.userRole === 'ADMIN';
+      const targetMemberName = isAdmin ? document.getElementById('logMemberNameSelect').value : state.loggedInMember;
+      const targetPin = isAdmin ? 'admin1234' : state.loggedInPin;
+      
+      const logData = {
+        date: document.getElementById('logDate').value,
+        memberName: targetMemberName,
+        pin: targetPin,
+        content6s: document.getElementById('qty6s').value,
+        content10s: document.getElementById('qty10s').value,
+        content15s: document.getElementById('qty15s').value,
+        content20s: document.getElementById('qty20s').value,
+        content30s: document.getElementById('qty30s').value,
+        content1m: document.getElementById('qty1m').value,
+        socialPost: document.getElementById('qtySp').value,
+        note: document.getElementById('logNote').value
+      };
+      
+      if (!logData.memberName) {
+        showToast("Please select a member name first", "error");
+        return;
+      }
+      
+      showLoading(true, isEdit ? "Updating content log..." : "Recording daily content sizes...");
+      
+      const successCb = function(resp) {
+        showLoading(false);
+        showToast(resp.message, "success");
+        cancelLogEdit(); // reset form
+        refreshAllData();
+      };
+      
+      const failureCb = function(err) {
+        showLoading(false);
+        showToast("Operation failed: " + err.message, "error");
+      };
+
+      if (isEdit) {
+        google.script.run
+          .withSuccessHandler(successCb)
+          .withFailureHandler(failureCb)
+          .updateDailyLog(Number(rowIndex), logData, targetMemberName, targetPin);
+      } else {
+        google.script.run
+          .withSuccessHandler(successCb)
+          .withFailureHandler(failureCb)
+          .logDailyWork(logData);
+      }
+    }
+
+    function editDailyLog(rowIndex, date, c6, c10, c15, c20, c30, c1m, sp, note, memberName) {
+      document.getElementById('editLogRowIndex').value = rowIndex;
+      document.getElementById('logDate').value = date;
+      document.getElementById('qty6s').value = c6;
+      document.getElementById('qty10s').value = c10;
+      document.getElementById('qty15s').value = c15;
+      document.getElementById('qty20s').value = c20;
+      document.getElementById('qty30s').value = c30;
+      document.getElementById('qty1m').value = c1m;
+      document.getElementById('qtySp').value = sp;
+      document.getElementById('logNote').value = note;
+      
+      const isAdmin = state.userRole === 'ADMIN';
+      if (isAdmin) {
+        document.getElementById('logMemberNameSelect').value = memberName || '';
+      } else {
+        document.getElementById('logMemberNameLocked').value = memberName || state.loggedInMember;
+      }
+      
+      document.getElementById('loggerFormTitle').innerText = "Update Content Log Entry";
+      document.getElementById('btnSubmitLog').innerText = "Save Changes";
+      document.getElementById('btnCancelEdit').style.display = 'inline-flex';
+      
+      // Scroll to form top smoothly
+      document.getElementById('loggerFormTitle').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelLogEdit() {
+      document.getElementById('editLogRowIndex').value = "";
+      document.getElementById('dailyWorkForm').reset();
+      document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+      
+      document.getElementById('loggerFormTitle').innerText = "Record Daily Content Work";
+      document.getElementById('btnSubmitLog').innerText = "Submit Daily Log";
+      document.getElementById('btnCancelEdit').style.display = 'none';
+    }
+
+    function deleteDailyLog(rowIndex, memberName) {
+      if (!confirm("Are you sure you want to delete this log entry?")) return;
+      
+      showLoading(true, "Deleting content log entry...");
+      
+      const targetMember = state.userRole === 'ADMIN' ? memberName : state.loggedInMember;
+      const targetPin = state.userRole === 'ADMIN' ? 'admin1234' : state.loggedInPin;
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast(resp.message, "success");
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Deletion failed: " + err.message, "error");
+        })
+        .deleteDailyLog(rowIndex, targetMember, targetPin);
+    }
+
+    // Member PIN Modal Controls
+    function openChangePinModal() {
+      if (!state.loggedInMember) return;
+      document.getElementById('changePinName').value = state.loggedInMember;
+      document.getElementById('changePinOld').value = '';
+      document.getElementById('changePinNew').value = '';
+      document.getElementById('changePinModal').classList.add('active');
+    }
+
+    function closeChangePinModal() {
+      document.getElementById('changePinModal').classList.remove('active');
+    }
+
+    function submitChangePIN() {
+      const oldPin = document.getElementById('changePinOld').value;
+      const newPin = document.getElementById('changePinNew').value;
+      
+      if (!oldPin || !newPin) {
+        showToast("Fill in all PIN fields", "error");
+        return;
+      }
+      
+      showLoading(true, "Updating personal PIN...");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          closeChangePinModal();
+          state.loggedInPin = newPin;
+          localStorage.setItem('sct_member_pin', newPin);
+          showToast(resp.message, "success");
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to change PIN: " + err.message, "error");
+        })
+        .changeMemberPIN(state.loggedInMember, oldPin, newPin);
+    }
+
+    // Task status change controls
+    let currentTaskTotalQty = 1;
+    
+    function openStatusModal(taskId, currentStatus, mproLink, note, qty, completedQty) {
+      currentTaskTotalQty = Number(qty) || 1;
+      const completed = Number(completedQty) || 0;
+      
+      document.getElementById('statusTaskId').value = taskId;
+      document.getElementById('statusSelect').value = currentStatus;
+      document.getElementById('statusMproLink').value = mproLink || '';
+      document.getElementById('statusNote').value = note || '';
+      
+      // Populate completed qty options up to total quantity
+      const compSelect = document.getElementById('statusCompletedQty');
+      if (compSelect) {
+        compSelect.innerHTML = '';
+        for (let i = 0; i <= currentTaskTotalQty; i++) {
+          compSelect.innerHTML += `<option value="${i}">${i}</option>`;
+        }
+        compSelect.value = completed > currentTaskTotalQty ? currentTaskTotalQty : completed;
+      }
+      
+      updatePendingQtyDisplay();
+      document.getElementById('taskStatusModal').classList.add('active');
+    }
+
+    function updatePendingQtyDisplay() {
+      const compSelect = document.getElementById('statusCompletedQty');
+      const pendingInput = document.getElementById('statusPendingQty');
+      if (compSelect && pendingInput) {
+        const compVal = Number(compSelect.value) || 0;
+        const pending = currentTaskTotalQty - compVal;
+        pendingInput.value = pending >= 0 ? pending : 0;
+      }
+    }
+
+    function closeStatusModal() {
+      document.getElementById('taskStatusModal').classList.remove('active');
+    }
+
+    function submitStatusUpdate() {
+      const taskId = document.getElementById('statusTaskId').value;
+      const status = document.getElementById('statusSelect').value;
+      const mproLink = document.getElementById('statusMproLink').value;
+      const note = document.getElementById('statusNote').value;
+      
+      const compSelect = document.getElementById('statusCompletedQty');
+      const completedQty = compSelect ? compSelect.value : 0;
+      
+      showLoading(true, "Updating task records...");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          closeStatusModal();
+          showToast(resp.message, "success");
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Status Update failed: " + err.message, "error");
+        })
+        .updateAssignmentStatus(taskId, status, note, mproLink, completedQty);
+    }
+
+    function deleteAssignment(taskId) {
+      if (!confirm("Are you sure you want to delete this assignment (Task ID: " + taskId + ")?")) {
+        return;
+      }
+      
+      showLoading(true, "Deleting task assignment...");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast(resp.message, "success");
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to delete task: " + err.message, "error");
+        })
+        .deleteAssignment(taskId);
+    }
+
+    // Submit Task Assignment (Admin Only)
+    function submitTaskAssignment(e) {
+      e.preventDefault();
+      
+      const taskData = {
+        assignDate: document.getElementById('assignDate').value,
+        assignedTo: document.getElementById('assignMember').value,
+        mproId: document.getElementById('mproId').value,
+        mproLink: document.getElementById('mproLink').value,
+        group: document.getElementById('assignGroup').value,
+        quantity: document.getElementById('assignQty').value,
+        status: document.getElementById('assignStatus').value,
+        deadline: document.getElementById('assignDeadline').value,
+        note: document.getElementById('assignNote').value
+      };
+      
+      if (!taskData.assignedTo) {
+        showToast("Please assign the task to a team member", "error");
+        return;
+      }
+      
+      showLoading(true, "Writing task assignment details...");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast(resp.message, "success");
+          document.getElementById('assignTaskForm').reset();
+          document.getElementById('assignDate').value = new Date().toISOString().split('T')[0];
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to assign task: " + err.message, "error");
+        })
+        .assignTask(taskData);
+    }
+
+    function populateQtyDropdown() {
+      const select = document.getElementById('assignQty');
+      if (select) {
+        select.innerHTML = '<option value="">Select Quantity...</option>';
+        for (let i = 1; i <= 50; i++) {
+          select.innerHTML += `<option value="${i}">${i}</option>`;
+        }
+      }
+    }
+
+    function showMemberBrandRecommendation(memberName) {
+      const recDiv = document.getElementById('assignMemberRecommendation');
+      if (!recDiv) return;
+      if (!memberName) {
+        recDiv.style.display = 'none';
+        return;
+      }
+      
+      const member = state.members.find(function(m) { return m.Name === memberName; });
+      if (member && member.RecommendedBrands) {
+        recDiv.innerHTML = `💡 Recommended: <span style="color: var(--text-main); font-weight:700;">${member.RecommendedBrands}</span>`;
+        recDiv.style.display = 'block';
+      } else {
+        recDiv.style.display = 'none';
+      }
+    }
+
+    function updateAssignmentsAnalytics() {
+      if (!state.assignments || !state.members) return;
+      
+      const activeTasksCount = state.assignments.filter(function(t) {
+        const st = t.Status.toLowerCase();
+        return !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass');
+      }).length;
+      
+      let totalQty = 0;
+      let completedQty = 0;
+      
+      state.assignments.forEach(function(t) {
+        totalQty += Number(t.Quantity) || 0;
+        completedQty += Number(t.CompletedQty) || 0;
+      });
+      
+      const pendingItems = Math.max(0, totalQty - completedQty);
+      const completionRate = totalQty > 0 ? Math.round((completedQty / totalQty) * 100) : 0;
+      
+      // Update overall stats UI
+      const elActive = document.getElementById('analActiveTasks');
+      const elPending = document.getElementById('analPendingItems');
+      const elRate = document.getElementById('analCompletionRate');
+      if (elActive) elActive.innerText = activeTasksCount;
+      if (elPending) elPending.innerText = pendingItems;
+      if (elRate) elRate.innerText = completionRate + '%';
+      
+      // Helper to normalize any date string to yyyy-MM-dd
+      const normalizeDateToYMD = function(dateVal) {
+        if (!dateVal) return "";
+        const strVal = String(dateVal).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(strVal)) return strVal;
+        
+        try {
+          const d = new Date(strVal);
+          if (!isNaN(d.getTime())) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+          }
+        } catch(e) {}
+        
+        const parts = strVal.split(/[-/]/);
+        if (parts.length === 3) {
+          let dPart = parts[0].trim();
+          let mPart = parts[1].trim();
+          let yPart = parts[2].trim();
+          if (yPart.length === 2) yPart = "20" + yPart;
+          
+          let monthVal = "";
+          const monthsList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+          const idx = monthsList.indexOf(mPart.toLowerCase());
+          if (idx !== -1) {
+            monthVal = String(idx + 1).padStart(2, '0');
+          } else if (!isNaN(Number(mPart))) {
+            monthVal = mPart.padStart(2, '0');
+          }
+          if (yPart && monthVal && dPart) {
+            return `${yPart}-${monthVal.padStart(2, '0')}-${dPart.padStart(2, '0')}`;
+          }
+        }
+        return strVal;
+      };
+
+      // Calculate Date-wise Work Summary Overview metrics
+      const dateSelector = document.getElementById('overviewDateSelector');
+      if (dateSelector && !dateSelector.value) {
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        const localToday = new Date(now.getTime() - (offset * 60 * 1000));
+        dateSelector.value = localToday.toISOString().split('T')[0]; // Set default value to today's date in local timezone
+      }
+      
+      const targetDate = dateSelector ? dateSelector.value : new Date().toISOString().split('T')[0];
+      const targetDateYMD = normalizeDateToYMD(targetDate);
+      
+      let targetSubmitted = 0;
+      let targetApproved = 0;
+      
+      // 1. Submitted: Sum of all content items logged in DailyLogs for the selected date
+      if (state.dailyLogs && Array.isArray(state.dailyLogs)) {
+        state.dailyLogs.forEach(function(log) {
+          const logDateYMD = normalizeDateToYMD(log.Date);
+          if (logDateYMD === targetDateYMD) {
+            const c6 = Number(log.Content6s || 0);
+            const c10 = Number(log.Content10s || 0);
+            const c15 = Number(log.Content15s || 0);
+            const c20 = Number(log.Content20s || 0);
+            const c30 = Number(log.Content30s || 0);
+            const c1m = Number(log.Content1m || 0);
+            const sp = Number(log.SocialPost || 0);
+            targetSubmitted += (c6 + c10 + c15 + c20 + c30 + c1m + sp);
+          }
+        });
+      }
+      
+      // 2. Approved: Count from assignments for the selected date
+      state.assignments.forEach(function(t) {
+        const assignDateYMD = normalizeDateToYMD(t.AssignDate);
+        const isApproved = t.Status.toLowerCase().includes("approved") || t.Status.toLowerCase().includes("completed") || t.Status.toLowerCase().includes("pass") || t.Status.toLowerCase().includes("ok");
+        const approveDateYMD = t.ApproveDate ? normalizeDateToYMD(t.ApproveDate) : (isApproved ? assignDateYMD : "");
+        if (approveDateYMD === targetDateYMD) {
+          targetApproved += Number(t.Quantity) || 0;
+        }
+      });
+      
+      const elSubmittedVal = document.getElementById('todaySubmittedVal');
+      const elApprovedVal = document.getElementById('todayApprovedVal');
+      if (elSubmittedVal) elSubmittedVal.innerText = targetSubmitted + " items";
+      if (elApprovedVal) elApprovedVal.innerText = targetApproved + " items";
+      
+      // Compute member workload stats
+      const memberStats = {};
+      state.members.forEach(function(m) {
+        memberStats[m.Name] = {
+          name: m.Name,
+          activeTasks: 0,
+          totalQty: 0,
+          completedQty: 0,
+          brands: {}
+        };
+      });
+      
+      state.assignments.forEach(function(t) {
+        const mName = t.AssignedTo;
+        if (memberStats[mName]) {
+          const st = t.Status.toLowerCase();
+          const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass');
+          
+          if (isActive) memberStats[mName].activeTasks++;
+          memberStats[mName].totalQty += Number(t.Quantity) || 0;
+          memberStats[mName].completedQty += Number(t.CompletedQty) || 0;
+          
+          if (t.Group) {
+            memberStats[mName].brands[t.Group] = (memberStats[mName].brands[t.Group] || 0) + 1;
+          }
+        }
+      });
+      
+      // Populate member workload breakdown grid
+      const grid = document.getElementById('memberWorkloadGrid');
+      if (grid) {
+        grid.innerHTML = '';
+        for (let mName in memberStats) {
+          const stats = memberStats[mName];
+          const leftQty = Math.max(0, stats.totalQty - stats.completedQty);
+          
+          // Determine top brand and count
+          let topBrand = 'None';
+          let maxCount = 0;
+          for (let b in stats.brands) {
+            if (stats.brands[b] > maxCount) {
+              maxCount = stats.brands[b];
+              topBrand = b;
+            }
+          }
+          
+          const progressPercent = stats.totalQty > 0 ? Math.round((stats.completedQty / stats.totalQty) * 100) : 0;
+          
+          grid.innerHTML += `
+            <div style="padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: 700; font-size: 13px; color: var(--text-main);">${stats.name}</div>
+                <span class="status-badge" style="font-size:10px; padding: 2px 6px; background: ${stats.activeTasks > 3 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${stats.activeTasks > 3 ? '#ef4444' : '#10b981'}; border: none;">
+                  ${stats.activeTasks} active
+                </span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted);">
+                Items Done: <span style="font-weight:700; color:var(--text-main);">${stats.completedQty}/${stats.totalQty}</span> | Left: <span style="font-weight:700; color:var(--accent-pink);">${leftQty}</span>
+              </div>
+              
+              <!-- Progress Bar -->
+              <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 3px;"></div>
+              </div>
+              
+              <!-- Top Brand info -->
+              <div style="font-size: 11px; display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                <span style="color: var(--text-muted);">Top Brand:</span>
+                <span class="status-badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-weight:700; border: 1px solid rgba(16, 185, 129, 0.2);">
+                  ${topBrand} ${maxCount > 0 ? '(' + maxCount + ' works)' : ''}
+                </span>
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function fetchBrands() {
+      google.script.run
+        .withSuccessHandler(function(brands) {
+          const select = document.getElementById('assignGroup');
+          if (select) {
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select Brand...</option>';
+            brands.forEach(function(b) {
+              select.innerHTML += `<option value="${b}">${b}</option>`;
+            });
+            if (currentVal && brands.indexOf(currentVal) !== -1) {
+              select.value = currentVal;
+            }
+          }
+        })
+        .withFailureHandler(function(err) {
+          showToast("Failed to load brands: " + err.message, "error");
+        })
+        .getBrands();
+    }
+
+    function promptAddBrand() {
+      const name = prompt("Enter new Brand name:");
+      if (name && name.trim()) {
+        showLoading(true, "Adding new brand...");
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            showLoading(false);
+            showToast(resp.message, resp.success ? "success" : "error");
+            if (resp.success) {
+              fetchBrands();
+            }
+          })
+          .withFailureHandler(function(err) {
+            showLoading(false);
+            showToast("Failed to add brand: " + err.message, "error");
+          })
+          .addBrand(name);
+      }
+    }
+
+    function promptDeleteBrand() {
+      const select = document.getElementById('assignGroup');
+      const selectedBrand = select.value;
+      if (!selectedBrand) {
+        showToast("Please select a brand to delete from the dropdown first", "error");
+        return;
+      }
+      
+      if (!confirm("Are you sure you want to delete brand '" + selectedBrand + "' from the list?")) {
+        return;
+      }
+      
+      showLoading(true, "Deleting brand...");
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast(resp.message, resp.success ? "success" : "error");
+          if (resp.success) {
+            fetchBrands();
+          }
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to delete brand: " + err.message, "error");
+        })
+        .deleteBrand(selectedBrand);
+    }
+
+    // Submit Fund Transaction (Admin Only)
+    function submitFundTransaction(e) {
+      e.preventDefault();
+      
+      const txData = {
+        date: document.getElementById('txDate').value,
+        type: document.getElementById('txType').value,
+        amount: document.getElementById('txAmount').value,
+        memberName: document.getElementById('txMember').value,
+        note: document.getElementById('txNote').value
+      };
+      
+      showLoading(true, "Recording transaction to ledger...");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast(resp.message, "success");
+          document.getElementById('fundTransactionForm').reset();
+          document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to record transaction: " + err.message, "error");
+        })
+        .addFundTransaction(txData);
+    }
+
+    function toggleFundFields(type) {
+      const memberGroup = document.getElementById('txMemberGroup');
+      if (type === 'Deposit') {
+        memberGroup.style.display = 'flex';
+      } else {
+        memberGroup.style.display = 'none';
+        document.getElementById('txMember').value = '';
+      }
+    }
+
+    // Bulk Import for Accounts
+    function triggerImportAccounts() {
+      document.getElementById('importAccountsFileInput').click();
+    }
+    
+    function handleImportAccountsFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          
+          if (!Array.isArray(jsonData)) {
+            showToast("Invalid JSON: Must be an array of account objects.", "error");
+            event.target.value = '';
+            return;
+          }
+          
+          showLoading(true, "Importing accounts into database...");
+          
+          google.script.run
+            .withSuccessHandler(function(resp) {
+              showToast(resp.message, "success");
+              refreshAllData();
+              event.target.value = '';
+            })
+            .withFailureHandler(function(err) {
+              showLoading(false);
+              showToast("Import failed: " + err.message, "error");
+              event.target.value = '';
+            })
+            .importAccounts(jsonData);
+            
+        } catch (err) {
+          showToast("Failed to parse JSON file: " + err.message, "error");
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Bulk Import for Prompts
+    function triggerImportPrompts() {
+      document.getElementById('importPromptsFileInput').click();
+    }
+    
+    function handleImportPromptsFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          
+          if (!Array.isArray(jsonData)) {
+            showToast("Invalid JSON: Must be an array of prompt objects.", "error");
+            event.target.value = '';
+            return;
+          }
+          
+          showLoading(true, "Importing prompts into database...");
+          
+          google.script.run
+            .withSuccessHandler(function(resp) {
+              showToast(resp.message, "success");
+              refreshAllData();
+              event.target.value = '';
+            })
+            .withFailureHandler(function(err) {
+              showLoading(false);
+              showToast("Import failed: " + err.message, "error");
+              event.target.value = '';
+            })
+            .importPrompts(jsonData);
+            
+        } catch (err) {
+          showToast("Failed to parse JSON file: " + err.message, "error");
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Add Shared Account Credential Modal Controls
+    function openAddAccountModal() {
+      document.getElementById('addAccountModal').classList.add('active');
+    }
+    
+    function closeAddAccountModal() {
+      document.getElementById('addAccountModal').classList.remove('active');
+      document.getElementById('newAccService').value = '';
+      document.getElementById('newAccUrl').value = '';
+      document.getElementById('newAccEmail').value = '';
+      document.getElementById('newAccPass').value = '';
+      document.getElementById('newAccExpiry').value = '';
+    }
+
+    function submitAddAccount() {
+      const accData = {
+        serviceName: document.getElementById('newAccService').value,
+        loginUrl: document.getElementById('newAccUrl').value,
+        username: document.getElementById('newAccEmail').value,
+        password: document.getElementById('newAccPass').value,
+        expiryDate: document.getElementById('newAccExpiry').value
+      };
+      
+      if (!accData.serviceName || !accData.username || !accData.password) {
+        showToast("Fill in all required account fields", "error");
+        return;
+      }
+      
+      showLoading(true, "Saving shared credentials...");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          closeAddAccountModal();
+          showToast(resp.message, "success");
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to save credentials: " + err.message, "error");
+        })
+        .addAccount(accData);
+    }
+
+    // Add Prompt Modal Controls
+    function openAddPromptModal() {
+      document.getElementById('addPromptModal').classList.add('active');
+    }
+    
+    function closeAddPromptModal() {
+      document.getElementById('addPromptModal').classList.remove('active');
+      document.getElementById('newPromptTitle').value = '';
+      document.getElementById('newPromptText').value = '';
+      document.getElementById('newPromptDesc').value = '';
+    }
+
+    function submitAddPrompt() {
+      const prData = {
+        title: document.getElementById('newPromptTitle').value,
+        category: document.getElementById('newPromptCategory').value,
+        promptText: document.getElementById('newPromptText').value,
+        description: document.getElementById('newPromptDesc').value
+      };
+      
+      if (!prData.title || !prData.promptText) {
+        showToast("Fill in all required prompt fields", "error");
+        return;
+      }
+      
+      showLoading(true, "Saving design prompt...");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          closeAddPromptModal();
+          showToast(resp.message, "success");
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to save prompt: " + err.message, "error");
+        })
+        .addPrompt(prData);
+    }
+
+    // Sheet Migration trigger
+    function triggerMigration() {
+      if (!confirm("Are you sure you want to run migration? This will clear the new relational sheets and rebuild them from your raw historical sheets. Make sure you have backups!")) {
+        return;
+      }
+      
+      showLoading(true, "Migrating historical spreadsheet worksheets... This may take up to 2 minutes.");
+      
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast(resp.message, "success");
+          refreshAllData();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Migration Error: " + err.message, "error");
+        })
+        .runMigration();
+    }
+  </script>
+</body>
+</html>
