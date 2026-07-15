@@ -1734,6 +1734,7 @@
                 AssignDate: a.assign_date,
                 Group: a.brands,
                 MemberName: a.member_name,
+                AssignedTo: a.member_name,
                 Quantity: a.quantity,
                 CompletedQty: a.completed_qty,
                 Status: a.status,
@@ -1785,6 +1786,7 @@
                 AssignDate: a.assign_date,
                 Group: a.brands,
                 MemberName: a.member_name,
+                AssignedTo: a.member_name,
                 Quantity: a.quantity,
                 CompletedQty: a.completed_qty,
                 Status: a.status,
@@ -1938,25 +1940,70 @@
                 Date: t.date,
                 Type: t.type,
                 Amount: Number(t.amount) || 0,
-                Category: t.category,
-                Description: t.description
+                MemberName: t.member_name || "",
+                Note: t.note || "",
+                Status: t.status || ""
               }));
               
-              let totalDeposit = 0;
-              let totalExpense = 0;
+              let totalDeposits = 0;
+              let totalExpenses = 0;
               transactions.forEach(t => {
-                if (t.Type === 'Deposit') totalDeposit += t.Amount;
-                else if (t.Type === 'Expense') totalExpense += t.Amount;
+                const amt = Number(t.Amount || 0);
+                if (t.Type === 'Deposit') {
+                  totalDeposits += amt;
+                } else if (t.Type === 'Expense') {
+                  totalExpenses += amt;
+                }
               });
               
               if (google.script.run.successHandler) {
                 google.script.run.successHandler({
-                  transactions: transactions,
+                  ledger: transactions,
                   summary: {
-                    deposit: totalDeposit,
-                    expense: totalExpense,
-                    balance: totalDeposit - totalExpense
+                    totalDeposits: totalDeposits,
+                    totalExpenses: totalExpenses,
+                    balance: totalDeposits - totalExpenses
                   }
+                });
+              }
+            } catch(e) {
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+            }
+          },
+          
+          // 10b. getAccountsAndPrompts()
+          getAccountsAndPrompts: async function() {
+            try {
+              // Fetch Accounts
+              const { data: accounts, error: errAcc } = await supabaseClient.from('accounts').select('*').order('service_name', { ascending: true });
+              if (errAcc) throw errAcc;
+              
+              // Fetch Prompts
+              const { data: prompts, error: errProm } = await supabaseClient.from('prompts').select('*').order('title', { ascending: true });
+              if (errProm) throw errProm;
+              
+              const mappedAccounts = accounts.map(a => ({
+                RowIndex: a.id,
+                ServiceName: a.service_name,
+                LoginUrl: a.login_url,
+                UsernameEmail: a.username,
+                Password: a.password,
+                ExpiryDate: a.expiry_date,
+                Note: a.note
+              }));
+              
+              const mappedPrompts = prompts.map(p => ({
+                RowIndex: p.id,
+                Title: p.title,
+                Category: p.category,
+                PromptText: p.prompt_text,
+                Description: p.description
+              }));
+              
+              if (google.script.run.successHandler) {
+                google.script.run.successHandler({
+                  accounts: mappedAccounts,
+                  prompts: mappedPrompts
                 });
               }
             } catch(e) {
