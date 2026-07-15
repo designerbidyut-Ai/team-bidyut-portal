@@ -1634,12 +1634,16 @@
           successHandler: null,
           failureHandler: null,
           withSuccessHandler: function(handler) {
-            this.successHandler = handler;
-            return this;
+            google.script.run.successHandler = handler;
+            return google.script.run;
           },
           withFailureHandler: function(handler) {
-            this.failureHandler = handler;
-            return this;
+            google.script.run.failureHandler = function(err) {
+              console.error("Supabase API Error:", err);
+              alert("Error communicating with Supabase:\n\n" + (err.message || JSON.stringify(err)));
+              if (handler) handler(err);
+            };
+            return google.script.run;
           },
           
           // 1. getDashboardData()
@@ -1754,8 +1758,8 @@
               });
               const fundBalance = totalDeposit - totalExpense;
               
-              if (this.successHandler) {
-                this.successHandler({
+              if (google.script.run.successHandler) {
+                google.script.run.successHandler({
                   members: mappedMembers,
                   totals: totals,
                   memberPerformance: memberPerformance,
@@ -1766,7 +1770,7 @@
                 });
               }
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1787,9 +1791,9 @@
                 SubmitDate: a.submit_date,
                 ApproveDate: a.approve_date
               }));
-              if (this.successHandler) this.successHandler(mapped);
+              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1806,9 +1810,9 @@
               }
               const { error } = await supabaseClient.from('assignments').update(updateData).eq('mpro_id', mproId);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1824,9 +1828,9 @@
                 status: status
               });
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1835,9 +1839,9 @@
             try {
               const { error } = await supabaseClient.from('assignments').delete().eq('mpro_id', mproId);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1864,9 +1868,9 @@
                 SocialPost: l.social_post,
                 Note: l.note
               }));
-              if (this.successHandler) this.successHandler(mapped);
+              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1886,9 +1890,9 @@
                 note: note
               });
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1897,9 +1901,9 @@
             try {
               const { error } = await supabaseClient.from('daily_logs').delete().eq('id', id);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1917,9 +1921,9 @@
                 note: logData.note
               }).eq('id', id);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1945,8 +1949,8 @@
                 else if (t.Type === 'Expense') totalExpense += t.Amount;
               });
               
-              if (this.successHandler) {
-                this.successHandler({
+              if (google.script.run.successHandler) {
+                google.script.run.successHandler({
                   transactions: transactions,
                   summary: {
                     deposit: totalDeposit,
@@ -1956,7 +1960,7 @@
                 });
               }
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1971,9 +1975,9 @@
                 description: description
               });
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -1982,9 +1986,9 @@
             try {
               const { error } = await supabaseClient.from('fund_transactions').delete().eq('id', id);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2001,9 +2005,9 @@
                 recommended_brands: recommendedBrands
               });
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2019,9 +2023,9 @@
                 recommended_brands: recommendedBrands
               }).eq('name', name);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2040,9 +2044,9 @@
                 ExpiryDate: a.expiry_date,
                 Note: a.note
               }));
-              if (this.successHandler) this.successHandler(mapped);
+              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2058,9 +2062,9 @@
                 note: note
               });
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2069,9 +2073,9 @@
             try {
               const { error } = await supabaseClient.from('accounts').delete().eq('id', id);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2088,9 +2092,9 @@
                 PromptText: p.prompt_text,
                 Description: p.description
               }));
-              if (this.successHandler) this.successHandler(mapped);
+              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2104,9 +2108,9 @@
                 description: description
               });
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
@@ -2115,9 +2119,9 @@
             try {
               const { error } = await supabaseClient.from('prompts').delete().eq('id', id);
               if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           }
         }
