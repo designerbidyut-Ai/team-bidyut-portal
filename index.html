@@ -2964,7 +2964,7 @@
     // Process daily log sizes and render Leaderboard & Podium Top Performers
     function renderLeaderboard() {
       const tbody = document.getElementById('leaderboardTableBody');
-      if (state.members.length === 0) {
+      if ((!state.members || state.members.length === 0)) {
         tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--text-muted);">No members details loaded.</td></tr>`;
         return;
       }
@@ -3090,7 +3090,7 @@
     // Render modern timeline-like Activity Feed
     function renderActivityFeed() {
       const container = document.getElementById('activityFeedContainer');
-      if (state.recentLogs.length === 0) {
+      if ((!state.recentLogs || state.recentLogs.length === 0)) {
         container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;">No recent activities found.</div>`;
         return;
       }
@@ -3291,7 +3291,7 @@
     // Render Fund Ledger Table
     function renderFundLedgerTable() {
       const tbody = document.getElementById('fundTableBody');
-      if (state.fundLedger.length === 0) {
+      if ((!state.fundLedger || state.fundLedger.length === 0)) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No fund transaction records found.</td></tr>`;
         return;
       }
@@ -3318,7 +3318,7 @@
     // Render Shared logins Grid
     function renderAccountsGrid() {
       const container = document.getElementById('accountsContainer');
-      if (state.accounts.length === 0) {
+      if ((!state.accounts || state.accounts.length === 0)) {
         container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 30px;">No shared credentials found.</div>`;
         return;
       }
@@ -3371,7 +3371,7 @@
     // Render Prompts Container
     function renderPromptsContainer() {
       const container = document.getElementById('promptsContainer');
-      if (state.prompts.length === 0) {
+      if ((!state.prompts || state.prompts.length === 0)) {
         container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px;">No prompts logged yet.</div>`;
         return;
       }
@@ -3623,7 +3623,7 @@
         colHeaderMember.style.display = isAdmin ? '' : 'none';
       }
       
-      if (state.myLogs.length === 0) {
+      if ((!state.myLogs || state.myLogs.length === 0)) {
         const colSpanCount = isAdmin ? 11 : 10;
         tbody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align: center; color: var(--text-muted);">No logs recorded. Select Work Date and log your quantities above!</td></tr>`;
         return;
