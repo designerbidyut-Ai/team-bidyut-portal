@@ -2123,6 +2123,53 @@
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
+          },
+          
+          // 21. getBrands()
+          getBrands: async function() {
+            try {
+              const { data, error } = await supabaseClient.from('brands').select('name').order('name', { ascending: true });
+              if (error) throw error;
+              const brands = data.map(b => b.name);
+              if (google.script.run.successHandler) google.script.run.successHandler(brands);
+            } catch(e) {
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+            }
+          },
+          
+          // 22. addBrand()
+          addBrand: async function(brandName) {
+            try {
+              const cleanBrand = String(brandName).trim();
+              if (!cleanBrand) throw new Error("Brand name cannot be empty");
+              
+              // Check if exists
+              const { data, error: selectErr } = await supabaseClient.from('brands').select('name').eq('name', cleanBrand).maybeSingle();
+              if (selectErr) throw selectErr;
+              if (data) {
+                if (google.script.run.successHandler) google.script.run.successHandler({ success: false, message: "Brand already exists" });
+                return;
+              }
+              
+              const { error } = await supabaseClient.from('brands').insert({ name: cleanBrand });
+              if (error) throw error;
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Brand '" + cleanBrand + "' added successfully!" });
+            } catch(e) {
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+            }
+          },
+          
+          // 23. deleteBrand()
+          deleteBrand: async function(brandName) {
+            try {
+              const cleanBrand = String(brandName).trim();
+              if (!cleanBrand) throw new Error("Brand name cannot be empty");
+              const { error } = await supabaseClient.from('brands').delete().eq('name', cleanBrand);
+              if (error) throw error;
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Brand '" + cleanBrand + "' deleted successfully!" });
+            } catch(e) {
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+            }
           }
         }
       }
