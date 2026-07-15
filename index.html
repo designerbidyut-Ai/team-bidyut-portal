@@ -1800,37 +1800,44 @@
           },
           
           // 3. updateAssignmentStatus()
-          updateAssignmentStatus: async function(mproId, status, completedQty, dateStr) {
+          updateAssignmentStatus: async function(mproId, status, note, mproLink, completedQty) {
             try {
-              const updateData = { status: status, completed_qty: Number(completedQty) || 0 };
+              const updateData = { 
+                status: status, 
+                completed_qty: Number(completedQty) || 0
+              };
+              
               const stLower = status.toLowerCase();
               if (stLower.includes("submit")) {
-                updateData.submit_date = dateStr;
+                updateData.submit_date = new Date().toISOString().split('T')[0];
+              } else if (stLower.includes("approved") || stLower.includes("completed") || stLower.includes("pass") || stLower.includes("ok")) {
+                updateData.approve_date = new Date().toISOString().split('T')[0];
               }
-              if (stLower.includes("approved") || stLower.includes("completed") || stLower.includes("pass") || stLower.includes("ok")) {
-                updateData.approve_date = dateStr;
-              }
+              
               const { error } = await supabaseClient.from('assignments').update(updateData).eq('mpro_id', mproId);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Status updated successfully!" });
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
-          // 4. addAssignment()
-          addAssignment: async function(mproId, assignDate, brands, memberName, quantity, status) {
+          // 4. assignTask()
+          assignTask: async function(taskData) {
             try {
               const { error } = await supabaseClient.from('assignments').insert({
-                mpro_id: mproId,
-                assign_date: assignDate,
-                brands: brands,
-                member_name: memberName,
-                quantity: Number(quantity) || 0,
-                status: status
+                mpro_id: taskData.mproId,
+                assign_date: taskData.assignDate || new Date().toISOString().split('T')[0],
+                brands: taskData.group || "",
+                member_name: taskData.assignedTo,
+                quantity: Number(taskData.quantity) || 0,
+                completed_qty: 0,
+                status: taskData.status || "Not Started",
+                submit_date: null,
+                approve_date: null
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Task assigned successfully!" });
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
@@ -1841,7 +1848,7 @@
             try {
               const { error } = await supabaseClient.from('assignments').delete().eq('mpro_id', mproId);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Assignment deleted successfully!" });
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
@@ -1876,54 +1883,137 @@
             }
           },
           
-          // 7. addDailyLog()
-          addDailyLog: async function(date, memberName, c6, c10, c15, c20, c30, c1m, sp, note) {
+          // 7. logDailyWork()
+          logDailyWork: async function(logData) {
             try {
+              // 1. Verify PIN
+              const isAdmin = String(logData.pin).trim() === "admin1234";
+              let pinValid = false;
+              if (isAdmin) {
+                pinValid = true;
+              } else {
+                const { data, error } = await supabaseClient.from('members').select('pin').eq('name', logData.memberName).maybeSingle();
+                if (error) throw error;
+                const storedPin = data ? String(data.pin || "").trim() : "";
+                const expectedPin = storedPin === "" ? "1234" : storedPin;
+                pinValid = expectedPin === String(logData.pin).trim();
+              }
+              
+              if (!pinValid) {
+                throw new Error("Authentication failed: Invalid PIN. Default PIN is 1234.");
+              }
+              
+              // 2. Insert Daily Log
               const { error } = await supabaseClient.from('daily_logs').insert({
-                date: date,
-                member_name: memberName,
-                content_6s: Number(c6) || 0,
-                content_10s: Number(c10) || 0,
-                content_15s: Number(c15) || 0,
-                content_20s: Number(c20) || 0,
-                content_30s: Number(c30) || 0,
-                content_1m: Number(c1m) || 0,
-                social_post: Number(sp) || 0,
-                note: note
+                date: logData.date || new Date().toISOString().split('T')[0],
+                member_name: logData.memberName,
+                content_6s: Number(logData.content6s) || 0,
+                content_10s: Number(logData.content10s) || 0,
+                content_15s: Number(logData.content15s) || 0,
+                content_20s: Number(logData.content20s) || 0,
+                content_30s: Number(logData.content30s) || 0,
+                content_1m: Number(logData.content1m) || 0,
+                social_post: Number(logData.socialPost) || 0,
+                note: logData.note || ""
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              
+              if (google.script.run.successHandler) {
+                google.script.run.successHandler({ success: true, message: "Work logged successfully!" });
+              }
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
           // 8. deleteDailyLog()
-          deleteDailyLog: async function(id) {
+          deleteDailyLog: async function(id, memberName, pin) {
             try {
+              // 1. Verify PIN
+              const isAdmin = String(pin).trim() === "admin1234";
+              let pinValid = false;
+              if (isAdmin) {
+                pinValid = true;
+              } else {
+                const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
+                if (error) throw error;
+                const storedPin = data ? String(data.pin || "").trim() : "";
+                const expectedPin = storedPin === "" ? "1234" : storedPin;
+                pinValid = expectedPin === String(pin).trim();
+              }
+              
+              if (!pinValid) {
+                throw new Error("Authentication failed: Invalid PIN");
+              }
+              
+              // 2. Fetch original row to verify ownership if not admin
+              if (!isAdmin) {
+                const { data: original, error: origErr } = await supabaseClient.from('daily_logs').select('member_name').eq('id', id).maybeSingle();
+                if (origErr) throw origErr;
+                if (original && original.member_name !== memberName) {
+                  throw new Error("Permission denied: You can only delete your own logs");
+                }
+              }
+              
+              // 3. Delete Row
               const { error } = await supabaseClient.from('daily_logs').delete().eq('id', id);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              
+              if (google.script.run.successHandler) {
+                google.script.run.successHandler({ success: true, message: "Daily log deleted successfully!" });
+              }
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
           },
           
           // 9. updateDailyLog()
-          updateDailyLog: async function(id, logData) {
+          updateDailyLog: async function(id, logData, memberName, pin) {
             try {
+              // 1. Verify PIN
+              const isAdmin = String(pin).trim() === "admin1234";
+              let pinValid = false;
+              if (isAdmin) {
+                pinValid = true;
+              } else {
+                const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
+                if (error) throw error;
+                const storedPin = data ? String(data.pin || "").trim() : "";
+                const expectedPin = storedPin === "" ? "1234" : storedPin;
+                pinValid = expectedPin === String(pin).trim();
+              }
+              
+              if (!pinValid) {
+                throw new Error("Authentication failed: Invalid PIN");
+              }
+              
+              // 2. Fetch original row to verify ownership if not admin
+              if (!isAdmin) {
+                const { data: original, error: origErr } = await supabaseClient.from('daily_logs').select('member_name').eq('id', id).maybeSingle();
+                if (origErr) throw origErr;
+                if (original && original.member_name !== memberName) {
+                  throw new Error("Permission denied: You can only edit your own logs");
+                }
+              }
+              
+              // 3. Update Row
               const { error } = await supabaseClient.from('daily_logs').update({
-                content_6s: Number(logData.c6) || 0,
-                content_10s: Number(logData.c10) || 0,
-                content_15s: Number(logData.c15) || 0,
-                content_20s: Number(logData.c20) || 0,
-                content_30s: Number(logData.c30) || 0,
-                content_1m: Number(logData.c1m) || 0,
-                social_post: Number(logData.sp) || 0,
-                note: logData.note
+                date: logData.date,
+                member_name: isAdmin ? (logData.memberName || memberName) : memberName,
+                content_6s: Number(logData.content6s) || 0,
+                content_10s: Number(logData.content10s) || 0,
+                content_15s: Number(logData.content15s) || 0,
+                content_20s: Number(logData.content20s) || 0,
+                content_30s: Number(logData.content30s) || 0,
+                content_1m: Number(logData.content1m) || 0,
+                social_post: Number(logData.socialPost) || 0,
+                note: logData.note || ""
               }).eq('id', id);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              
+              if (google.script.run.successHandler) {
+                google.script.run.successHandler({ success: true, message: "Daily log updated successfully!" });
+              }
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
@@ -2012,17 +2102,17 @@
           },
           
           // 11. addFundTransaction()
-          addFundTransaction: async function(date, type, amount, category, description) {
+          addFundTransaction: async function(txData) {
             try {
               const { error } = await supabaseClient.from('fund_transactions').insert({
-                date: date,
-                type: type,
-                amount: Number(amount) || 0,
-                category: category,
-                description: description
+                date: txData.date,
+                type: txData.type,
+                amount: Number(txData.amount) || 0,
+                category: txData.memberName || "",
+                description: txData.note || ""
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Transaction recorded successfully!" });
             } catch(e) {
               if (google.script.run.failureHandler) google.script.run.failureHandler(e);
             }
