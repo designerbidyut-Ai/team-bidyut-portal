@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
@@ -786,7 +786,7 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="logo-box">âš¡</div>
+        <div class="logo-box">⚡</div>
         <div class="logo-text">
           <h2>Team Bidyut</h2>
           <span>Content Tracker Portal</span>
@@ -830,21 +830,15 @@
             AI Prompts
           </a>
         </li>
-        <li>
-          <a class="nav-item" onclick="switchTab('report', this)">
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Report
-          </a>
-        </li>
       </ul>
       
       <div class="sidebar-footer">
         <!-- System Migration Button for Bidyut -->
         <button id="btnMigrate" class="btn btn-outline btn-sm" onclick="triggerMigration()" style="display:none; margin-bottom: 8px; width: 100%; justify-content: center;">
-          ðŸ”„ Migrate Sheets
+          🔄 Migrate Sheets
         </button>
         <button id="btnChangeResourcePin" class="btn btn-outline btn-sm" onclick="openChangeResourcePinModal()" style="display:none; margin-bottom: 8px; border-color: rgba(244, 63, 94, 0.4); color: #f43f5e; width: 100%; justify-content: center; gap: 6px;">
-          ðŸ”‘ Change Access PIN
+          🔑 Change Access PIN
         </button>
         <div class="role-badge" onclick="openLoginModal()">
           <div id="roleDot" class="role-dot member"></div>
@@ -857,7 +851,7 @@
     <main class="main-content">
       <!-- Local Simulation Preview Banner -->
       <div id="localPreviewBanner" style="display:none; background: linear-gradient(90deg, #f59e0b, #ec4899); color: white; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 13px; text-align: center; box-shadow: var(--shadow-sm);">
-        âš ï¸ LOCAL PREVIEW MODE: You are viewing the page locally with simulation data. To connect live, deploy this HTML in Google Apps Script.
+        ⚠️ LOCAL PREVIEW MODE: You are viewing the page locally with simulation data. To connect live, deploy this HTML in Google Apps Script.
       </div>
       
       <!-- Top Header Bar -->
@@ -875,7 +869,7 @@
           </button>
           
           <button class="btn btn-primary btn-sm" onclick="refreshAllData()">
-            ðŸ”„ Sync Data
+            🔄 Sync Data
           </button>
         </div>
       </header>
@@ -914,7 +908,7 @@
               <!-- Header Row -->
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 16px;">ðŸ“Š</span>
+                  <span style="font-size: 16px;">📊</span>
                   <span class="metric-title" style="font-size: 12px; text-transform: uppercase; font-weight:800; letter-spacing: 0.8px; color: #10b981;">Daily Work Progress</span>
                 </div>
                 <input type="date" id="overviewDateSelector" onchange="updateAssignmentsAnalytics()" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 5px 10px; color: var(--text-main); font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; outline: none; transition: border-color 0.2s;">
@@ -925,7 +919,7 @@
                 <!-- 1. Work Submitted Block -->
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 8px;">
                   <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(245, 158, 11, 0.1); border-radius: 50%; font-size: 16px;">ðŸ“¤</div>
+                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(245, 158, 11, 0.1); border-radius: 50%; font-size: 16px;">📤</div>
                     <div style="font-size: 14px; font-weight: 700; color: var(--text-main); letter-spacing: 0.2px;">Work Submitted</div>
                   </div>
                   <div id="todaySubmittedVal" style="font-size: 24px; font-weight: 900; color: #f59e0b; font-family: 'Outfit', sans-serif;">0 items</div>
@@ -934,7 +928,7 @@
                 <!-- 2. Work Approved Block -->
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px;">
                   <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.1); border-radius: 50%; font-size: 16px;">âœ…</div>
+                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.1); border-radius: 50%; font-size: 16px;">✅</div>
                     <div style="font-size: 14px; font-weight: 700; color: var(--text-main); letter-spacing: 0.2px;">Work Approved</div>
                   </div>
                   <div id="todayApprovedVal" style="font-size: 24px; font-weight: 900; color: #10b981; font-family: 'Outfit', sans-serif;">0 items</div>
@@ -944,14 +938,14 @@
             
             <!-- Footer text -->
             <div style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 20px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 10px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-              <span>âš¡</span> Real-time Performance Tracking
+              <span>⚡</span> Real-time Performance Tracking
             </div>
           </div>
         </div>
 
         <!-- Top Performer Podium -->
         <h3 class="font-outfit" style="font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-          ðŸ‘‘ Top Performers Podium
+          👑 Top Performers Podium
         </h3>
         
         <div class="podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-bottom: 30px; margin-top: 10px;">
@@ -1056,8 +1050,8 @@
               <h4 id="loggedInNameText" style="font-size: 20px; font-weight: 800; color: var(--accent-neon); margin-top: 2px;">-</h4>
             </div>
             <div style="display: flex; gap: 12px;">
-              <button class="btn btn-outline btn-sm" onclick="openChangePinModal()">ðŸ”‘ Change PIN</button>
-              <button class="btn btn-outline btn-sm" onclick="submitMemberLogout()" style="color: var(--status-error); border-color: rgba(239, 68, 68, 0.3);">ðŸšª Log Out</button>
+              <button class="btn btn-outline btn-sm" onclick="openChangePinModal()">🔑 Change PIN</button>
+              <button class="btn btn-outline btn-sm" onclick="submitMemberLogout()" style="color: var(--status-error); border-color: rgba(239, 68, 68, 0.3);">🚪 Log Out</button>
             </div>
           </div>
 
@@ -1187,11 +1181,11 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="assignDate">Assign Date <span style="color: var(--accent-pink);">*</span></label>
-                <input type="date" id="assignDate" required onclick="this.showPicker()" onchange="calculateAutoDeadline()">
+                <input type="date" id="assignDate" required>
               </div>
               <div class="form-group">
                 <label for="assignMember">Assign To <span style="color: var(--accent-pink);">*</span></label>
-                <select id="assignMember" required onchange="onAssignMemberChange(this.value)">
+                <select id="assignMember" required onchange="showMemberBrandRecommendation(this.value)">
                   <option value="">Select Member...</option>
                 </select>
                 <div id="assignMemberRecommendation" style="font-size: 11px; margin-top: 5px; color: #10b981; font-weight: 700; display: none;"></div>
@@ -1215,8 +1209,8 @@
                   <select id="assignGroup" required style="flex: 1;">
                     <option value="">Select Brand...</option>
                   </select>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="promptAddBrand()" style="padding: 0 10px; font-weight: 700;" title="Add New Brand">âž•</button>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="promptDeleteBrand()" style="padding: 0 10px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Delete Brand">âž–</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="promptAddBrand()" style="padding: 0 10px; font-weight: 700;" title="Add New Brand">➕</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="promptDeleteBrand()" style="padding: 0 10px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Delete Brand">➖</button>
                 </div>
               </div>
               <div class="form-group">
@@ -1287,7 +1281,7 @@
             
             <!-- Per-Member Workload Distribution Grid -->
             <h4 class="font-outfit" style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-              ðŸ“Š Member Workload Breakdown & Top Brands
+              📊 Member Workload Breakdown & Top Brands
             </h4>
             <div id="memberWorkloadGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; max-height: 240px; overflow-y: auto; padding-right: 6px;">
               <!-- Dynamically populated via JS -->
@@ -1326,15 +1320,15 @@
         <div class="fund-summary-grid">
           <div class="fund-summary-item">
             <label>Total Collected</label>
-            <h3 id="fundTotalCollected" class="font-outfit" style="font-size: 24px; color: var(--accent-neon); margin-top: 8px;">à§³0</h3>
+            <h3 id="fundTotalCollected" class="font-outfit" style="font-size: 24px; color: var(--accent-neon); margin-top: 8px;">৳0</h3>
           </div>
           <div class="fund-summary-item">
             <label>Total Spent</label>
-            <h3 id="fundTotalSpent" class="font-outfit" style="font-size: 24px; color: var(--status-error); margin-top: 8px;">à§³0</h3>
+            <h3 id="fundTotalSpent" class="font-outfit" style="font-size: 24px; color: var(--status-error); margin-top: 8px;">৳0</h3>
           </div>
           <div class="fund-summary-item balance">
             <label>Remaining Balance</label>
-            <h3 id="fundNetBalance" class="font-outfit" style="font-size: 24px; color: var(--primary); margin-top: 8px;">à§³0</h3>
+            <h3 id="fundNetBalance" class="font-outfit" style="font-size: 24px; color: var(--primary); margin-top: 8px;">৳0</h3>
           </div>
         </div>
 
@@ -1410,10 +1404,10 @@
           <h3 class="font-outfit" style="font-size: 20px; font-weight: 700;">Shared Team Logins</h3>
           <div style="display: flex; gap: 8px; align-items: center;">
             <button id="adminImportAccountsBtn" class="btn btn-outline btn-sm" onclick="triggerImportAccounts()" style="display:none;">
-              ðŸ“¥ Import JSON
+              📥 Import JSON
             </button>
             <button id="adminAddAccountBtn" class="btn btn-primary btn-sm" onclick="openAddAccountModal()" style="display:none;">
-              âž• Add Shared Account
+              ➕ Add Shared Account
             </button>
           </div>
         </div>
@@ -1430,10 +1424,10 @@
           <h3 class="font-outfit" style="font-size: 20px; font-weight: 700;">AI Prompt Library</h3>
           <div style="display: flex; gap: 8px; align-items: center;">
             <button id="adminImportPromptsBtn" class="btn btn-outline btn-sm" onclick="triggerImportPrompts()" style="display:none;">
-              ðŸ“¥ Import JSON
+              📥 Import JSON
             </button>
             <button id="adminAddPromptBtn" class="btn btn-primary btn-sm" onclick="openAddPromptModal()" style="display:none;">
-              âž• Add Design Prompt
+              ➕ Add Design Prompt
             </button>
           </div>
         </div>
@@ -1441,169 +1435,6 @@
 
         <div id="promptsContainer" class="prompts-container">
           <!-- Prompt cards appended dynamically -->
-        </div>
-      </section>
-
-      <!-- TAB 7: REPORT DASHBOARD -->
-      <section id="reportTab" class="tab-content">
-        <div class="card" style="margin-bottom: 24px;">
-          <div class="section-header" style="flex-wrap: wrap; gap: 16px;">
-            <div>
-              <h3 class="font-outfit" style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">Designer Performance & Task Report</h3>
-              <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Comprehensive workflow statistics, timeline approvals and active workloads.</p>
-            </div>
-            <div class="form-group" style="width: 250px; flex-direction: row; align-items: center; gap: 8px;">
-              <label style="white-space: nowrap; margin-bottom: 0; font-weight: 600;">View Report for:</label>
-              <select id="reportMemberFilter" onchange="generateDesignerReport(this.value)" style="width: 100%;">
-                <option value="ALL" selected>Consolidated Team Report</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Consolidated Team Report View -->
-        <div id="teamReportView" style="display: block;">
-          <!-- Grid of Key Metrics -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
-            <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Total Assigned Tasks</div>
-              <div id="repTotalTasks" style="font-size: 28px; font-weight: 800; color: var(--accent-blue);">0</div>
-            </div>
-            <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Active / Running Tasks</div>
-              <div id="repActiveTasks" style="font-size: 28px; font-weight: 800; color: #f59e0b;">0</div>
-            </div>
-            <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Completed (Approved) Tasks</div>
-              <div id="repCompletedTasks" style="font-size: 28px; font-weight: 800; color: #10b981;">0</div>
-            </div>
-            <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Pending Submissions</div>
-              <div id="repPendingSubmissions" style="font-size: 28px; font-weight: 800; color: var(--accent-pink);">0</div>
-            </div>
-          </div>
-
-          <!-- Team Workload Table -->
-          <div class="card">
-            <h4 class="font-outfit" style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-              ðŸ“‹ Team Member Status Summary
-            </h4>
-            <div class="table-container">
-              <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                  <tr>
-                    <th>Designer Name</th>
-                    <th>Role</th>
-                    <th>Active Tasks</th>
-                    <th>Completed Tasks</th>
-                    <th>Total Items (Qty)</th>
-                    <th>Completed Items (Qty)</th>
-                    <th>Completion %</th>
-                  </tr>
-                </thead>
-                <tbody id="teamReportTableBody">
-                  <!-- Generated dynamically -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Individual Member Detailed Report View -->
-        <div id="memberReportView" style="display: none;">
-          <!-- Member Info & Overview Grid -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 24px;">
-            <!-- Profile Card -->
-            <div class="card" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 24px; border: 1px solid var(--border-color);">
-              <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-pink)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: white;" id="repMemberInitials">
-                  DS
-                </div>
-                <div>
-                  <h4 class="font-outfit" id="repMemberName" style="font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main);">Designer Name</h4>
-                  <div id="repMemberRole" style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Motion Graphic Designer</div>
-                </div>
-              </div>
-              <div style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 12px; font-size: 12px; display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Email:</span><span id="repMemberEmail" style="font-weight: 600; color: var(--text-main);">-</span></div>
-                <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Phone:</span><span id="repMemberPhone" style="font-weight: 600; color: var(--text-main);">-</span></div>
-                <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Rec. Brands:</span><span id="repMemberBrands" class="status-badge" style="font-size: 10px; padding: 2px 8px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: none;">-</span></div>
-              </div>
-            </div>
-
-            <!-- Stats Grid -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-              <div class="stat-mini-card" style="padding: 16px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Running Tasks</div>
-                <div id="repMemActive" style="font-size: 26px; font-weight: 800; color: #f59e0b; margin-top: 4px;">0</div>
-              </div>
-              <div class="stat-mini-card" style="padding: 16px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Approved Tasks</div>
-                <div id="repMemApproved" style="font-size: 26px; font-weight: 800; color: #10b981; margin-top: 4px;">0</div>
-              </div>
-              <div class="stat-mini-card" style="padding: 16px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Submission Rate</div>
-                <div id="repMemRate" style="font-size: 26px; font-weight: 800; color: var(--accent-blue); margin-top: 4px;">0%</div>
-              </div>
-              <div class="stat-mini-card" style="padding: 16px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Pending Actions</div>
-                <div id="repMemPending" style="font-size: 26px; font-weight: 800; color: var(--accent-pink); margin-top: 4px;">0</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Member Task Timelines Split Grid -->
-          <div style="display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 24px;">
-            <!-- Active Tasks Panel -->
-            <div class="card" style="margin-bottom: 0;">
-              <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                âš¡ Running / Unfinished Assignments
-              </h4>
-              <div class="table-container">
-                <table style="width: 100%; border-collapse: collapse;">
-                  <thead>
-                    <tr>
-                      <th>Assign Date</th>
-                      <th>MPRO ID</th>
-                      <th>Brand</th>
-                      <th>Status</th>
-                      <th>Quantity</th>
-                      <th>Deadline</th>
-                      <th>Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody id="repMemActiveTableBody">
-                    <!-- Dynamic -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Approved/History Panel -->
-            <div class="card" style="margin-bottom: 0;">
-              <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                âœ… Completed & Approved Assignments History
-              </h4>
-              <div class="table-container">
-                <table style="width: 100%; border-collapse: collapse;">
-                  <thead>
-                    <tr>
-                      <th>Assign Date</th>
-                      <th>MPRO ID</th>
-                      <th>Brand</th>
-                      <th>Quantity</th>
-                      <th>Submit Date</th>
-                      <th>Approval Date</th>
-                      <th>Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody id="repMemCompletedTableBody">
-                    <!-- Dynamic -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -1617,7 +1448,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Portal Verification</h3>
-        <button class="icon-btn" onclick="closeLoginModal()">âœ–</button>
+        <button class="icon-btn" onclick="closeLoginModal()">✖</button>
       </div>
       <div class="form-group" style="margin-bottom: 20px;">
         <label for="adminRoleSelect">Access Role</label>
@@ -1642,7 +1473,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Update Task Details</h3>
-        <button class="icon-btn" onclick="closeStatusModal()">âœ–</button>
+        <button class="icon-btn" onclick="closeStatusModal()">✖</button>
       </div>
       <input type="hidden" id="statusTaskId">
       <div class="form-group" style="margin-bottom: 16px;">
@@ -1696,7 +1527,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Add Shared Credentials</h3>
-        <button class="icon-btn" onclick="closeAddAccountModal()">âœ–</button>
+        <button class="icon-btn" onclick="closeAddAccountModal()">✖</button>
       </div>
       <div class="form-group" style="margin-bottom: 12px;">
         <label for="newAccService">Service Name</label>
@@ -1730,7 +1561,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Add Design AI Prompt</h3>
-        <button class="icon-btn" onclick="closeAddPromptModal()">âœ–</button>
+        <button class="icon-btn" onclick="closeAddPromptModal()">✖</button>
       </div>
       <div class="form-group" style="margin-bottom: 12px;">
         <label for="newPromptTitle">Prompt Title</label>
@@ -1766,7 +1597,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Change Personal PIN</h3>
-        <button class="icon-btn" onclick="closeChangePinModal()">âœ–</button>
+        <button class="icon-btn" onclick="closeChangePinModal()">✖</button>
       </div>
       <div class="form-group" style="margin-bottom: 12px;">
         <label>Member Name</label>
@@ -1791,12 +1622,12 @@
   <div id="resourcePinModal" class="modal-overlay">
     <div class="modal-card" style="max-width: 400px; text-align: center; padding: 30px;">
       <h3 style="margin-bottom: 12px; color: #f43f5e; font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        ðŸ”’ Protected Tab
+        🔒 Protected Tab
       </h3>
       <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">This tab contains sensitive credentials and creative prompts. Please enter the Access PIN to proceed.</p>
       
       <div class="form-group" style="margin-bottom: 24px;">
-        <input type="password" id="inputResourcePin" placeholder="â€¢â€¢â€¢â€¢" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); color: var(--text-main); font-size: 20px; text-align: center; letter-spacing: 6px; font-weight: 800;" required>
+        <input type="password" id="inputResourcePin" placeholder="••••" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); color: var(--text-main); font-size: 20px; text-align: center; letter-spacing: 6px; font-weight: 800;" required>
       </div>
       
       <div style="display: flex; gap: 12px; justify-content: center;">
@@ -1811,7 +1642,7 @@
     <div class="modal-card" style="max-width: 400px;">
       <div class="modal-header">
         <h3>Change Access PIN</h3>
-        <button class="icon-btn" onclick="closeChangeResourcePinModal()">âœ–</button>
+        <button class="icon-btn" onclick="closeChangeResourcePinModal()">✖</button>
       </div>
       <div class="form-group" style="margin-bottom: 20px;">
         <label for="newResourcePin">New Access PIN (at least 4 digits)</label>
@@ -1957,7 +1788,6 @@
               });
               
               const mappedAssignments = assignments.map(a => ({
-                TaskID: a.task_id || ("T-" + a.mpro_id),
                 MPROID: a.mpro_id,
                 AssignDate: a.assign_date,
                 Group: a.brands,
@@ -2010,7 +1840,6 @@
               if (error) throw error;
               
               const mapped = data.map(a => ({
-                TaskID: a.task_id || ("T-" + a.mpro_id),
                 MPROID: a.mpro_id,
                 AssignDate: a.assign_date,
                 Group: a.brands,
@@ -2020,8 +1849,7 @@
                 CompletedQty: a.completed_qty,
                 Status: a.status || "Not Started",
                 SubmitDate: a.submit_date,
-                ApproveDate: a.approve_date,
-                Deadline: a.deadline || ""
+                ApproveDate: a.approve_date
               }));
               if (this.successHandler) this.successHandler(mapped);
             } catch(e) {
@@ -2045,9 +1873,8 @@
               }
               
               if (note !== undefined && note !== null) updateData.note = note;
-              if (mproLink) updateData.mpro_link = mproLink;
               
-              // Query by task_id OR mpro_id defensively
+              // Query by task_id OR mpro_id defensively (DO NOT update non-existent mpro_link)
               const { error } = await supabaseClient.from('assignments')
                 .update(updateData)
                 .or(`task_id.eq.${taskId},mpro_id.eq.${taskId}`);
@@ -2289,38 +2116,6 @@
               if (this.successHandler) this.successHandler(isValid);
             } catch(e) {
               if (this.failureHandler) this.failureHandler(e);
-            }
-          },
-
-          // 9e. verifyResourcePin()
-          verifyResourcePin: async function(pin) {
-            try {
-              const { data, error } = await supabaseClient.from('settings').select('value').eq('key', 'resource_access_pin').maybeSingle();
-              let expectedPin = sessionStorage.getItem('resource_access_pin') || "1234";
-              if (!error && data) {
-                expectedPin = String(data.value).trim();
-              }
-              const isValid = expectedPin === String(pin).trim();
-              if (this.successHandler) this.successHandler(isValid);
-            } catch(e) {
-              const expectedPin = sessionStorage.getItem('resource_access_pin') || "1234";
-              const isValid = expectedPin === String(pin).trim();
-              if (this.successHandler) this.successHandler(isValid);
-            }
-          },
-          
-          // 9f. updateResourcePin()
-          updateResourcePin: async function(newPin) {
-            try {
-              const { error } = await supabaseClient.from('settings').upsert({
-                key: 'resource_access_pin',
-                value: String(newPin).trim()
-              });
-              if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true, message: "Access PIN updated successfully in Supabase settings!" });
-            } catch(e) {
-              sessionStorage.setItem('resource_access_pin', String(newPin).trim());
-              if (this.successHandler) this.successHandler({ success: true, message: "Access PIN updated locally (session storage)!" });
             }
           },
           
@@ -3210,9 +3005,9 @@
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
       
-      let icon = 'ðŸ””';
-      if (type === 'success') icon = 'âœ…';
-      if (type === 'error') icon = 'âŒ';
+      let icon = '🔔';
+      if (type === 'success') icon = '✅';
+      if (type === 'error') icon = '❌';
       
       toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
       container.appendChild(toast);
@@ -3257,17 +3052,11 @@
         assignments: { h1: "Task Assignments", p: "Track, manage and assign MPRO works" },
         fund: { h1: "Team Fund Ledger", p: "Accounting details for collections and expenses" },
         accounts: { h1: "Shared Credentials", p: "Shared premium logins and website access" },
-        prompts: { h1: "Design Prompts", p: "High-quality prompts for creative AI tools" },
-        report: { h1: "Team Productivity Report", p: "Detailed reports for team members and workloads" }
+        prompts: { h1: "Design Prompts", p: "High-quality prompts for creative AI tools" }
       };
       
       document.getElementById('pageHeading').innerText = headings[tabId].h1;
       document.getElementById('pageSubheading').innerText = headings[tabId].p;
-      
-      if (tabId === 'report') {
-        const filterVal = document.getElementById('reportMemberFilter') ? document.getElementById('reportMemberFilter').value : 'ALL';
-        generateDesignerReport(filterVal);
-      }
     }
 
     // Fetch and Sync all data from Google Sheets Backend
@@ -3299,7 +3088,7 @@
           const metricActive = document.getElementById('metricActiveTasks');
           if (metricActive) metricActive.innerText = state.taskStats.inProgress || 0;
           const metricFund = document.getElementById('metricFund');
-          if (metricFund) metricFund.innerText = 'à§³' + (state.fundBalance || 0);
+          if (metricFund) metricFund.innerText = '৳' + (state.fundBalance || 0);
           
           // Populate member selection lists in forms
           populateMemberDropdowns();
@@ -3349,9 +3138,9 @@
           
           // Render fund outputs
           const summary = data.summary || { totalDeposits: 0, totalExpenses: 0, balance: 0 };
-          document.getElementById('fundTotalCollected').innerText = 'à§³' + (summary.totalDeposits || 0);
-          document.getElementById('fundTotalSpent').innerText = 'à§³' + (summary.totalExpenses || 0);
-          document.getElementById('fundNetBalance').innerText = 'à§³' + (summary.balance || 0);
+          document.getElementById('fundTotalCollected').innerText = '৳' + (summary.totalDeposits || 0);
+          document.getElementById('fundTotalSpent').innerText = '৳' + (summary.totalExpenses || 0);
+          document.getElementById('fundNetBalance').innerText = '৳' + (summary.balance || 0);
           
           renderFundLedgerTable();
           
@@ -3394,7 +3183,6 @@
       const filterSelect = document.getElementById('assignFilterSelect');
       const logMemberNameSelect = document.getElementById('logMemberNameSelect');
       const logsMemberFilter = document.getElementById('logsMemberFilter');
-      const reportMemberFilter = document.getElementById('reportMemberFilter');
       
       // Store current selections
       const currentLogSel = loginMemberSelect ? loginMemberSelect.value : '';
@@ -3403,7 +3191,6 @@
       const currentFilterSel = filterSelect ? filterSelect.value : '';
       const currentSelectSel = logMemberNameSelect ? logMemberNameSelect.value : '';
       const currentLogsFilterSel = logsMemberFilter ? logsMemberFilter.value : '';
-      const currentReportFilterSel = reportMemberFilter ? reportMemberFilter.value : 'ALL';
       
       // Clear dropdowns
       if (loginMemberSelect) loginMemberSelect.innerHTML = `<option value="">Choose your name...</option>`;
@@ -3412,23 +3199,15 @@
       if (filterSelect) filterSelect.innerHTML = `<option value="ALL">All Members</option>`;
       if (logMemberNameSelect) logMemberNameSelect.innerHTML = '';
       if (logsMemberFilter) logsMemberFilter.innerHTML = `<option value="">All Members</option>`;
-      if (reportMemberFilter) reportMemberFilter.innerHTML = `<option value="ALL">Consolidated Team Report</option>`;
       
       state.members.forEach(member => {
         const optionHTML = `<option value="${member.Name}">${member.Name}</option>`;
         if (loginMemberSelect) loginMemberSelect.innerHTML += optionHTML;
-        
-        let assignOptionHTML = `<option value="${member.Name}">${member.Name}</option>`;
-        if (member.RecommendedBrands) {
-          assignOptionHTML = `<option value="${member.Name}">${member.Name} (Rec: ${member.RecommendedBrands})</option>`;
-        }
-        if (assignMemberSelect) assignMemberSelect.innerHTML += assignOptionHTML;
-        
+        if (assignMemberSelect) assignMemberSelect.innerHTML += optionHTML;
         if (txMemberSelect) txMemberSelect.innerHTML += optionHTML;
         if (filterSelect) filterSelect.innerHTML += optionHTML;
         if (logMemberNameSelect) logMemberNameSelect.innerHTML += optionHTML;
         if (logsMemberFilter) logsMemberFilter.innerHTML += optionHTML;
-        if (reportMemberFilter) reportMemberFilter.innerHTML += optionHTML;
       });
       
       // Restore selections
@@ -3438,7 +3217,6 @@
       if (filterSelect) filterSelect.value = currentFilterSel;
       if (logMemberNameSelect) logMemberNameSelect.value = currentSelectSel;
       if (logsMemberFilter) logsMemberFilter.value = currentLogsFilterSel;
-      if (reportMemberFilter) reportMemberFilter.value = currentReportFilterSel;
     }
 
     // Process daily log sizes and render Leaderboard & Podium Top Performers
@@ -3729,13 +3507,6 @@
         if (st.includes('approved') || st.includes('static approved')) stClass = 'completed';
         if (st.includes('revision') || st.includes('clear')) stClass = 'revision';
         
-        const totalQty = Number(task.Quantity) || 1;
-        const compQty = Number(task.CompletedQty) || 0;
-        const percent = Math.min(100, Math.round((compQty / totalQty) * 100));
-        const rVal = 10;
-        const circumference = 2 * Math.PI * rVal;
-        const offset = circumference - (percent / 100) * circumference;
-        
         tbody.innerHTML += `
           <tr>
             <td>${task.AssignDate}</td>
@@ -3745,22 +3516,10 @@
             </td>
             <td><span class="status-badge" style="background-color:rgba(0,0,0,0.1); color:var(--text-main); border: 1px solid var(--border-color);">${task.Group}</span></td>
             <td>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <svg width="26" height="26" style="transform: rotate(-90deg); flex-shrink: 0;">
-                  <circle cx="13" cy="13" r="${rVal}" stroke="var(--border-color)" stroke-width="2.5" fill="transparent" />
-                  <circle cx="13" cy="13" r="${rVal}" stroke="${percent === 100 ? '#10b981' : 'var(--accent-blue)'}" stroke-width="2.5" fill="transparent"
-                    stroke-dasharray="${circumference}"
-                    stroke-dashoffset="${offset}" />
-                </svg>
-                <div>
-                  <div style="font-weight: 700; font-size: 13px;">
-                    ${compQty} / ${totalQty}
-                    ${percent === 100 ? '<span style="color: #10b981; font-weight: bold; margin-left: 2px;">âœ…</span>' : ''}
-                  </div>
-                  <div style="font-size: 10px; color: var(--text-muted); white-space: nowrap;">
-                    ${percent === 100 ? 'Completed' : 'Left: ' + Math.max(0, totalQty - compQty)}
-                  </div>
-                </div>
+              <div style="font-weight:700; font-size: 14px;">Total: ${task.Quantity}</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; white-space: nowrap;">
+                Done: <span style="color: #10b981; font-weight: 700;">${task.CompletedQty || 0}</span> | 
+                Left: <span style="color: var(--accent-pink); font-weight: 700;">${Math.max(0, Number(task.Quantity) - (Number(task.CompletedQty) || 0))}</span>
               </div>
             </td>
             <td><span class="status-badge ${stClass}">${task.Status}</span></td>
@@ -3770,10 +3529,10 @@
             <td>
               <div style="display: flex; gap: 6px;">
                 <button class="btn btn-outline btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})">
-                  âœï¸ Update
+                  ✏️ Update
                 </button>
                 <button class="btn btn-outline btn-sm" onclick="deleteAssignment('${task.TaskID}')" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
-                  ðŸ—‘ï¸ Delete
+                  🗑️ Delete
                 </button>
               </div>
             </td>
@@ -3805,7 +3564,7 @@
           <tr>
             <td>${tx.Date}</td>
             <td style="font-weight:700; color: ${isDep ? 'var(--accent-neon)' : 'var(--accent-pink)'};">${tx.Type}</td>
-            <td style="font-weight:700; color:${amtColor};">${prefix}à§³${tx.Amount}</td>
+            <td style="font-weight:700; color:${amtColor};">${prefix}৳${tx.Amount}</td>
             <td style="font-weight:600;">${tx.MemberName || 'General Account'}</td>
             <td style="font-size:13px; color:var(--text-muted);">${tx.Note}</td>
             <td><span class="status-badge completed">${tx.Status}</span></td>
@@ -3828,14 +3587,14 @@
           <div class="account-card">
             <h3>
               <span>${acc.ServiceName}</span>
-              ${acc.LoginURL ? `<a href="${acc.LoginURL}" target="_blank" title="Go to login page" class="icon-btn">ðŸ”—</a>` : ''}
+              ${acc.LoginURL ? `<a href="${acc.LoginURL}" target="_blank" title="Go to login page" class="icon-btn">🔗</a>` : ''}
             </h3>
             
             <div class="account-field">
               <label>Username / Email</label>
               <div class="account-val-wrap">
                 <span class="account-val" id="acc_user_${idx}">${acc.UsernameEmail}</span>
-                <button class="icon-btn" onclick="copyToClipboard('${acc.UsernameEmail}', 'Username copied!')">ðŸ“‹</button>
+                <button class="icon-btn" onclick="copyToClipboard('${acc.UsernameEmail}', 'Username copied!')">📋</button>
               </div>
             </div>
             
@@ -3843,14 +3602,14 @@
               <label>Password</label>
               <div class="account-val-wrap">
                 <input type="password" class="account-val" id="acc_pass_${idx}" value="${acc.Password}" readonly style="padding:0; border:none; background:none; height:auto; box-shadow:none;">
-                <button class="icon-btn" onclick="togglePassVisibility(${idx})">ðŸ‘</button>
-                <button class="icon-btn" onclick="copyToClipboard('${acc.Password}', 'Password copied!')">ðŸ“‹</button>
+                <button class="icon-btn" onclick="togglePassVisibility(${idx})">👁</button>
+                <button class="icon-btn" onclick="copyToClipboard('${acc.Password}', 'Password copied!')">📋</button>
               </div>
             </div>
             
             ${acc.ExpiryDate ? `
               <div class="account-field" style="margin-top:12px; font-size:11px; color: var(--text-muted);">
-                <span>ðŸ”‘ Expiry/Taka: ${acc.ExpiryDate}</span>
+                <span>🔑 Expiry/Taka: ${acc.ExpiryDate}</span>
               </div>
             ` : ''}
           </div>
@@ -3890,7 +3649,7 @@
             <div class="prompt-text-box">
               <div style="position: absolute; top: 12px; right: 12px;">
                 <button class="btn btn-outline btn-sm" onclick="copyToClipboard(\`${pr.PromptText.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 'Prompt copied to clipboard!')" style="padding:4px 8px;">
-                  ðŸ“‹ Copy
+                  📋 Copy
                 </button>
               </div>
               <div>${pr.PromptText}</div>
@@ -4149,8 +3908,8 @@
             <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${log.Note || ''}">${log.Note || '-'}</td>
             <td>
               <div style="display:flex; gap:6px;">
-                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;" onclick="editDailyLog(${log.RowIndex}, '${log.Date}', ${log.Content6s || 0}, ${log.Content10s || 0}, ${log.Content15s || 0}, ${log.Content20s || 0}, ${log.Content30s || 0}, ${log.Content1m || 0}, ${log.SocialPost || 0}, \`${(log.Note || '').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${log.MemberName}')">âœï¸ Edit</button>
-                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; color:var(--status-error); border-color:rgba(239,68,68,0.2);" onclick="deleteDailyLog(${log.RowIndex}, '${log.MemberName}')">ðŸ—‘ï¸ Del</button>
+                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;" onclick="editDailyLog(${log.RowIndex}, '${log.Date}', ${log.Content6s || 0}, ${log.Content10s || 0}, ${log.Content15s || 0}, ${log.Content20s || 0}, ${log.Content30s || 0}, ${log.Content1m || 0}, ${log.SocialPost || 0}, \`${(log.Note || '').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${log.MemberName}')">✏️ Edit</button>
+                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; color:var(--status-error); border-color:rgba(239,68,68,0.2);" onclick="deleteDailyLog(${log.RowIndex}, '${log.MemberName}')">🗑️ Del</button>
               </div>
             </td>
           </tr>
@@ -4530,48 +4289,11 @@
       
       const member = state.members.find(function(m) { return m.Name === memberName; });
       if (member && member.RecommendedBrands) {
-        recDiv.innerHTML = `ðŸ’¡ Recommended: <span style="color: var(--text-main); font-weight:700;">${member.RecommendedBrands}</span>`;
+        recDiv.innerHTML = `💡 Recommended: <span style="color: var(--text-main); font-weight:700;">${member.RecommendedBrands}</span>`;
         recDiv.style.display = 'block';
       } else {
         recDiv.style.display = 'none';
       }
-    }
-
-    function onAssignMemberChange(memberName) {
-      showMemberBrandRecommendation(memberName);
-      if (!memberName) return;
-      
-      const member = state.members.find(function(m) { return m.Name === memberName; });
-      if (member && member.RecommendedBrands) {
-        const brandSelect = document.getElementById('assignGroup');
-        if (brandSelect) {
-          const recBrands = member.RecommendedBrands.split(',').map(function(b) { return b.trim().toLowerCase(); });
-          if (recBrands.length > 0) {
-            for (let i = 0; i < brandSelect.options.length; i++) {
-              const opt = brandSelect.options[i];
-              if (recBrands.indexOf(opt.value.toLowerCase()) !== -1) {
-                brandSelect.value = opt.value;
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    function calculateAutoDeadline() {
-      const dateInput = document.getElementById('assignDate').value;
-      if (!dateInput) return;
-      
-      const assignDate = new Date(dateInput);
-      const deadlineDate = new Date(assignDate.getTime() + 2 * 24 * 60 * 60 * 1000);
-      
-      const day = deadlineDate.getDate();
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const month = months[deadlineDate.getMonth()];
-      const year = deadlineDate.getFullYear();
-      
-      document.getElementById('assignDeadline').value = `${day}-${month}-${year}`;
     }
 
     function updateAssignmentsAnalytics() {
@@ -4702,7 +4424,7 @@
         const mName = t.AssignedTo;
         if (memberStats[mName]) {
           const st = t.Status.toLowerCase();
-          const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass') && !st.includes('submit');
+          const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass');
           
           if (isActive) memberStats[mName].activeTasks++;
           memberStats[mName].totalQty += Number(t.Quantity) || 0;
@@ -4714,16 +4436,12 @@
         }
       });
       
-      // Convert to array and sort by activeTasks ascending (least active tasks at the top, busiest at the bottom)
-      const sortedMembers = Object.values(memberStats).sort(function(a, b) {
-        return a.activeTasks - b.activeTasks;
-      });
-      
       // Populate member workload breakdown grid
       const grid = document.getElementById('memberWorkloadGrid');
       if (grid) {
         grid.innerHTML = '';
-        sortedMembers.forEach(function(stats) {
+        for (let mName in memberStats) {
+          const stats = memberStats[mName];
           const leftQty = Math.max(0, stats.totalQty - stats.completedQty);
           
           // Determine top brand and count
@@ -4764,8 +4482,45 @@
               </div>
             </div>
           `;
-        });
+        }
       }
+    }
+
+    function onAssignMemberChange(memberName) {
+      showMemberBrandRecommendation(memberName);
+      if (!memberName) return;
+      
+      const member = state.members.find(function(m) { return m.Name === memberName; });
+      if (member && member.RecommendedBrands) {
+        const brandSelect = document.getElementById('assignGroup');
+        if (brandSelect) {
+          const recBrands = member.RecommendedBrands.split(',').map(function(b) { return b.trim().toLowerCase(); });
+          if (recBrands.length > 0) {
+            for (let i = 0; i < brandSelect.options.length; i++) {
+              const opt = brandSelect.options[i];
+              if (recBrands.indexOf(opt.value.toLowerCase()) !== -1) {
+                brandSelect.value = opt.value;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    function calculateAutoDeadline() {
+      const dateInput = document.getElementById('assignDate').value;
+      if (!dateInput) return;
+      
+      const assignDate = new Date(dateInput);
+      const deadlineDate = new Date(assignDate.getTime() + 2 * 24 * 60 * 60 * 1000);
+      
+      const day = deadlineDate.getDate();
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const month = months[deadlineDate.getMonth()];
+      const year = deadlineDate.getFullYear();
+      
+      document.getElementById('assignDeadline').value = "" + day + "-" + month + "-" + year;
     }
 
     function generateDesignerReport(filterValue) {
@@ -4778,7 +4533,6 @@
         teamView.style.display = 'block';
         memberView.style.display = 'none';
         
-        // Calculate consolidated metrics
         const totalTasks = state.assignments.length;
         const activeTasks = state.assignments.filter(function(t) {
           const st = t.Status.toLowerCase();
@@ -4800,7 +4554,6 @@
         document.getElementById('repCompletedTasks').innerText = completedTasks;
         document.getElementById('repPendingSubmissions').innerText = pendingSubmissions;
         
-        // Calculate status summary per member
         const tbody = document.getElementById('teamReportTableBody');
         tbody.innerHTML = '';
         
@@ -4825,24 +4578,24 @@
           
           const completionPercent = totalQty > 0 ? Math.round((completedQty / totalQty) * 100) : 0;
           
-          tbody.innerHTML += `
+          tbody.innerHTML += 
             <tr>
-              <td style="font-weight:700; color:var(--text-main);">${member.Name}</td>
-              <td style="font-size:12px; color:var(--text-muted);">${member.Role || 'Designer'}</td>
-              <td><span class="status-badge ${mActive > 0 ? 'in-progress' : 'not-started'}">${mActive} active</span></td>
-              <td><span class="status-badge ${mCompleted > 0 ? 'completed' : 'not-started'}">${mCompleted} approved</span></td>
-              <td style="font-weight:600;">${totalQty}</td>
-              <td style="font-weight:600; color:#10b981;">${completedQty}</td>
+              <td style="font-weight:700; color:var(--text-main);"></td>
+              <td style="font-size:12px; color:var(--text-muted);"></td>
+              <td><span class="status-badge "> active</span></td>
+              <td><span class="status-badge "> approved</span></td>
+              <td style="font-weight:600;"></td>
+              <td style="font-weight:600; color:#10b981;"></td>
               <td>
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-weight:700; width:35px;">${completionPercent}%</span>
+                  <span style="font-weight:700; width:35px;">%</span>
                   <div style="flex:1; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
-                    <div style="width:${completionPercent}%; height:100%; background:linear-gradient(90deg, var(--accent-blue), #10b981); border-radius:3px;"></div>
+                    <div style="width:%; height:100%; background:linear-gradient(90deg, var(--accent-blue), #10b981); border-radius:3px;"></div>
                   </div>
                 </div>
               </td>
             </tr>
-          `;
+          ;
         });
       } else {
         teamView.style.display = 'none';
@@ -4851,19 +4604,16 @@
         const member = state.members.find(function(m) { return m.Name === filterValue; });
         if (!member) return;
         
-        // Profile details
         document.getElementById('repMemberName').innerText = member.Name;
         document.getElementById('repMemberRole').innerText = member.Role || 'Graphic Designer';
         document.getElementById('repMemberEmail').innerText = member.Email || '-';
         document.getElementById('repMemberPhone').innerText = member.Phone || '-';
         document.getElementById('repMemberBrands').innerText = member.RecommendedBrands || 'None';
         
-        // Initials icon
         const names = member.Name.split(' ');
         const initials = names.length > 1 ? (names[0][0] + names[1][0]) : member.Name.substring(0, 2);
         document.getElementById('repMemberInitials').innerText = initials.toUpperCase();
         
-        // Tasks metrics
         const mTasks = state.assignments.filter(function(t) { return t.AssignedTo === member.Name; });
         const activeTasks = mTasks.filter(function(t) {
           const st = t.Status.toLowerCase();
@@ -4894,7 +4644,6 @@
         document.getElementById('repMemRate').innerText = completionRate + '%';
         document.getElementById('repMemPending').innerText = pendingTasks;
         
-        // Populate Active Tasks Table
         const activeTbody = document.getElementById('repMemActiveTableBody');
         activeTbody.innerHTML = '';
         const mActiveList = mTasks.filter(function(t) {
@@ -4903,28 +4652,27 @@
         });
         
         if (mActiveList.length === 0) {
-          activeTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); font-size:12px;">No active/running tasks assigned.</td></tr>`;
+          activeTbody.innerHTML = <tr><td colspan="7" style="text-align:center; color:var(--text-muted); font-size:12px;">No active/running tasks assigned.</td></tr>;
         } else {
           mActiveList.forEach(function(t) {
             let badgeClass = 'not-started';
             if (t.Status.toLowerCase().includes('progress') || t.Status.toLowerCase().includes('running')) badgeClass = 'in-progress';
             if (t.Status.toLowerCase().includes('submit')) badgeClass = 'submitted';
             
-            activeTbody.innerHTML += `
+            activeTbody.innerHTML += 
               <tr>
-                <td>${t.AssignDate}</td>
-                <td><a href="${t.MPROLink}" target="_blank" class="mpro-link" style="font-family:monospace; font-weight:700;">${t.MPROID}</a></td>
-                <td><span class="status-badge" style="background:rgba(255,255,255,0.03); color:var(--text-main); border:1px solid var(--border-color);">${t.Group}</span></td>
-                <td><span class="status-badge ${badgeClass}">${t.Status}</span></td>
-                <td style="font-weight:700;">${t.CompletedQty || 0} / ${t.Quantity}</td>
-                <td style="color:var(--accent-pink); font-weight:600;">${t.Deadline || '-'}</td>
-                <td style="font-size:11px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.Note}">${t.Note || '-'}</td>
+                <td></td>
+                <td><a href="" target="_blank" class="mpro-link" style="font-family:monospace; font-weight:700;"></a></td>
+                <td><span class="status-badge" style="background:rgba(255,255,255,0.03); color:var(--text-main); border:1px solid var(--border-color);"></span></td>
+                <td><span class="status-badge "></span></td>
+                <td style="font-weight:700;"> / </td>
+                <td style="color:var(--accent-pink); font-weight:600;"></td>
+                <td style="font-size:11px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title=""></td>
               </tr>
-            `;
+            ;
           });
         }
         
-        // Populate Completed Tasks Table
         const completedTbody = document.getElementById('repMemCompletedTableBody');
         completedTbody.innerHTML = '';
         const mCompletedList = mTasks.filter(function(t) {
@@ -4933,20 +4681,20 @@
         });
         
         if (mCompletedList.length === 0) {
-          completedTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); font-size:12px;">No completed tasks in history.</td></tr>`;
+          completedTbody.innerHTML = <tr><td colspan="7" style="text-align:center; color:var(--text-muted); font-size:12px;">No completed tasks in history.</td></tr>;
         } else {
           mCompletedList.forEach(function(t) {
-            completedTbody.innerHTML += `
+            completedTbody.innerHTML += 
               <tr>
-                <td>${t.AssignDate}</td>
-                <td><a href="${t.MPROLink}" target="_blank" class="mpro-link" style="font-family:monospace; font-weight:700;">${t.MPROID}</a></td>
-                <td><span class="status-badge" style="background:rgba(255,255,255,0.03); color:var(--text-main); border:1px solid var(--border-color);">${t.Group}</span></td>
-                <td style="font-weight:700; color:#10b981;">${t.Quantity}</td>
-                <td>${t.SubmitDate || '-'}</td>
-                <td style="color:#10b981; font-weight:600;">${t.ApproveDate || t.AssignDate}</td>
-                <td style="font-size:11px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${t.Note}">${t.Note || '-'}</td>
+                <td></td>
+                <td><a href="" target="_blank" class="mpro-link" style="font-family:monospace; font-weight:700;"></a></td>
+                <td><span class="status-badge" style="background:rgba(255,255,255,0.03); color:var(--text-main); border:1px solid var(--border-color);"></span></td>
+                <td style="font-weight:700; color:#10b981;"></td>
+                <td></td>
+                <td style="color:#10b981; font-weight:600;"></td>
+                <td style="font-size:11px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title=""></td>
               </tr>
-            `;
+            ;
           });
         }
       }
