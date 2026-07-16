@@ -1639,25 +1639,32 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // google.script.run Mock Adapter mapping frontend requests to Supabase Client SDK
+    class GoogleScriptRunner {
+      constructor(successHandler, failureHandler) {
+        this.successHandler = successHandler;
+        this.failureHandler = failureHandler;
+      }
+      withSuccessHandler(handler) {
+        return new GoogleScriptRunner(handler, this.failureHandler);
+      }
+      withFailureHandler(handler) {
+        const wrappedFailure = function(err) {
+          console.error("Supabase API Error:", err);
+          alert("Error communicating with Supabase:\n\n" + (err.message || JSON.stringify(err)));
+          if (handler) handler(err);
+        };
+        return new GoogleScriptRunner(this.successHandler, wrappedFailure);
+      }
+    }
+
     const google = {
       script: {
-        run: {
-          successHandler: null,
-          failureHandler: null,
-          withSuccessHandler: function(handler) {
-            google.script.run.successHandler = handler;
-            return google.script.run;
-          },
-          withFailureHandler: function(handler) {
-            google.script.run.failureHandler = function(err) {
-              console.error("Supabase API Error:", err);
-              alert("Error communicating with Supabase:\n\n" + (err.message || JSON.stringify(err)));
-              if (handler) handler(err);
-            };
-            return google.script.run;
-          },
-          
-          // 1. getDashboardData()
+        run: new GoogleScriptRunner()
+      }
+    };
+
+    Object.assign(GoogleScriptRunner.prototype, {
+      // 1. getDashboardData()
           getDashboardData: async function() {
             try {
               // Fetch Members
@@ -1770,8 +1777,8 @@
               });
               const fundBalance = totalDeposit - totalExpense;
               
-              if (google.script.run.successHandler) {
-                google.script.run.successHandler({
+              if (this.successHandler) {
+                this.successHandler({
                   members: mappedMembers,
                   totals: totals,
                   memberPerformance: memberPerformance,
@@ -1782,7 +1789,7 @@
                 });
               }
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -1804,9 +1811,9 @@
                 SubmitDate: a.submit_date,
                 ApproveDate: a.approve_date
               }));
-              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
+              if (this.successHandler) this.successHandler(mapped);
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -1827,9 +1834,9 @@
               
               const { error } = await supabaseClient.from('assignments').update(updateData).eq('mpro_id', mproId);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Status updated successfully!" });
+              if (this.successHandler) this.successHandler({ success: true, message: "Status updated successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -1848,9 +1855,9 @@
                 approve_date: null
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Task assigned successfully!" });
+              if (this.successHandler) this.successHandler({ success: true, message: "Task assigned successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -1859,9 +1866,9 @@
             try {
               const { error } = await supabaseClient.from('assignments').delete().eq('mpro_id', mproId);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Assignment deleted successfully!" });
+              if (this.successHandler) this.successHandler({ success: true, message: "Assignment deleted successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -1888,9 +1895,9 @@
                 SocialPost: l.social_post,
                 Note: l.note
               }));
-              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
+              if (this.successHandler) this.successHandler(mapped);
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -1929,11 +1936,11 @@
               });
               if (error) throw error;
               
-              if (google.script.run.successHandler) {
-                google.script.run.successHandler({ success: true, message: "Work logged successfully!" });
+              if (this.successHandler) {
+                this.successHandler({ success: true, message: "Work logged successfully!" });
               }
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -1970,11 +1977,11 @@
               const { error } = await supabaseClient.from('daily_logs').delete().eq('id', id);
               if (error) throw error;
               
-              if (google.script.run.successHandler) {
-                google.script.run.successHandler({ success: true, message: "Daily log deleted successfully!" });
+              if (this.successHandler) {
+                this.successHandler({ success: true, message: "Daily log deleted successfully!" });
               }
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2022,11 +2029,11 @@
               }).eq('id', id);
               if (error) throw error;
               
-              if (google.script.run.successHandler) {
-                google.script.run.successHandler({ success: true, message: "Daily log updated successfully!" });
+              if (this.successHandler) {
+                this.successHandler({ success: true, message: "Daily log updated successfully!" });
               }
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2034,7 +2041,7 @@
           verifyMemberPIN: async function(memberName, pin) {
             try {
               if (String(pin).trim() === "admin1234") {
-                if (google.script.run.successHandler) google.script.run.successHandler(true);
+                if (this.successHandler) this.successHandler(true);
                 return;
               }
               const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
@@ -2044,9 +2051,9 @@
               const expectedPin = storedPin === "" ? "1234" : storedPin;
               const isValid = expectedPin === String(pin).trim();
               
-              if (google.script.run.successHandler) google.script.run.successHandler(isValid);
+              if (this.successHandler) this.successHandler(isValid);
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2054,9 +2061,9 @@
           verifyAdminPassword: async function(pass) {
             try {
               const isValid = String(pass).trim() === "admin1234";
-              if (google.script.run.successHandler) google.script.run.successHandler(isValid);
+              if (this.successHandler) this.successHandler(isValid);
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2078,11 +2085,11 @@
               const { error: updateErr } = await supabaseClient.from('members').update({ pin: String(newPin).trim() }).eq('name', memberName);
               if (updateErr) throw updateErr;
               
-              if (google.script.run.successHandler) {
-                google.script.run.successHandler({ success: true, message: "PIN changed successfully!" });
+              if (this.successHandler) {
+                this.successHandler({ success: true, message: "PIN changed successfully!" });
               }
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2113,8 +2120,8 @@
                 }
               });
               
-              if (google.script.run.successHandler) {
-                google.script.run.successHandler({
+              if (this.successHandler) {
+                this.successHandler({
                   ledger: transactions,
                   summary: {
                     totalDeposits: totalDeposits,
@@ -2124,7 +2131,7 @@
                 });
               }
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2157,14 +2164,14 @@
                 Description: p.description
               }));
               
-              if (google.script.run.successHandler) {
-                google.script.run.successHandler({
+              if (this.successHandler) {
+                this.successHandler({
                   accounts: mappedAccounts,
                   prompts: mappedPrompts
                 });
               }
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2179,9 +2186,9 @@
                 description: txData.note || ""
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Transaction recorded successfully!" });
+              if (this.successHandler) this.successHandler({ success: true, message: "Transaction recorded successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2190,9 +2197,9 @@
             try {
               const { error } = await supabaseClient.from('fund_transactions').delete().eq('id', id);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (this.successHandler) this.successHandler({ success: true });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2209,9 +2216,9 @@
                 recommended_brands: recommendedBrands
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (this.successHandler) this.successHandler({ success: true });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2227,9 +2234,9 @@
                 recommended_brands: recommendedBrands
               }).eq('name', name);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (this.successHandler) this.successHandler({ success: true });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2248,27 +2255,27 @@
                 ExpiryDate: a.expiry_date,
                 Note: a.note
               }));
-              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
+              if (this.successHandler) this.successHandler(mapped);
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
           // 16. addAccount()
-          addAccount: async function(serviceName, loginUrl, username, password, expiryDate, note) {
+          addAccount: async function(accData) {
             try {
               const { error } = await supabaseClient.from('accounts').insert({
-                service_name: serviceName,
-                login_url: loginUrl,
-                username: username,
-                password: password,
-                expiry_date: expiryDate,
-                note: note
+                service_name: accData.serviceName,
+                login_url: accData.loginUrl,
+                username: accData.username,
+                password: accData.password,
+                expiry_date: accData.expiryDate || null,
+                note: accData.note || ""
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (this.successHandler) this.successHandler({ success: true, message: "Shared credential saved successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2277,9 +2284,9 @@
             try {
               const { error } = await supabaseClient.from('accounts').delete().eq('id', id);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (this.successHandler) this.successHandler({ success: true });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2296,25 +2303,25 @@
                 PromptText: p.prompt_text,
                 Description: p.description
               }));
-              if (google.script.run.successHandler) google.script.run.successHandler(mapped);
+              if (this.successHandler) this.successHandler(mapped);
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
           // 19. addPrompt()
-          addPrompt: async function(title, category, promptText, description) {
+          addPrompt: async function(prData) {
             try {
               const { error } = await supabaseClient.from('prompts').insert({
-                title: title,
-                category: category,
-                prompt_text: promptText,
-                description: description
+                title: prData.title,
+                category: prData.category,
+                prompt_text: prData.promptText,
+                description: prData.description || ""
               });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (this.successHandler) this.successHandler({ success: true, message: "Design prompt saved successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2323,9 +2330,9 @@
             try {
               const { error } = await supabaseClient.from('prompts').delete().eq('id', id);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true });
+              if (this.successHandler) this.successHandler({ success: true });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2335,9 +2342,9 @@
               const { data, error } = await supabaseClient.from('brands').select('name').order('name', { ascending: true });
               if (error) throw error;
               const brands = data.map(b => b.name);
-              if (google.script.run.successHandler) google.script.run.successHandler(brands);
+              if (this.successHandler) this.successHandler(brands);
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2351,15 +2358,15 @@
               const { data, error: selectErr } = await supabaseClient.from('brands').select('name').eq('name', cleanBrand).maybeSingle();
               if (selectErr) throw selectErr;
               if (data) {
-                if (google.script.run.successHandler) google.script.run.successHandler({ success: false, message: "Brand already exists" });
+                if (this.successHandler) this.successHandler({ success: false, message: "Brand already exists" });
                 return;
               }
               
               const { error } = await supabaseClient.from('brands').insert({ name: cleanBrand });
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Brand '" + cleanBrand + "' added successfully!" });
+              if (this.successHandler) this.successHandler({ success: true, message: "Brand '" + cleanBrand + "' added successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           
@@ -2370,14 +2377,12 @@
               if (!cleanBrand) throw new Error("Brand name cannot be empty");
               const { error } = await supabaseClient.from('brands').delete().eq('name', cleanBrand);
               if (error) throw error;
-              if (google.script.run.successHandler) google.script.run.successHandler({ success: true, message: "Brand '" + cleanBrand + "' deleted successfully!" });
+              if (this.successHandler) this.successHandler({ success: true, message: "Brand '" + cleanBrand + "' deleted successfully!" });
             } catch(e) {
-              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+              if (this.failureHandler) this.failureHandler(e);
             }
           }
-        }
-      }
-    };
+    });
 
     const isLocalPreview = false;
 
