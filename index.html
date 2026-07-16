@@ -834,8 +834,11 @@
       
       <div class="sidebar-footer">
         <!-- System Migration Button for Bidyut -->
-        <button id="btnMigrate" class="btn btn-outline btn-sm" onclick="triggerMigration()" style="display:none;">
+        <button id="btnMigrate" class="btn btn-outline btn-sm" onclick="triggerMigration()" style="display:none; margin-bottom: 8px; width: 100%; justify-content: center;">
           🔄 Migrate Sheets
+        </button>
+        <button id="btnChangeResourcePin" class="btn btn-outline btn-sm" onclick="openChangeResourcePinModal()" style="display:none; margin-bottom: 8px; border-color: rgba(244, 63, 94, 0.4); color: #f43f5e; width: 100%; justify-content: center; gap: 6px;">
+          🔑 Change Access PIN
         </button>
         <div class="role-badge" onclick="openLoginModal()">
           <div id="roleDot" class="role-dot member"></div>
@@ -1615,6 +1618,43 @@
     </div>
   </div>
 
+  <!-- Resource PIN Access Modal -->
+  <div id="resourcePinModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 400px; text-align: center; padding: 30px;">
+      <h3 style="margin-bottom: 12px; color: #f43f5e; font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        🔒 Protected Tab
+      </h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">This tab contains sensitive credentials and creative prompts. Please enter the Access PIN to proceed.</p>
+      
+      <div class="form-group" style="margin-bottom: 24px;">
+        <input type="password" id="inputResourcePin" placeholder="••••" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); color: var(--text-main); font-size: 20px; text-align: center; letter-spacing: 6px; font-weight: 800;" required>
+      </div>
+      
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-outline" onclick="closeResourcePinModal()" style="padding: 10px 20px; font-size: 13px;">Cancel</button>
+        <button class="btn btn-primary" onclick="submitResourcePin()" style="padding: 10px 24px; font-size: 13px; background: #f43f5e; border-color: #f43f5e;">Verify PIN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Resource PIN Modal (Admin Only) -->
+  <div id="changeResourcePinModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Change Access PIN</h3>
+        <button class="icon-btn" onclick="closeChangeResourcePinModal()">✖</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label for="newResourcePin">New Access PIN (at least 4 digits)</label>
+        <input type="password" id="newResourcePin" placeholder="Enter new Access PIN" required style="padding: 12px;">
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-outline" onclick="closeChangeResourcePinModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitChangeResourcePin()">Update PIN</button>
+      </div>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT FRONTEND LOGIC -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -2381,6 +2421,35 @@
             } catch(e) {
               if (this.failureHandler) this.failureHandler(e);
             }
+          },
+
+          // 24. verifyResourcePin()
+          verifyResourcePin: async function(pin) {
+            try {
+              let expectedPin = "1234"; // Default fallback
+              const { data, error } = await supabaseClient.from('settings').select('value').eq('key', 'resource_pin').maybeSingle();
+              if (!error && data) {
+                expectedPin = String(data.value).trim();
+              }
+              const isValid = expectedPin === String(pin).trim();
+              if (this.successHandler) this.successHandler(isValid);
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+
+          // 25. updateResourcePin()
+          updateResourcePin: async function(newPin) {
+            try {
+              const { error } = await supabaseClient.from('settings').upsert({
+                key: 'resource_pin',
+                value: String(newPin).trim()
+              });
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true, message: "Resource Access PIN updated successfully!" });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
           }
     });
 
@@ -2852,7 +2921,8 @@
       prompts: [],
       loggedInMember: localStorage.getItem('sct_member_name') || '',
       loggedInPin: localStorage.getItem('sct_member_pin') || '',
-      myLogs: []
+      myLogs: [],
+      resourcePinVerified: sessionStorage.getItem('resource_pin_verified') === 'true'
     };
 
     // Charts objects
@@ -2940,8 +3010,21 @@
       }, 4000);
     }
 
+    let pendingTabId = null;
+    let pendingTabElement = null;
+
     // Switch between Navigation Tabs
     function switchTab(tabId, navElement) {
+      if (tabId === 'accounts' || tabId === 'prompts') {
+        const isAdmin = state.userRole === 'ADMIN';
+        if (!isAdmin && !state.resourcePinVerified) {
+          pendingTabId = tabId;
+          pendingTabElement = navElement;
+          openResourcePinModal();
+          return;
+        }
+      }
+
       // Remove active from all tabs
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -3636,6 +3719,7 @@
       const adminImportPr = document.getElementById('adminImportPromptsBtn');
       const adminAddPr = document.getElementById('adminAddPromptBtn');
       const migrateBtn = document.getElementById('btnMigrate');
+      const changeResourcePinBtn = document.getElementById('btnChangeResourcePin');
       
       if (role === 'ADMIN') {
         dot.className = 'role-dot admin';
@@ -3646,6 +3730,7 @@
         adminImportPr.style.display = 'inline-flex';
         adminAddPr.style.display = 'inline-flex';
         migrateBtn.style.display = 'block';
+        if (changeResourcePinBtn) changeResourcePinBtn.style.display = 'flex';
       } else {
         dot.className = 'role-dot member';
         text.innerText = 'Member Mode';
@@ -3655,6 +3740,7 @@
         adminImportPr.style.display = 'none';
         adminAddPr.style.display = 'none';
         migrateBtn.style.display = 'none';
+        if (changeResourcePinBtn) changeResourcePinBtn.style.display = 'none';
       }
       
       // Sync logger portal view
@@ -3971,6 +4057,81 @@
           showToast("Failed to change PIN: " + err.message, "error");
         })
         .changeMemberPIN(state.loggedInMember, oldPin, newPin);
+    }
+
+    // Resource PIN Modal Helpers
+    function openResourcePinModal() {
+      document.getElementById('inputResourcePin').value = '';
+      document.getElementById('resourcePinModal').classList.add('active');
+    }
+    
+    function closeResourcePinModal() {
+      document.getElementById('resourcePinModal').classList.remove('active');
+    }
+    
+    function submitResourcePin() {
+      const pin = document.getElementById('inputResourcePin').value;
+      if (!pin) {
+        showToast("Please enter the Access PIN", "error");
+        return;
+      }
+      
+      showLoading(true, "Verifying Access PIN...");
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          showLoading(false);
+          if (isValid) {
+            state.resourcePinVerified = true;
+            sessionStorage.setItem('resource_pin_verified', 'true');
+            closeResourcePinModal();
+            showToast("Access granted!", "success");
+            if (pendingTabId && pendingTabElement) {
+              switchTab(pendingTabId, pendingTabElement);
+            }
+          } else {
+            showToast("Incorrect Access PIN. Please try again.", "error");
+          }
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Verification failed: " + err.message, "error");
+        })
+        .verifyResourcePin(pin);
+    }
+
+    // Change Access PIN Modal Helpers (Admin Only)
+    function openChangeResourcePinModal() {
+      if (state.userRole !== 'ADMIN') {
+        showToast("Only administrator can change the access PIN", "error");
+        return;
+      }
+      document.getElementById('newResourcePin').value = '';
+      document.getElementById('changeResourcePinModal').classList.add('active');
+    }
+    
+    function closeChangeResourcePinModal() {
+      document.getElementById('changeResourcePinModal').classList.remove('active');
+    }
+    
+    function submitChangeResourcePin() {
+      const newPin = document.getElementById('newResourcePin').value;
+      if (!newPin || newPin.length < 4) {
+        showToast("Access PIN must be at least 4 digits", "error");
+        return;
+      }
+      
+      showLoading(true, "Updating Access PIN...");
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          closeChangeResourcePinModal();
+          showToast(resp.message, "success");
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to update PIN: " + err.message, "error");
+        })
+        .updateResourcePin(newPin);
     }
 
     // Task status change controls
