@@ -2030,6 +2030,62 @@
             }
           },
           
+          // 9b. verifyMemberPIN()
+          verifyMemberPIN: async function(memberName, pin) {
+            try {
+              if (String(pin).trim() === "admin1234") {
+                if (google.script.run.successHandler) google.script.run.successHandler(true);
+                return;
+              }
+              const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
+              if (error) throw error;
+              
+              const storedPin = data ? String(data.pin || "").trim() : "";
+              const expectedPin = storedPin === "" ? "1234" : storedPin;
+              const isValid = expectedPin === String(pin).trim();
+              
+              if (google.script.run.successHandler) google.script.run.successHandler(isValid);
+            } catch(e) {
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+            }
+          },
+          
+          // 9c. verifyAdminPassword()
+          verifyAdminPassword: async function(pass) {
+            try {
+              const isValid = String(pass).trim() === "admin1234";
+              if (google.script.run.successHandler) google.script.run.successHandler(isValid);
+            } catch(e) {
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+            }
+          },
+          
+          // 9d. changeMemberPIN()
+          changeMemberPIN: async function(memberName, oldPin, newPin) {
+            try {
+              // 1. Verify old PIN
+              const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
+              if (error) throw error;
+              
+              const storedPin = data ? String(data.pin || "").trim() : "";
+              const expectedPin = storedPin === "" ? "1234" : storedPin;
+              
+              if (expectedPin !== String(oldPin).trim()) {
+                throw new Error("Incorrect current PIN");
+              }
+              
+              // 2. Update to new PIN
+              const { error: updateErr } = await supabaseClient.from('members').update({ pin: String(newPin).trim() }).eq('name', memberName);
+              if (updateErr) throw updateErr;
+              
+              if (google.script.run.successHandler) {
+                google.script.run.successHandler({ success: true, message: "PIN changed successfully!" });
+              }
+            } catch(e) {
+              if (google.script.run.failureHandler) google.script.run.failureHandler(e);
+            }
+          },
+          
           // 10. getFundLedger()
           getFundLedger: async function() {
             try {
