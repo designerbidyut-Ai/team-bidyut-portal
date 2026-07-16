@@ -2866,9 +2866,6 @@
       const savedTheme = localStorage.getItem('theme') || 'dark';
       setTheme(savedTheme);
       
-      // Check member login status
-      checkMemberLoginStatus();
-      
       // Load initial spreadsheet data
       refreshAllData();
     });
@@ -3069,6 +3066,7 @@
           
           showLoading(false);
           showToast("Sync completed successfully!", "success");
+          checkMemberLoginStatus();
         })
         .withFailureHandler(function(err) {
           showLoading(false);
