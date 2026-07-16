@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
@@ -1805,9 +1805,6 @@
       </div>
     </div>
   </div>
-  </div>
-
-  <!-- Change Resource PIN Modal (Admin Only) -->
   <div id="changeResourcePinModal" class="modal-overlay">
     <div class="modal-card" style="max-width: 400px;">
       <div class="modal-header">
@@ -2096,10 +2093,6 @@
               if (this.failureHandler) this.failureHandler(e);
             }
           },
-            }
-          },
-          
-          // 6. getDailyLogs()
           getDailyLogs: async function(memberName) {
             try {
               let query = supabaseClient.from('daily_logs').select('*');
@@ -2326,75 +2319,6 @@
               if (this.successHandler) this.successHandler({ success: true, message: "Access PIN updated locally (session storage)!" });
             }
           },
-          // 9d. changeMemberPIN()
-          changeMemberPIN: async function(memberName, oldPin, newPin) {
-            try {
-              // 1. Verify old PIN
-              const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
-              if (error) throw error;
-              
-              const storedPin = data ? String(data.pin || "").trim() : "";
-              const expectedPin = storedPin === "" ? "1234" : storedPin;
-              
-              if (expectedPin !== String(oldPin).trim()) {
-                throw new Error("Incorrect current PIN");
-              }
-              
-              // 2. Update to new PIN
-              const { error: updateErr } = await supabaseClient.from('members').update({ pin: String(newPin).trim() }).eq('name', memberName);
-              if (updateErr) throw updateErr;
-              
-              if (this.successHandler) {
-                this.successHandler({ success: true, message: "PIN changed successfully!" });
-              }
-            } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
-            }
-          },
-          
-          // 10. getFundLedger()
-          getFundLedger: async function() {
-            try {
-              const { data, error } = await supabaseClient.from('fund_transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
-              if (error) throw error;
-              
-              const transactions = data.map(t => ({
-                RowIndex: t.id,
-                Date: t.date,
-                Type: t.type,
-                Amount: Number(t.amount) || 0,
-                MemberName: t.member_name || "",
-                Note: t.note || "",
-                Status: t.status || ""
-              }));
-              
-              let totalDeposits = 0;
-              let totalExpenses = 0;
-              transactions.forEach(t => {
-                const amt = Number(t.Amount || 0);
-                if (t.Type === 'Deposit') {
-                  totalDeposits += amt;
-                } else if (t.Type === 'Expense') {
-                  totalExpenses += amt;
-                }
-              });
-              
-              if (this.successHandler) {
-                this.successHandler({
-                  ledger: transactions,
-                  summary: {
-                    totalDeposits: totalDeposits,
-                    totalExpenses: totalExpenses,
-                    balance: totalDeposits - totalExpenses
-                  }
-                });
-              }
-            } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
-            }
-          },
-          
-          // 10b. getAccountsAndPrompts()
           getAccountsAndPrompts: async function() {
             try {
               // Fetch Accounts
@@ -3260,7 +3184,7 @@
         fund: { h1: "Team Fund Ledger", p: "Accounting details for collections and expenses" },
         accounts: { h1: "Shared Credentials", p: "Shared premium logins and website access" },
         prompts: { h1: "Design Prompts", p: "High-quality prompts for creative AI tools" },
-        report: { h1: "Team Productivity Report", p: "Detailed reports for team members and workloads" }
+        report: { h1: "Team Productivity Report", p: "Detailed reports for team workloads" }
       };
       
       document.getElementById('pageHeading').innerText = headings[tabId].h1;
@@ -3442,8 +3366,6 @@
       if (logsMemberFilter) logsMemberFilter.value = currentLogsFilterSel;
       if (reportMemberFilter) reportMemberFilter.value = currentReportFilterSel;
     }
-
-    // Process daily log sizes and render Leaderboard & Podium Top Performers
     function renderLeaderboard() {
       const tbody = document.getElementById('leaderboardTableBody');
       if ((!state.members || state.members.length === 0)) {
@@ -4541,60 +4463,49 @@
     }
 
     function updateAssignmentsAnalytics() {
-      // Compute member workload stats
-      const memberStats = {};
-      state.members.forEach(function(m) {
-        memberStats[m.Name] = {
-          name: m.Name,
-          activeTasks: 0,
-          totalQty: 0,
-          completedQty: 0,
-          brands: {}
-        };
-      });
+      if (!state.assignments || !state.members) return;
+      
+      const activeTasksCount = state.assignments.filter(function(t) {
+        const st = t.Status.toLowerCase();
+        return !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass');
+      }).length;
+      
+      let totalQty = 0;
+      let completedQty = 0;
       
       state.assignments.forEach(function(t) {
-        const mName = t.AssignedTo;
-        if (memberStats[mName]) {
-          const st = t.Status.toLowerCase();
-          const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass') && !st.includes('submit');
-          
-          if (isActive) memberStats[mName].activeTasks++;
-          memberStats[mName].totalQty += Number(t.Quantity) || 0;
-          memberStats[mName].completedQty += Number(t.CompletedQty) || 0;
-          
-          if (t.Group) {
-            memberStats[mName].brands[t.Group] = (memberStats[mName].brands[t.Group] || 0) + 1;
-          }
-        }
+        totalQty += Number(t.Quantity) || 0;
+        completedQty += Number(t.CompletedQty) || 0;
       });
       
-      const sortedMembers = [];
-      for (let k in memberStats) {
-        sortedMembers.push(memberStats[k]);
-      }
-      sortedMembers.sort(function(a, b) {
-        return a.activeTasks - b.activeTasks;
-      });
+      const pendingItems = Math.max(0, totalQty - completedQty);
+      const completionRate = totalQty > 0 ? Math.round((completedQty / totalQty) * 100) : 0;
       
-      // Populate member workload breakdown grid
-      const grid = document.getElementById('memberWorkloadGrid');
-      if (grid) {
-        grid.innerHTML = '';
-        sortedMembers.forEach(function(stats) {
-          const leftQty = Math.max(0, stats.totalQty - stats.completedQty);
-          
-          // Determine top brand and count
-          let topBrand = 'None';
-          let maxCount = 0;
-          for (let b in stats.brands) {
-            if (stats.brands[b] > maxCount) {
-              maxCount = stats.brands[b];
-              topBrand = b;
-            }
+      // Update overall stats UI
+      const elActive = document.getElementById('analActiveTasks');
+      const elPending = document.getElementById('analPendingItems');
+      const elRate = document.getElementById('analCompletionRate');
+      if (elActive) elActive.innerText = activeTasksCount;
+      if (elPending) elPending.innerText = pendingItems;
+      if (elRate) elRate.innerText = completionRate + '%';
+      
+      // Helper to normalize any date string to yyyy-MM-dd
+      const normalizeDateToYMD = function(dateVal) {
+        if (!dateVal) return "";
+        const strVal = String(dateVal).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(strVal)) return strVal;
+        
+        try {
+          const d = new Date(strVal);
+          if (!isNaN(d.getTime())) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
           }
-          
-          const progressPercent = stats.totalQty > 0 ? Math.round((stats.completedQty / stats.totalQty) * 100) : 0;
+        } catch(e) {}
+        
+        const parts = strVal.split(/[-/]/);
         if (parts.length === 3) {
           let dPart = parts[0].trim();
           let mPart = parts[1].trim();
@@ -4679,7 +4590,7 @@
         const mName = t.AssignedTo;
         if (memberStats[mName]) {
           const st = t.Status.toLowerCase();
-          const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass');
+          const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass') && !st.includes('submit');
           
           if (isActive) memberStats[mName].activeTasks++;
           memberStats[mName].totalQty += Number(t.Quantity) || 0;
@@ -4691,12 +4602,19 @@
         }
       });
       
+      const sortedMembers = [];
+      for (let k in memberStats) {
+        sortedMembers.push(memberStats[k]);
+      }
+      sortedMembers.sort(function(a, b) {
+        return a.activeTasks - b.activeTasks;
+      });
+      
       // Populate member workload breakdown grid
       const grid = document.getElementById('memberWorkloadGrid');
       if (grid) {
         grid.innerHTML = '';
-        for (let mName in memberStats) {
-          const stats = memberStats[mName];
+        sortedMembers.forEach(function(stats) {
           const leftQty = Math.max(0, stats.totalQty - stats.completedQty);
           
           // Determine top brand and count
@@ -4737,10 +4655,9 @@
               </div>
             </div>
           `;
-        }
+        });
       }
     }
-
     function onAssignMemberChange(memberName) {
       showMemberBrandRecommendation(memberName);
       if (!memberName) return;
