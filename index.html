@@ -2319,6 +2319,74 @@
               if (this.successHandler) this.successHandler({ success: true, message: "Access PIN updated locally (session storage)!" });
             }
           },
+          changeMemberPIN: async function(memberName, oldPin, newPin) {
+            try {
+              // 1. Verify old PIN
+              const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
+              if (error) throw error;
+              
+              const storedPin = data ? String(data.pin || "").trim() : "";
+              const expectedPin = storedPin === "" ? "1234" : storedPin;
+              
+              if (expectedPin !== String(oldPin).trim()) {
+                throw new Error("Incorrect current PIN");
+              }
+              
+              // 2. Update to new PIN
+              const { error: updateErr } = await supabaseClient.from('members').update({ pin: String(newPin).trim() }).eq('name', memberName);
+              if (updateErr) throw updateErr;
+              
+              if (this.successHandler) {
+                this.successHandler({ success: true, message: "PIN changed successfully!" });
+              }
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 10. getFundLedger()
+          getFundLedger: async function() {
+            try {
+              const { data, error } = await supabaseClient.from('fund_transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
+              if (error) throw error;
+              
+              const transactions = data.map(t => ({
+                RowIndex: t.id,
+                Date: t.date,
+                Type: t.type,
+                Amount: Number(t.amount) || 0,
+                MemberName: t.member_name || "",
+                Note: t.note || "",
+                Status: t.status || ""
+              }));
+              
+              let totalDeposits = 0;
+              let totalExpenses = 0;
+              transactions.forEach(t => {
+                const amt = Number(t.Amount || 0);
+                if (t.Type === 'Deposit') {
+                  totalDeposits += amt;
+                } else if (t.Type === 'Expense') {
+                  totalExpenses += amt;
+                }
+              });
+              
+              if (this.successHandler) {
+                this.successHandler({
+                  ledger: transactions,
+                  summary: {
+                    totalDeposits: totalDeposits,
+                    totalExpenses: totalExpenses,
+                    balance: totalDeposits - totalExpenses
+                  }
+                });
+              }
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 10b. getAccountsAndPrompts()
           getAccountsAndPrompts: async function() {
             try {
               // Fetch Accounts
