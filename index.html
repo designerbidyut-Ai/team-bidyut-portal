@@ -1748,7 +1748,7 @@
                 AssignedTo: a.member_name,
                 Quantity: a.quantity,
                 CompletedQty: a.completed_qty,
-                Status: a.status,
+                Status: a.status || "Not Started",
                 SubmitDate: a.submit_date,
                 ApproveDate: a.approve_date
               }));
@@ -1800,7 +1800,7 @@
                 AssignedTo: a.member_name,
                 Quantity: a.quantity,
                 CompletedQty: a.completed_qty,
-                Status: a.status,
+                Status: a.status || "Not Started",
                 SubmitDate: a.submit_date,
                 ApproveDate: a.approve_date
               }));
@@ -1814,11 +1814,11 @@
           updateAssignmentStatus: async function(mproId, status, note, mproLink, completedQty) {
             try {
               const updateData = { 
-                status: status, 
+                status: status || "Not Started", 
                 completed_qty: Number(completedQty) || 0
               };
               
-              const stLower = status.toLowerCase();
+              const stLower = (status || "Not Started").toLowerCase();
               if (stLower.includes("submit")) {
                 updateData.submit_date = new Date().toISOString().split('T')[0];
               } else if (stLower.includes("approved") || stLower.includes("completed") || stLower.includes("pass") || stLower.includes("ok")) {
