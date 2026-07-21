@@ -2427,6 +2427,16 @@
               const { data: members, error: errMem } = await supabaseClient.from('members').select('*').order('name', { ascending: true });
               if (errMem) throw errMem;
               
+              // Fetch Avatars from settings table
+              const { data: avatarSettings, error: errAvatars } = await supabaseClient.from('settings').select('*').like('key', 'avatar_%');
+              const avatarMap = {};
+              if (!errAvatars && avatarSettings) {
+                avatarSettings.forEach(function(s) {
+                  const mName = s.key.substring(7); // Remove 'avatar_' prefix
+                  avatarMap[mName] = s.value;
+                });
+              }
+              
               // Fetch Daily Logs
               const { data: logs, error: errLogs } = await supabaseClient.from('daily_logs').select('*').order('date', { ascending: false });
               if (errLogs) throw errLogs;
@@ -2448,7 +2458,7 @@
                 Status: m.status,
                 PIN: m.pin,
                 RecommendedBrands: m.recommended_brands,
-                Avatar: m.avatar_url || ""
+                Avatar: avatarMap[m.name] || ""
               }));
               
               const mappedLogs = logs.map(l => ({
@@ -6104,26 +6114,28 @@
           phone: phone,
           email: email,
           recommended_brands: brands,
-          pin: pin || "1234",
-          avatar_url: avatarUrl
+          pin: pin || "1234"
         };
         
         const nameChanged = (newName !== oldName);
-        let updateErr = null;
-        try {
-          const { error } = await supabaseClient.from('members').update(updatePayload).eq('name', oldName);
-          if (error) throw error;
-        } catch (dbErr) {
-          if (String(dbErr.message).includes("avatar_url") || String(dbErr.message).includes("column")) {
-            delete updatePayload.avatar_url;
-            const { error } = await supabaseClient.from('members').update(updatePayload).eq('name', oldName);
-            if (error) { updateErr = error; } else {
-              if (avatarUrl) sessionStorage.setItem('avatar_' + newName, avatarUrl);
-            }
-          } else { updateErr = dbErr; }
-        }
         
-        if (updateErr) throw updateErr;
+        // 1. Update core member properties in members table
+        const { error: memberErr } = await supabaseClient.from('members').update(updatePayload).eq('name', oldName);
+        if (memberErr) throw memberErr;
+        
+        // 2. Save avatar to settings table as workaround for missing members.avatar_url column
+        if (avatarUrl) {
+          if (nameChanged) {
+            // Delete old avatar key if name changed
+            await supabaseClient.from('settings').delete().eq('key', 'avatar_' + oldName);
+          }
+          const { error: avatarErr } = await supabaseClient.from('settings').upsert({
+            key: 'avatar_' + newName,
+            value: avatarUrl
+          });
+          if (avatarErr) console.error("Failed to save avatar to settings:", avatarErr);
+          sessionStorage.setItem('avatar_' + newName, avatarUrl);
+        }
         
         if (nameChanged) {
           await supabaseClient.from('assignments').update({ member_name: newName }).eq('member_name', oldName);
@@ -6153,7 +6165,7 @@
       
       if (state.loggedInMember) {
         const member = state.members ? state.members.find(function(m) { return m.Name === state.loggedInMember; }) : null;
-        const avatarUrl = (member && member.avatar_url) || sessionStorage.getItem('avatar_' + state.loggedInMember);
+        const avatarUrl = (member && member.Avatar) || sessionStorage.getItem('avatar_' + state.loggedInMember);
         if (avatarUrl) {
           navImg.src = avatarUrl;
           navImg.style.display = 'block';
