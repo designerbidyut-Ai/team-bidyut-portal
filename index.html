@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Team Bidyut Content Tracker</title>
+  <!-- Favicon / Website Icon (Replace href with your icon link) -->
+  <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/content-delivery-network.png">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,9 +28,9 @@
       --text-muted: #8e9bb2;
       --text-inverse: #0b0f19;
       
-      --primary: #4f46e5;
-      --primary-hover: #6366f1;
-      --primary-light: #c7d2fe;
+      --primary: #10b981;
+      --primary-hover: #34d399;
+      --primary-light: #a7f3d0;
       
       --accent-neon: #10b981;
       --accent-pink: #ec4899;
@@ -60,9 +62,9 @@
       --text-muted: #64748b;
       --text-inverse: #ffffff;
       
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --primary-light: #e0e7ff;
+      --primary: #059669;
+      --primary-hover: #047857;
+      --primary-light: #d1fae5;
       
       --glass-bg: rgba(255, 255, 255, 0.9);
       --glass-border: rgba(0, 0, 0, 0.06);
@@ -125,7 +127,7 @@
       color: white;
       font-weight: 800;
       font-size: 20px;
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
     }
 
     .logo-text h2 {
@@ -240,7 +242,7 @@
 
     .btn-primary:hover {
       background-color: var(--primary-hover);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
     .btn-outline {
@@ -758,7 +760,7 @@
     }
 
     .fund-summary-item.balance {
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(16, 185, 129, 0.1));
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.1));
       border-color: var(--primary-light);
     }
 
@@ -1810,18 +1812,25 @@
 
       <!-- TAB 7: REPORT DASHBOARD -->
       <section id="reportTab" class="tab-content">
-        <div class="card" style="margin-bottom: 24px;">
-          <div class="section-header" style="flex-wrap: wrap; gap: 16px;">
-            <div>
-              <h3 class="font-outfit" style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">Designer Performance & Task Report</h3>
-              <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Comprehensive workflow statistics, timeline approvals and active workloads.</p>
-            </div>
-            <div class="form-group" style="width: 250px; flex-direction: row; align-items: center; gap: 8px;">
-              <label style="white-space: nowrap; margin-bottom: 0; font-weight: 600;">View Report for:</label>
-              <select id="reportMemberFilter" onchange="generateDesignerReport(this.value)" style="width: 100%;">
+        <!-- Premium Centered Select Box -->
+        <div class="card" style="margin-bottom: 24px; display: flex; justify-content: center; align-items: center; padding: 24px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 450px;">
+            <div style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center;">View Performance Report For:</div>
+            <div style="width: 100%; position: relative;">
+              <select id="reportMemberFilter" onchange="generateDesignerReport(this.value)" style="width: 100%; padding: 12px 18px; font-size: 16px; font-weight: 700; color: var(--text-main); background: var(--bg-base); border: 2px solid var(--primary); border-radius: 10px; cursor: pointer; text-align-last: center; box-shadow: 0 0 12px rgba(79, 70, 229, 0.1); transition: all 0.3s; outline: none;">
                 <option value="ALL" selected>Consolidated Team Report</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        <!-- 5 Oldest Unstarted Tasks Cards Container -->
+        <div id="repUnstartedTasksSection" class="card" style="margin-bottom: 24px; background: var(--bg-surface);">
+          <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+            ⏳ 5 Oldest Unstarted Tasks (Not Started)
+          </h4>
+          <div id="unstartedTasksCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <!-- Unstarted task cards will be rendered dynamically here -->
           </div>
         </div>
 
@@ -4331,8 +4340,8 @@
           datasets: [{
             label: 'Total Performance Points',
             data: dataValues,
-            backgroundColor: 'rgba(79, 70, 229, 0.7)',
-            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+            borderColor: '#10b981',
             borderWidth: 1,
             borderRadius: 6
           }]
@@ -4464,7 +4473,7 @@
             <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${task.Note}">${task.Note || '-'}</td>
             <td>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="btn btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
+                <button class="btn btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
                   📝 Update
                 </button>
                 <button class="btn btn-outline btn-sm" onclick="deleteAssignment('${task.TaskID}')" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.03); font-size: 11px; padding: 4px 8px; opacity: 0.85; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
@@ -6119,6 +6128,79 @@
     function generateDesignerReport(filterValue) {
       if (!state.assignments || !state.members) return;
       
+      // Render 5 Oldest Unstarted Tasks Card List (for selected member or all)
+      let unstartedList = [];
+      if (filterValue === 'ALL') {
+        unstartedList = state.assignments.filter(function(t) {
+          const st = (t.Status || '').toLowerCase().trim();
+          return st === 'not started' || st === '';
+        });
+      } else {
+        unstartedList = state.assignments.filter(function(t) {
+          const st = (t.Status || '').toLowerCase().trim();
+          return t.AssignedTo === filterValue && (st === 'not started' || st === '');
+        });
+      }
+
+      // Sort unstarted list by AssignDate ascending (oldest first)
+      unstartedList.sort(function(a, b) {
+        const dA = a.AssignDate ? new Date(a.AssignDate) : new Date(0);
+        const dB = b.AssignDate ? new Date(b.AssignDate) : new Date(0);
+        return dA - dB;
+      });
+
+      // Get oldest 5 tasks
+      const oldest5Unstarted = unstartedList.slice(0, 5);
+      const unstartedCardsContainer = document.getElementById('unstartedTasksCardsContainer');
+      const unstartedSectionHeader = document.querySelector('#repUnstartedTasksSection h4');
+
+      if (unstartedSectionHeader) {
+        unstartedSectionHeader.innerText = filterValue === 'ALL'
+          ? '⏳ 5 Oldest Unstarted Tasks (Not Started) - Consolidated Team'
+          : `⏳ 5 Oldest Unstarted Tasks (Not Started) - ${filterValue}`;
+      }
+
+      if (oldest5Unstarted.length === 0) {
+        unstartedCardsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 30px; font-size: 13px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1px dashed var(--border-color);">No unstarted tasks found. All assigned tasks are in progress or completed!</div>`;
+      } else {
+        unstartedCardsContainer.innerHTML = '';
+        oldest5Unstarted.forEach(function(t) {
+          unstartedCardsContainer.innerHTML += `
+            <div class="unstarted-task-card" style="background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                <span class="status-badge" style="background: rgba(255,255,255,0.03); color: var(--text-main); border: 1px solid var(--border-color); font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">${t.Group}</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; white-space: nowrap;">Assign: ${t.AssignDate}</span>
+              </div>
+              
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Quantity</div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--text-main); line-height: 1;">${t.Quantity}</div>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 4px;">
+                <div style="display: flex; flex-direction: column; min-width: 0;">
+                  <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Assigned To</span>
+                  <span style="font-size: 13px; font-weight: 800; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.AssignedTo || t.MemberName}</span>
+                </div>
+                <a href="${t.MPROLink}" target="_blank" class="mpro-link" style="font-size: 11px; font-weight: 700; color: var(--accent-cyan); text-decoration: none; background: rgba(0, 180, 216, 0.08); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(0, 180, 216, 0.15); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">🔗 MPRO Link</a>
+              </div>
+              
+              ${t.Deadline ? `
+                <div style="font-size: 11px; color: var(--status-error); font-weight: 700; background: rgba(239, 68, 68, 0.05); padding: 6px 10px; border-radius: 6px; text-align: center;">
+                  🚨 Deadline: ${t.Deadline}
+                </div>
+              ` : ''}
+              
+              ${t.Note ? `
+                <div style="font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; max-height: 55px; overflow-y: auto;" title="${t.Note}">
+                  <strong>Note:</strong> ${t.Note}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+      }
+
       const teamView = document.getElementById('teamReportView');
       const memberView = document.getElementById('memberReportView');
       
