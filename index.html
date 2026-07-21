@@ -928,6 +928,9 @@
         <button id="btnChangeResourcePin" class="btn btn-outline btn-sm" onclick="openChangeResourcePinModal()" style="display:none; margin-bottom: 8px; border-color: rgba(244, 63, 94, 0.4); color: #f43f5e; width: 100%; justify-content: center; gap: 6px;">
           🔑 Change Access PIN
         </button>
+        <button class="btn btn-primary btn-sm" onclick="refreshAllData()" style="margin-bottom: 8px; width: 100%; justify-content: center; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+          🔄 Sync Data
+        </button>
         <div class="role-badge" onclick="openLoginModal()">
           <div id="roleDot" class="role-dot member"></div>
           <span id="roleText">Member Mode</span>
@@ -962,10 +965,6 @@
             <svg id="themeIcon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
             </svg>
-          </button>
-          
-          <button class="btn btn-primary btn-sm" onclick="refreshAllData()">
-            🔄 Sync Data
           </button>
         </div>
       </header>
@@ -1046,22 +1045,22 @@
         
         <div class="podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-bottom: 30px; margin-top: 10px;">
           <!-- 2nd Place -->
-          <div class="podium-card silver" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 155px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
-            <div style="width: 36px; height: 36px; border-radius: 50%; background: #94a3b8; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">2</div>
+          <div class="podium-card silver" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 165px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
+            <div id="podium2ndAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
             <div id="podium2ndName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">-</div>
             <div id="podium2ndPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
           </div>
           
           <!-- 1st Place -->
-          <div class="podium-card gold" style="background: var(--bg-surface); border: 2px solid #eab308; border-radius: 16px; padding: 24px; width: 220px; height: 185px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-lg); transform: translateY(-10px);">
-            <div style="width: 44px; height: 44px; border-radius: 50%; background: #eab308; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; margin-bottom: 12px; box-shadow: 0 6px 12px rgba(234,179,8,0.3);">1</div>
+          <div class="podium-card gold" style="background: var(--bg-surface); border: 2px solid #eab308; border-radius: 16px; padding: 24px; width: 220px; height: 195px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-lg); transform: translateY(-10px);">
+            <div id="podium1stAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
             <div id="podium1stName" style="font-weight: 800; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; color: #eab308;">-</div>
             <div id="podium1stPoints" style="font-size: 14px; color: var(--text-main); font-weight: 700; margin-top: 6px;">0 pts</div>
           </div>
           
           <!-- 3rd Place -->
-          <div class="podium-card bronze" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 135px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
-            <div style="width: 36px; height: 36px; border-radius: 50%; background: #ca8a04; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">3</div>
+          <div class="podium-card bronze" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 145px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
+            <div id="podium3rdAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
             <div id="podium3rdName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">-</div>
             <div id="podium3rdPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
           </div>
@@ -2397,7 +2396,8 @@
                 Phone: m.phone,
                 Status: m.status,
                 PIN: m.pin,
-                RecommendedBrands: m.recommended_brands
+                RecommendedBrands: m.recommended_brands,
+                Avatar: m.avatar_url || ""
               }));
               
               const mappedLogs = logs.map(l => ({
@@ -4169,6 +4169,7 @@
         
         return {
           name: member.Name,
+          avatar: member.Avatar || "",
           c6s: perf.c6s,
           c10s: perf.c10s,
           c15s: perf.c15s,
@@ -4256,9 +4257,9 @@
 
     // Update Top 3 Performers Podium
     function updatePodium(leaderboard) {
-      const top1 = leaderboard[0] || { name: "-", points: 0 };
-      const top2 = leaderboard[1] || { name: "-", points: 0 };
-      const top3 = leaderboard[2] || { name: "-", points: 0 };
+      const top1 = leaderboard[0] || { name: "-", points: 0, avatar: "" };
+      const top2 = leaderboard[1] || { name: "-", points: 0, avatar: "" };
+      const top3 = leaderboard[2] || { name: "-", points: 0, avatar: "" };
       
       document.getElementById('podium1stName').innerText = top1.name;
       document.getElementById('podium1stPoints').innerText = top1.points.toFixed(2) + " pts";
@@ -4268,6 +4269,36 @@
       
       document.getElementById('podium3rdName').innerText = top3.name;
       document.getElementById('podium3rdPoints').innerText = top3.points.toFixed(2) + " pts";
+      
+      // Render Avatars
+      renderPodiumAvatar('podium1stAvatarContainer', top1, 1, '#eab308');
+      renderPodiumAvatar('podium2ndAvatarContainer', top2, 2, '#94a3b8');
+      renderPodiumAvatar('podium3rdAvatarContainer', top3, 3, '#ca8a04');
+    }
+
+    function renderPodiumAvatar(containerId, member, rank, badgeColor) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      const initials = member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const hasAvatar = member.avatar && member.avatar.startsWith('http');
+      
+      const imageBorderColor = rank === 1 ? '#eab308' : (rank === 2 ? '#94a3b8' : '#ca8a04');
+      const avatarSize = rank === 1 ? '72px' : '60px';
+      
+      container.innerHTML = `
+        <div style="width: ${avatarSize}; height: ${avatarSize}; border-radius: 50%; border: 3px solid ${imageBorderColor}; overflow: hidden; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative;">
+          ${hasAvatar 
+            ? `<img src="${member.avatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+            : ''
+          }
+          <span style="font-weight: 800; font-size: ${rank === 1 ? '22px' : '18px'}; color: var(--text-main); display: ${hasAvatar ? 'none' : 'flex'};">${initials}</span>
+        </div>
+        <!-- Small rank badge attached to avatar bottom-right -->
+        <div style="position: absolute; bottom: -5px; right: -5px; width: ${rank === 1 ? '26px' : '22px'}; height: ${rank === 1 ? '26px' : '22px'}; border-radius: 50%; background: ${badgeColor}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: ${rank === 1 ? '12px' : '10px'}; border: 2px solid var(--bg-surface); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5; line-height: 1;">
+          ${rank}
+        </div>
+      `;
     }
 
     // Render modern timeline-like Activity Feed
@@ -6094,7 +6125,7 @@
             
             let signalHTML = "";
             if (diffDays < 0) {
-              signalHTML = `<span style="display:inline-flex; align-items:center; gap:4px; font-weight:700; color:#ef4444;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px #ef4444;"></span> Overdue ${Math.abs(diffDays)}d</span><br><span style="font-size:10px; color:#ef4444; font-weight:bold; display:inline-block; margin-top:2px;">???? ????? ???? ??? ?????</span>`;
+              signalHTML = `<span style="display:inline-flex; align-items:center; gap:4px; font-weight:700; color:#ef4444;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px #ef4444;"></span> Overdue ${Math.abs(diffDays)}d</span>`;
             } else if (diffDays <= 1) {
               signalHTML = `<span style="display:inline-flex; align-items:center; gap:4px; font-weight:700; color:#f59e0b;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span> Due in ${diffDays}d</span>`;
             } else {
@@ -6144,9 +6175,9 @@
 
       // Sort unstarted list by AssignDate ascending (oldest first)
       unstartedList.sort(function(a, b) {
-        const dA = a.AssignDate ? new Date(a.AssignDate) : new Date(0);
-        const dB = b.AssignDate ? new Date(b.AssignDate) : new Date(0);
-        return dA - dB;
+        const dateA = String(a.AssignDate || '').trim();
+        const dateB = String(b.AssignDate || '').trim();
+        return dateA.localeCompare(dateB);
       });
 
       // Get oldest 5 tasks
@@ -6165,6 +6196,22 @@
       } else {
         unstartedCardsContainer.innerHTML = '';
         oldest5Unstarted.forEach(function(t) {
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          
+          let overdueText = "🟢 Assigned Today";
+          if (t.AssignDate) {
+            const assign = new Date(t.AssignDate);
+            if (!isNaN(assign.getTime())) {
+              assign.setHours(0,0,0,0);
+              const diffTime = today - assign;
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              if (diffDays > 0) {
+                overdueText = `🔴 Overdue ${diffDays}d`;
+              }
+            }
+          }
+
           unstartedCardsContainer.innerHTML += `
             <div class="unstarted-task-card" style="background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
@@ -6185,11 +6232,9 @@
                 <a href="${t.MPROLink}" target="_blank" class="mpro-link" style="font-size: 11px; font-weight: 700; color: var(--accent-cyan); text-decoration: none; background: rgba(0, 180, 216, 0.08); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(0, 180, 216, 0.15); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">🔗 MPRO Link</a>
               </div>
               
-              ${t.Deadline ? `
-                <div style="font-size: 11px; color: var(--status-error); font-weight: 700; background: rgba(239, 68, 68, 0.05); padding: 6px 10px; border-radius: 6px; text-align: center;">
-                  🚨 Deadline: ${t.Deadline}
-                </div>
-              ` : ''}
+              <div style="font-size: 12px; color: #ef4444; font-weight: 800; background: rgba(239, 68, 68, 0.05); padding: 6px 10px; border-radius: 6px; text-align: center; border: 1px solid rgba(239, 68, 68, 0.12);">
+                ${overdueText}
+              </div>
               
               ${t.Note ? `
                 <div style="font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; max-height: 55px; overflow-y: auto;" title="${t.Note}">
