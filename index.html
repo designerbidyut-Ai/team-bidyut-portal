@@ -5798,10 +5798,10 @@
       container.innerHTML = '';
       state.selectedAssignMembers.forEach(function(member) {
         container.innerHTML += `
-          <span class="badge" style="background:var(--accent-blue); color:#ffffff; padding:6px 10px; border-radius:6px; display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:11px; box-shadow:0 2px 6px rgba(59, 130, 246, 0.3);">
-            ${member}
-            <span onclick="removeAssignMemberTag('${member}')" style="cursor:pointer; font-weight:bold; font-size:14px; margin-left:4px; color:rgba(255,255,255,0.8);">&times;</span>
-          </span>
+          <div class="member-chip" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #10b981; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; box-shadow: 0 2px 5px rgba(16, 185, 129, 0.05); margin-right: 6px; margin-bottom: 6px;">
+            <span>👤 ${member}</span>
+            <span onclick="removeAssignMemberTag('${member}')" style="cursor: pointer; font-weight: 950; font-size: 14px; margin-left: 6px; color: #10b981; opacity: 0.7; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; line-height: 1;" onmouseover="this.style.opacity='1'; this.style.background='rgba(16, 185, 129, 0.15)';" onmouseout="this.style.opacity='0.7'; this.style.background='transparent';">&times;</span>
+          </div>
         `;
       });
     }
