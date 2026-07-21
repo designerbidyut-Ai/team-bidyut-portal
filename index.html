@@ -2082,8 +2082,22 @@
         </div>
         
         <div class="form-group" style="margin-bottom: 24px;">
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px;">Profile Picture URL</label>
-          <input type="url" id="profileAvatarUrl" placeholder="https://example.com/avatar.jpg" oninput="const img=document.getElementById('profileModalAvatar'); const fallback=document.getElementById('profileModalAvatarFallback'); if(this.value){img.src=this.value; img.style.display='block'; fallback.style.display='none';}else{img.style.display='none'; fallback.style.display='block';}" style="width: 100%; font-size: 14px; padding: 11px 14px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary-hover)'" onblur="this.style.borderColor='var(--border-color)'">
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px;">Profile Picture</label>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- File Upload Input -->
+            <div style="position: relative; display: flex; align-items: center; gap: 10px;">
+              <input type="file" id="profileAvatarFile" accept="image/*" style="display: none;" onchange="handleProfileAvatarUpload(this)">
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('profileAvatarFile').click()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer;">
+                📁 Upload Image File
+              </button>
+              <span id="profileAvatarFileName" style="font-size: 12px; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px;">No file selected</span>
+            </div>
+            <!-- Or URL input as fallback -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Or URL</span>
+              <input type="url" id="profileAvatarUrl" placeholder="https://example.com/avatar.jpg" oninput="const img=document.getElementById('profileModalAvatar'); const fallback=document.getElementById('profileModalAvatarFallback'); if(this.value){img.src=this.value; img.style.display='block'; fallback.style.display='none';}else{img.style.display='none'; fallback.style.display='block';}" style="flex-grow: 1; font-size: 14px; padding: 11px 14px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary-hover)'" onblur="this.style.borderColor='var(--border-color)'">
+            </div>
+          </div>
         </div>
         
         <div style="display: flex; gap: 12px; margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 20px;">
@@ -2342,6 +2356,43 @@
     
     // Initialize Supabase Client
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Dynamic sync helper: Recalculates the completed quantity from all daily logs for a given MPRO ID
+    async function syncAssignmentCompletedQty(mproId) {
+      if (!mproId) return;
+      try {
+        const cleanMproId = String(mproId).trim();
+        // 1. Fetch all daily logs for this MPRO ID
+        const { data: logs, error: logsErr } = await supabaseClient
+          .from('daily_logs')
+          .select('content_6s, content_10s, content_15s, content_20s, content_30s, content_1m, social_post')
+          .eq('mpro_id', cleanMproId);
+        
+        if (logsErr) throw logsErr;
+        
+        // 2. Sum up all quantities (1 item of any size = 1 quantity)
+        let totalCompleted = 0;
+        if (logs && logs.length > 0) {
+          logs.forEach(function(l) {
+            totalCompleted += (Number(l.content_6s) || 0) +
+                              (Number(l.content_10s) || 0) +
+                              (Number(l.content_15s) || 0) +
+                              (Number(l.content_20s) || 0) +
+                              (Number(l.content_30s) || 0) +
+                              (Number(l.content_1m) || 0) +
+                              (Number(l.social_post) || 0);
+          });
+        }
+        
+        // 3. Update the assignments table
+        await supabaseClient
+          .from('assignments')
+          .update({ completed_qty: totalCompleted })
+          .eq('mpro_id', cleanMproId);
+      } catch (err) {
+        console.error("Failed to sync completed quantity:", err);
+      }
+    }
 
     // google.script.run Mock Adapter mapping frontend requests to Supabase Client SDK
     class GoogleScriptRunner {
@@ -2710,15 +2761,12 @@
                   .maybeSingle();
                 
                 if (!fetchErr && existing) {
-                  const newCompletedQty = (Number(existing.completed_qty) || 0) + sumQty;
-                  
                   await supabaseClient
                     .from('assignments')
                     .update({
                       status: logData.status || "Today's MPRO Work Submission:",
                       brands: logData.brand || "",
                       mpro_link: mLink,
-                      completed_qty: newCompletedQty,
                       submit_date: logData.date || new Date().toISOString().split('T')[0]
                     })
                     .eq('task_id', existing.task_id);
@@ -2740,6 +2788,8 @@
                       note: logData.note || ""
                     });
                 }
+                // Recalculate and update the completed quantity dynamically from daily logs
+                await syncAssignmentCompletedQty(mId);
               }
               
               if (this.successHandler) {
@@ -2766,17 +2816,23 @@
               
               const isAdmin = data && data.role === 'ADMIN';
               
-              // 2. Verify Ownership
-              if (!isAdmin) {
-                const { data: original, error: origErr } = await supabaseClient.from('daily_logs').select('member_name').eq('id', id).maybeSingle();
-                if (origErr) throw origErr;
-                if (original && original.member_name !== memberName) {
-                  throw new Error("Permission denied: You can only delete your own logs");
-                }
+              // 2. Verify Ownership & Retrieve MPRO ID
+              const { data: original, error: origErr } = await supabaseClient.from('daily_logs').select('member_name, mpro_id').eq('id', id).maybeSingle();
+              if (origErr) throw origErr;
+              if (original && !isAdmin && original.member_name !== memberName) {
+                throw new Error("Permission denied: You can only delete your own logs");
               }
+              
+              const mproIdToSync = original ? original.mpro_id : "";
               
               const { error: delErr } = await supabaseClient.from('daily_logs').delete().eq('id', id);
               if (delErr) throw delErr;
+              
+              // Recalculate completed quantity for this assignment dynamically
+              if (mproIdToSync) {
+                await syncAssignmentCompletedQty(mproIdToSync);
+              }
+              
               if (this.successHandler) this.successHandler({ success: true, message: "Log entry deleted successfully!" });
             } catch(e) {
               if (this.failureHandler) this.failureHandler(e);
@@ -2800,13 +2856,14 @@
               
               const isAdmin = data && data.role === 'ADMIN';
               
-              if (!isAdmin) {
-                const { data: original, error: origErr } = await supabaseClient.from('daily_logs').select('member_name').eq('id', id).maybeSingle();
-                if (origErr) throw origErr;
-                if (original && original.member_name !== memberName) {
-                  throw new Error("Permission denied: You can only edit your own logs");
-                }
+              // Retrieve original daily log details to find the old mpro_id before updating
+              const { data: original, error: origErr } = await supabaseClient.from('daily_logs').select('member_name, mpro_id').eq('id', id).maybeSingle();
+              if (origErr) throw origErr;
+              if (original && !isAdmin && original.member_name !== memberName) {
+                throw new Error("Permission denied: You can only edit your own logs");
               }
+              
+              const oldMproId = original ? original.mpro_id : "";
               
               const { error: updateErr } = await supabaseClient.from('daily_logs').update({
                 date: logData.date,
@@ -2834,6 +2891,12 @@
                     status: "Today's MPRO Work Submission:"
                   })
                   .eq('mpro_id', mId);
+                
+                await syncAssignmentCompletedQty(mId);
+              }
+              
+              if (oldMproId && oldMproId !== logData.mproId) {
+                await syncAssignmentCompletedQty(oldMproId);
               }
               
               if (this.successHandler) {
@@ -5051,8 +5114,8 @@
         note: document.getElementById('logNote').value,
         mproLink: document.getElementById('logMproLink').value,
         mproId: (function() {
-          const link = document.getElementById('logMproLink').value || "";
-          const m = link.match(/\/(\d+)\/?$/);
+          const link = String(document.getElementById('logMproLink').value || "").trim();
+          const m = link.match(/\/(\d+)(?:\D|$)/) || link.match(/(\d+)/);
           return m ? m[1] : "";
         })(),
         assignDate: document.getElementById('logAssignDate').value || document.getElementById('logDate').value,
@@ -5718,8 +5781,8 @@
         return;
       }
       
-      // Extract MPRO ID from MPRO Link: e.g. U+200B/CreativeBriefs/Edit/17889
-      const match = mproLink.match(/\/(\d+)\/?$/);
+      // Extract MPRO ID from MPRO Link
+      const match = mproLink.match(/\/(\d+)(?:\D|$)/) || mproLink.match(/(\d+)/);
       const mproId = match ? match[1] : "";
       
       if (!mproId) {
@@ -5921,6 +5984,43 @@
       document.getElementById('assignDeadline').value = "" + day + "-" + month + "-" + year;
     }
     
+    window.handleProfileAvatarUpload = function(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const fileNameSpan = document.getElementById('profileAvatarFileName');
+        if (fileNameSpan) fileNameSpan.innerText = file.name;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            // Resize to 120x120 canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 120;
+            canvas.height = 120;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 120, 120);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85); // Compress to jpeg with 85% quality
+            
+            // Set data url in profileAvatarUrl field
+            document.getElementById('profileAvatarUrl').value = dataUrl;
+            
+            // Update preview
+            const previewImg = document.getElementById('profileModalAvatar');
+            const previewFallback = document.getElementById('profileModalAvatarFallback');
+            if (previewImg && previewFallback) {
+              previewImg.src = dataUrl;
+              previewImg.style.display = 'block';
+              previewFallback.style.display = 'none';
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    
     function openProfileModal() {
       if (!state.loggedInMember) {
         showToast("Please log in first to access your profile.", "error");
@@ -5940,13 +6040,19 @@
       document.getElementById('profilePhone').value = member.Phone || "";
       document.getElementById('profileEmail').value = member.Email || "";
       document.getElementById('profileBrands').value = member.RecommendedBrands || "";
-      document.getElementById('profileAvatarUrl').value = member.avatar_url || "";
-      document.getElementById('profilePin').value = member.pin || "";
+      document.getElementById('profileAvatarUrl').value = member.Avatar || "";
+      document.getElementById('profilePin').value = member.PIN || "";
+      
+      // Reset file input label
+      const fileInput = document.getElementById('profileAvatarFile');
+      if (fileInput) fileInput.value = "";
+      const fileNameSpan = document.getElementById('profileAvatarFileName');
+      if (fileNameSpan) fileNameSpan.innerText = "No file selected";
       
       const avatarImg = document.getElementById('profileModalAvatar');
       const avatarFallback = document.getElementById('profileModalAvatarFallback');
-      if (member.avatar_url) {
-        avatarImg.src = member.avatar_url;
+      if (member.Avatar) {
+        avatarImg.src = member.Avatar;
         avatarImg.style.display = 'block';
         avatarFallback.style.display = 'none';
       } else {
