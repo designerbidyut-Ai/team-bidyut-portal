@@ -4344,7 +4344,7 @@
       if (!container) return;
       
       const initials = member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-      const hasAvatar = member.avatar && member.avatar.startsWith('http');
+      const hasAvatar = member.avatar && member.avatar.trim() !== "";
       
       const imageBorderColor = rank === 1 ? '#eab308' : (rank === 2 ? '#94a3b8' : '#ca8a04');
       const avatarSize = rank === 1 ? '72px' : '60px';
@@ -4543,17 +4543,22 @@
             </td>
             <td><span class="status-badge" style="background-color:rgba(0,0,0,0.1); color:var(--text-main); border: 1px solid var(--border-color);">${task.Group}</span></td>
             <td>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <svg width="26" height="26" style="transform: rotate(-90deg); flex-shrink: 0;">
-                  <circle cx="13" cy="13" r="${rVal}" stroke="var(--border-color)" stroke-width="2.5" fill="transparent" />
-                  <circle cx="13" cy="13" r="${rVal}" stroke="${percent === 100 ? '#10b981' : 'var(--accent-blue)'}" stroke-width="2.5" fill="transparent"
-                    stroke-dasharray="${circumference}"
-                    stroke-dashoffset="${offset}" />
-                </svg>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="position: relative; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="26" height="26" style="transform: rotate(-90deg); position: absolute; top: 0; left: 0;">
+                    <circle cx="13" cy="13" r="${rVal}" stroke="var(--border-color)" stroke-width="2.5" fill="${percent === 100 ? '#10b981' : 'transparent'}" />
+                    <circle cx="13" cy="13" r="${rVal}" stroke="${percent === 100 ? '#10b981' : 'var(--primary)'}" stroke-width="2.5" fill="transparent"
+                      stroke-dasharray="${circumference}"
+                      stroke-dashoffset="${offset}" />
+                  </svg>
+                  ${percent === 100 
+                    ? `<span style="position: relative; color: #ffffff; font-weight: 900; font-size: 11px; line-height: 1; z-index: 1; margin-top: -1px;">✓</span>` 
+                    : ''
+                  }
+                </div>
                 <div>
-                  <div style="font-weight: 700; font-size: 13px;">
+                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main);">
                     ${compQty} / ${totalQty}
-                    ${percent === 100 ? '<span style="color: #10b981; font-weight: bold; margin-left: 2px;">&#9989;</span>' : ''}
                   </div>
                   <div style="font-size: 10px; color: var(--text-muted); white-space: nowrap;">
                     ${percent === 100 ? 'Completed' : 'Left: ' + Math.max(0, totalQty - compQty)}
@@ -4841,6 +4846,7 @@
       if (role === 'ADMIN') {
         dot.className = 'role-dot admin';
         text.innerText = 'Admin Mode';
+        if (adminAssign) adminAssign.style.display = 'block';
         adminFund.style.display = 'block';
         adminAddAcc.style.display = 'inline-flex';
         adminImportAcc.style.display = 'inline-flex';
@@ -4851,6 +4857,7 @@
       } else {
         dot.className = 'role-dot member';
         text.innerText = 'Member Mode';
+        if (adminAssign) adminAssign.style.display = 'none';
         adminFund.style.display = 'none';
         adminAddAcc.style.display = 'inline-flex'; // Allow everyone to add shared accounts
         adminImportAcc.style.display = 'none';
