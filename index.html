@@ -20,6 +20,7 @@
       --bg-surface: #141b2d;
       --bg-surface-hover: #1f2a40;
       --border-color: #233044;
+      --input-bg: rgba(0, 0, 0, 0.25);
       
       --text-main: #f5f6f8;
       --text-muted: #8e9bb2;
@@ -53,6 +54,7 @@
       --bg-surface: #ffffff;
       --bg-surface-hover: #f1f5f9;
       --border-color: #e2e8f0;
+      --input-bg: #ffffff;
       
       --text-main: #0f172a;
       --text-muted: #64748b;
@@ -424,7 +426,7 @@
     input, select, textarea {
       padding: 12px 16px;
       border-radius: 8px;
-      background-color: var(--bg-base);
+      background-color: var(--input-bg);
       border: 1px solid var(--border-color);
       color: var(--text-main);
       font-size: 14px;
@@ -768,7 +770,6 @@
       margin-bottom: 20px;
     }
 
-    /* Logger form specific large text styles */
     #logDate,
     #qty6s,
     #qty10s,
@@ -782,6 +783,68 @@
       padding: 10px 14px !important;
       height: 48px !important;
       line-height: 1.5 !important;
+    }
+
+    /* Custom select dropdown styling */
+    .custom-select-wrapper {
+      position: relative;
+      user-select: none;
+      width: 100%;
+    }
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      font-size: 18px;
+      font-weight: 700;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      cursor: pointer;
+      height: 48px;
+      box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .custom-select-trigger:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+    .custom-options {
+      position: absolute;
+      display: none;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 200px; /* ~5 items scrollable! */
+      overflow-y: auto;
+      z-index: 999;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .custom-options.open {
+      display: block;
+    }
+    .custom-option {
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .custom-option:hover {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* Fix to prevent white-on-white / unreadable option text in Chrome/Edge */
+    select option, select optgroup {
+      background-color: var(--bg-surface) !important;
+      color: var(--text-main) !important;
     }
 
 </style>
@@ -1112,15 +1175,44 @@
                 <!-- MPRO Link Submission (Bengali Request - MPRO Link only) -->
                 <div class="form-grid" style="margin-top: 15px;">
                   <div class="form-group full-width">
-                    <label for="logMproLink" style="font-size: 14px; font-weight: 700;">MPRO Link (Employee Link) <span style="color: var(--accent-pink);">*</span></label>
-                    <input type="url" id="logMproLink" placeholder="http://mpro.prangroup.com:4000/CreativeBriefs/Edit/..." required style="font-size: 16px; padding: 12px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);" oninput="onLogMproLinkChange(this.value)">
+                    <label for="logMproLink" style="font-size: 14px; font-weight: 700;">MPRO Link <span style="color: var(--accent-pink);">*</span></label>
+                    <input type="url" id="logMproLink" placeholder="http://mpro.prangroup.com:4000/CreativeBriefs/Edit/..." required style="font-size: 16px; padding: 12px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);" oninput="onLogMproLinkChange(this.value)">
                     <div id="mproIdAssignStatus" style="font-size: 12px; margin-top: 6px; font-weight: 700; display: none;"></div>
                   </div>
                 </div>
                 <div class="form-grid" style="margin-top: 15px; display: none;" id="logAssignDateGroup">
                   <div class="form-group">
                     <label for="logAssignDate" style="font-size: 14px; font-weight: 700; color: #f59e0b;">Assign Date <span style="color: var(--accent-pink);">*</span></label>
-                    <input type="date" id="logAssignDate" onclick="this.showPicker()" style="font-size: 16px; padding: 12px; font-weight: 700; background: rgba(0,0,0,0.25); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; color: var(--text-main);">
+                    <input type="date" id="logAssignDate" onclick="this.showPicker()" style="font-size: 16px; padding: 12px; font-weight: 700; background: var(--input-bg); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; color: var(--text-main);">
+                  </div>
+                </div>
+                
+                <div class="form-grid" style="margin-top: 15px; display: none;" id="logAutoAssignFields">
+                  <div class="form-group">
+                    <label for="logBrand" style="font-size: 14px; font-weight: 700; color: #f59e0b; display: flex; justify-content: space-between; align-items: center;">
+                      <span>Brand Name</span>
+                      <button type="button" onclick="promptAddBrand()" style="background: none; border: none; color: var(--primary-light); font-size: 11px; cursor: pointer; font-weight: bold; text-transform: none; text-decoration: underline;">+ Add Brand</button>
+                    </label>
+                    <select id="logBrand" style="font-size: 14px; padding: 12px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-weight: 700;">
+                      <option value="">Select Brand...</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="logStatus" style="font-size: 14px; font-weight: 700; color: #f59e0b;">Work Status</label>
+                    <select id="logStatus" style="font-size: 14px; padding: 12px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-weight: 700;">
+                      <option value="Not Started">Not Started</option>
+                      <option value="Work in Progress">Work in Progress</option>
+                      <option value="Running">Running</option>
+                      <option value="Motion Running">Motion Running</option>
+                      <option value="BM NOT RESPONDING">BM NOT RESPONDING</option>
+                      <option value="Revision">Revision</option>
+                      <option value="Work Submitted">Work Submitted</option>
+                      <option value="BM Ok - HoM Pending">BM Ok - HoM Pending</option>
+                      <option value="HOM Approved">HOM Approved</option>
+                      <option value="Static Approved">Static Approved</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Hold">Hold</option>
+                    </select>
                   </div>
                 </div>
                 
@@ -1418,6 +1510,7 @@
                     <tr>
                       <th>Date</th>
                       <th id="colHeaderMember" style="display:none;">Member</th>
+                      <th>MPRO Link</th>
                       <th>6s</th>
                       <th>10s</th>
                       <th>15s</th>
@@ -1458,7 +1551,7 @@
                   <span>Assign To <span style="color: var(--accent-pink);">*</span></span>
                   <span id="assignMemberRecommendation" style="display: none; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: flex-end;"></span>
                 </label>
-                <select id="assignMemberDropdownSelect" onchange="addAssignMemberTag(this.value)" style="width: 100%; font-size: 15px; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);">
+                <select id="assignMemberDropdownSelect" onchange="addAssignMemberTag(this.value)" style="width: 100%; font-size: 15px; padding: 10px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);">
                   <option value="">Select Member to Add...</option>
                 </select>
                 <div id="assignMemberTagsContainer" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;"></div>
@@ -1478,12 +1571,16 @@
                 <label for="assignGroup" style="display: flex; align-items: center; gap: 4px;">
                   Brands <span style="color: var(--accent-pink);">*</span>
                 </label>
-                <div style="display: flex; gap: 6px;">
-                  <select id="assignGroup" required style="flex: 1;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <select id="assignGroup" required style="flex-grow: 1; min-width: 120px; font-size: 14px; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);">
                     <option value="">Select Brand...</option>
                   </select>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="promptAddBrand()" style="padding: 0 10px; font-weight: 700;" title="Add New Brand">?</button>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="promptDeleteBrand()" style="padding: 0 10px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Delete Brand">?</button>
+                  <button type="button" class="btn btn-sm" onclick="promptAddBrand()" style="padding: 8px 14px; font-weight: 700; background: var(--primary); color: #fff; border: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; height: 38px; font-size: 12px; cursor: pointer; white-space: nowrap;">
+                    ➕ Add
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="promptDeleteBrand()" style="padding: 8px 14px; font-weight: 700; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.03); border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; height: 38px; font-size: 12px; cursor: pointer; white-space: nowrap;">
+                    🗑️ Del
+                  </button>
                 </div>
               </div>
               <div class="form-group">
@@ -1676,11 +1773,11 @@
         <div class="section-header">
           <h3 class="font-outfit" style="font-size: 20px; font-weight: 700;">Shared Team Logins</h3>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <button id="adminImportAccountsBtn" class="btn btn-outline btn-sm" onclick="triggerImportAccounts()" style="display:none;">
-              ?? Import JSON
+            <button id="adminImportAccountsBtn" class="btn btn-outline btn-sm" onclick="triggerImportAccounts()" style="display:none; font-weight:700;">
+              📥 Import JSON
             </button>
-            <button id="adminAddAccountBtn" class="btn btn-primary btn-sm" onclick="openAddAccountModal()" style="display:none;">
-              ? Add Shared Account
+            <button id="adminAddAccountBtn" class="btn btn-primary btn-sm" onclick="openAddAccountModal()" style="font-weight:700;">
+              ➕ Add Shared Account
             </button>
           </div>
         </div>
@@ -2085,8 +2182,9 @@
   <!-- 3. Add Shared Account Modal -->
   <div id="addAccountModal" class="modal-overlay">
     <div class="modal-card">
+      <input type="hidden" id="editAccId" value="">
       <div class="modal-header">
-        <h3>Add Shared Credentials</h3>
+        <h3 id="addAccountModalTitle">Add Shared Credentials</h3>
         <button class="icon-btn" onclick="closeAddAccountModal()">?</button>
       </div>
       <div class="form-group" style="margin-bottom: 12px;">
@@ -2111,7 +2209,7 @@
       </div>
       <div style="display:flex; justify-content: flex-end; gap: 12px;">
         <button class="btn btn-outline" onclick="closeAddAccountModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitAddAccount()">Add Account</button>
+        <button class="btn btn-primary" id="btnSubmitAccount" onclick="submitAddAccount()">Add Account</button>
       </div>
     </div>
   </div>
@@ -2550,21 +2648,20 @@
           // 7. logDailyWork()
           logDailyWork: async function(logData) {
             try {
-              // 1. Verify PIN
-              const isAdmin = String(logData.pin).trim() === "1234";
-              let pinValid = false;
-              if (isAdmin) {
-                pinValid = true;
-              } else {
-                const { data, error } = await supabaseClient.from('members').select('pin').eq('name', logData.memberName).maybeSingle();
-                if (error) throw error;
-                const storedPin = data ? String(data.pin || "").trim() : "";
-                const expectedPin = storedPin === "" ? "1234" : storedPin;
-                pinValid = expectedPin === String(logData.pin).trim();
-              }
+              // 1. Verify PIN against DB
+              const { data, error: fetchErr } = await supabaseClient
+                .from('members')
+                .select('pin')
+                .eq('name', logData.memberName)
+                .maybeSingle();
+              if (fetchErr) throw fetchErr;
+              
+              const storedPin = data ? String(data.pin || "").trim() : "";
+              const expectedPin = storedPin === "" ? "1234" : storedPin;
+              const pinValid = expectedPin === String(logData.pin).trim();
               
               if (!pinValid) {
-                throw new Error("Authentication failed: Invalid PIN. Default PIN is 1234.");
+                throw new Error("Authentication failed: Invalid PIN.");
               }
               
               // 2. Insert Daily Log
@@ -2605,12 +2702,12 @@
                 
                 if (!fetchErr && existing) {
                   const newCompletedQty = (Number(existing.completed_qty) || 0) + sumQty;
-                  const newStatus = "Today's MPRO Work Submission:";
                   
                   await supabaseClient
                     .from('assignments')
                     .update({
-                      status: newStatus,
+                      status: logData.status || "Today's MPRO Work Submission:",
+                      brands: logData.brand || "",
                       mpro_link: mLink,
                       completed_qty: newCompletedQty,
                       submit_date: logData.date || new Date().toISOString().split('T')[0]
@@ -2625,11 +2722,11 @@
                       mpro_id: mId,
                       mpro_link: mLink,
                       assign_date: aDate,
-                      brands: "",
+                      brands: logData.brand || "",
                       member_name: logData.memberName,
                       quantity: sumQty || 1,
                       completed_qty: sumQty || 1,
-                      status: "Today's MPRO Work Submission:",
+                      status: logData.status || "Today's MPRO Work Submission:",
                       submit_date: logData.date || new Date().toISOString().split('T')[0],
                       note: logData.note || ""
                     });
@@ -2643,26 +2740,22 @@
               if (this.failureHandler) this.failureHandler(e);
             }
           },
-          
-          // 8. deleteDailyLog()
+              // 8. deleteDailyLog()
           deleteDailyLog: async function(id, memberName, pin) {
             try {
-              // 1. Verify PIN
-              const isAdmin = String(pin).trim() === "1234";
-              let pinValid = false;
-              if (isAdmin) {
-                pinValid = true;
-              } else {
-                const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
-                if (error) throw error;
-                const storedPin = data ? String(data.pin || "").trim() : "";
-                const expectedPin = storedPin === "" ? "1234" : storedPin;
-                pinValid = expectedPin === String(pin).trim();
-              }
+              // 1. Verify PIN and Role against DB
+              const { data, error } = await supabaseClient.from('members').select('pin, role').eq('name', memberName).maybeSingle();
+              if (error) throw error;
+              
+              const storedPin = data ? String(data.pin || "").trim() : "";
+              const expectedPin = storedPin === "" ? "1234" : storedPin;
+              const pinValid = expectedPin === String(pin).trim();
               
               if (!pinValid) {
                 throw new Error("Authentication failed: Invalid PIN");
               }
+              
+              const isAdmin = data && data.role === 'ADMIN';
               
               // 2. Verify Ownership
               if (!isAdmin) {
@@ -2673,8 +2766,8 @@
                 }
               }
               
-              const { error } = await supabaseClient.from('daily_logs').delete().eq('id', id);
-              if (error) throw error;
+              const { error: delErr } = await supabaseClient.from('daily_logs').delete().eq('id', id);
+              if (delErr) throw delErr;
               if (this.successHandler) this.successHandler({ success: true, message: "Log entry deleted successfully!" });
             } catch(e) {
               if (this.failureHandler) this.failureHandler(e);
@@ -2684,21 +2777,19 @@
           // 9. updateDailyLog()
           updateDailyLog: async function(id, logData, memberName, pin) {
             try {
-              const isAdmin = String(pin).trim() === "1234";
-              let pinValid = false;
-              if (isAdmin) {
-                pinValid = true;
-              } else {
-                const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
-                if (error) throw error;
-                const storedPin = data ? String(data.pin || "").trim() : "";
-                const expectedPin = storedPin === "" ? "1234" : storedPin;
-                pinValid = expectedPin === String(pin).trim();
-              }
+              // 1. Verify PIN and Role against DB
+              const { data, error } = await supabaseClient.from('members').select('pin, role').eq('name', memberName).maybeSingle();
+              if (error) throw error;
+              
+              const storedPin = data ? String(data.pin || "").trim() : "";
+              const expectedPin = storedPin === "" ? "1234" : storedPin;
+              const pinValid = expectedPin === String(pin).trim();
               
               if (!pinValid) {
                 throw new Error("Authentication failed: Invalid PIN");
               }
+              
+              const isAdmin = data && data.role === 'ADMIN';
               
               if (!isAdmin) {
                 const { data: original, error: origErr } = await supabaseClient.from('daily_logs').select('member_name').eq('id', id).maybeSingle();
@@ -2708,7 +2799,7 @@
                 }
               }
               
-              const { error } = await supabaseClient.from('daily_logs').update({
+              const { error: updateErr } = await supabaseClient.from('daily_logs').update({
                 date: logData.date,
                 member_name: isAdmin ? (logData.memberName || memberName) : memberName,
                 content_6s: Number(logData.content6s) || 0,
@@ -2722,7 +2813,7 @@
                 mpro_id: logData.mproId || "",
                 mpro_link: logData.mproLink || ""
               }).eq('id', id);
-              if (error) throw error;
+              if (updateErr) throw updateErr;
               
               if (logData.mproId) {
                 const mId = String(logData.mproId).trim();
@@ -2745,10 +2836,6 @@
           },
           verifyMemberPIN: async function(memberName, pin) {
             try {
-              if (String(pin).trim() === "1234") {
-                if (this.successHandler) this.successHandler(true);
-                return;
-              }
               const { data, error } = await supabaseClient.from('members').select('pin').eq('name', memberName).maybeSingle();
               if (error) throw error;
               
@@ -3010,6 +3097,24 @@
               });
               if (error) throw error;
               if (this.successHandler) this.successHandler({ success: true, message: "Shared credential saved successfully!" });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+          
+          // 16b. updateAccount()
+          updateAccount: async function(id, accData) {
+            try {
+              const { error } = await supabaseClient.from('accounts').update({
+                service_name: accData.serviceName,
+                login_url: accData.loginUrl,
+                username: accData.username,
+                password: accData.password,
+                expiry_date: accData.expiryDate || null,
+                note: accData.note || ""
+              }).eq('id', id);
+              if (error) throw error;
+              if (this.successHandler) this.successHandler({ success: true, message: "Shared credential updated successfully!" });
             } catch(e) {
               if (this.failureHandler) this.failureHandler(e);
             }
@@ -3536,6 +3641,27 @@
                 if (self._success) self._success({ success: true, message: "Account credentials added (Mock Mode)!" });
               }, 300);
             },
+            
+            updateAccount: function(id, acc) {
+              const self = this;
+              setTimeout(() => {
+                const list = JSON.parse(sessionStorage.getItem('mock_accounts')) || [];
+                const index = list.findIndex(item => item.id == id);
+                if (index !== -1) {
+                  list[index] = {
+                    id: id,
+                    ServiceName: acc.serviceName,
+                    LoginURL: acc.loginUrl,
+                    UsernameEmail: acc.username,
+                    Password: acc.password,
+                    ExpiryDate: acc.expiryDate,
+                    Note: ""
+                  };
+                  sessionStorage.setItem('mock_accounts', JSON.stringify(list));
+                }
+                if (self._success) self._success({ success: true, message: "Account credentials updated (Mock Mode)!" });
+              }, 300);
+            },
 
             addPrompt: function(pr) {
               const self = this;
@@ -3637,9 +3763,96 @@
       const savedTheme = localStorage.getItem('theme') || 'dark';
       setTheme(savedTheme);
       
+      // Initialize custom selects for quantities (0-50, max 5 visible)
+      initCustomQuantityDropdowns();
+      
       // Load initial spreadsheet data
       refreshAllData();
     });
+
+    function initCustomQuantityDropdowns() {
+      const ids = ['qty6s', 'qty10s', 'qty15s', 'qty20s', 'qty30s', 'qty1m', 'qtySp'];
+      ids.forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        
+        // Populate options 0 to 50
+        select.innerHTML = '';
+        for (let i = 0; i <= 50; i++) {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = i;
+          select.appendChild(opt);
+        }
+        
+        // Hide native select
+        select.style.display = 'none';
+        
+        // Create custom structure
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select-wrapper';
+        wrapper.id = 'wrapper_' + id;
+        
+        const trigger = document.createElement('div');
+        trigger.className = 'custom-select-trigger';
+        trigger.innerHTML = `<span>0</span><span class="arrow" style="font-size:10px; margin-left:8px; opacity:0.7;">▼</span>`;
+        
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'custom-options';
+        
+        for (let i = 0; i <= 50; i++) {
+          const optionDiv = document.createElement('div');
+          optionDiv.className = 'custom-option';
+          optionDiv.dataset.value = i;
+          optionDiv.textContent = i;
+          
+          optionDiv.addEventListener('click', function(e) {
+            e.stopPropagation();
+            select.value = i;
+            trigger.querySelector('span').textContent = i;
+            optionsContainer.classList.remove('open');
+            // Trigger change event
+            select.dispatchEvent(new Event('change'));
+          });
+          
+          optionsContainer.appendChild(optionDiv);
+        }
+        
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Close all other open custom selects
+          document.querySelectorAll('.custom-options.open').forEach(c => {
+            if (c !== optionsContainer) c.classList.remove('open');
+          });
+          optionsContainer.classList.toggle('open');
+        });
+        
+        // Insert wrapper into DOM
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select); // Move native select inside wrapper
+        wrapper.appendChild(trigger);
+        wrapper.appendChild(optionsContainer);
+        
+        // Sync custom trigger when select value is changed programmatically (e.g. during edit)
+        const descriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        Object.defineProperty(select, 'value', {
+          get: function() {
+            return descriptor.get.call(this);
+          },
+          set: function(val) {
+            descriptor.set.call(this, val);
+            trigger.querySelector('span').textContent = val;
+          }
+        });
+      });
+      
+      // Close on document click
+      document.addEventListener('click', function() {
+        document.querySelectorAll('.custom-options.open').forEach(c => {
+          c.classList.remove('open');
+        });
+      });
+    }
 
     // Toggle Themes (Light / Dark)
     function toggleTheme() {
@@ -4221,7 +4434,7 @@
         tbody.innerHTML += `
           <tr>
             <td>${task.AssignDate}</td>
-            <td style="font-family:monospace; font-size:12px; font-weight:700;">${task.MPROID}</td>
+            <td style="font-family:monospace; font-size:15px; font-weight:800; color: var(--accent-cyan);">${task.MPROID}</td>
             <td>
               <a href="${task.MPROLink}" target="_blank" class="mpro-link">Open MPRO Link</a>
             </td>
@@ -4250,12 +4463,12 @@
             <td style="font-weight:600;">${task.AssignedTo}</td>
             <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${task.Note}">${task.Note || '-'}</td>
             <td>
-              <div style="display: flex; gap: 6px;">
-                <button class="btn btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})" style="background: var(--accent-blue); color: #ffffff; border: none; font-weight: 700; padding: 6px 12px; border-radius: 6px; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
-                  ?? Update
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="btn btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
+                  📝 Update
                 </button>
-                <button class="btn btn-outline btn-sm" onclick="deleteAssignment('${task.TaskID}')" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
-                  &#x1F5D1;&#xFE0F; Delete
+                <button class="btn btn-outline btn-sm" onclick="deleteAssignment('${task.TaskID}')" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.03); font-size: 11px; padding: 4px 8px; opacity: 0.85; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+                  🗑️ Del
                 </button>
               </div>
             </td>
@@ -4303,7 +4516,14 @@
       }
       
       container.innerHTML = '';
-      state.accounts.forEach((acc, idx) => {
+      // Sort accounts alphabetically by ServiceName
+      const sortedAccounts = [...state.accounts].sort((a, b) => {
+        const nameA = String(a.ServiceName || '').toLowerCase().trim();
+        const nameB = String(b.ServiceName || '').toLowerCase().trim();
+        return nameA.localeCompare(nameB);
+      });
+
+      sortedAccounts.forEach((acc, idx) => {
         // Extract domain for favicon
         let domain = "";
         if (acc.LoginURL) {
@@ -4333,38 +4553,24 @@
 
         const iconUrl = domain ? `https://www.google.com/s2/favicons?sz=64&domain=${domain}` : '';
 
-        // Get brand color based on name
-        let brandColor = "#4f46e5"; // default Indigo
-        if (acc.ServiceName) {
-          const name = acc.ServiceName.toLowerCase();
-          if (name.includes("envato")) brandColor = "#81b441";
-          else if (name.includes("canva")) brandColor = "#8b3dff";
-          else if (name.includes("netflix")) brandColor = "#e50914";
-          else if (name.includes("freepik")) brandColor = "#1273eb";
-          else if (name.includes("motion")) brandColor = "#ff5a00";
-          else if (name.includes("chatgpt") || name.includes("openai")) brandColor = "#10a37f";
-          else if (name.includes("midjourney")) brandColor = "#000000";
-          else if (name.includes("shutterstock")) brandColor = "#ff6600";
-          else if (name.includes("capcut")) brandColor = "#000000";
-          else if (name.includes("youtube")) brandColor = "#ff0000";
-          else if (name.includes("facebook")) brandColor = "#1877f2";
-          else if (name.includes("eleven")) brandColor = "#e1b12c";
-          else if (name.includes("adobe")) brandColor = "#ff0000";
-          else if (name.includes("leonardo")) brandColor = "#8854d0";
-        }
-
         container.innerHTML += `
           <div class="account-card" style="display: flex; gap: 16px; padding: 18px; align-items: stretch; overflow: hidden; background-color: var(--bg-surface);">
-            <!-- Left: Logo Area (1/4th of card width) with brand color background -->
-            <div style="flex: 0 0 25%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: ${brandColor}; border-radius: 12px; padding: 8px;">
-              ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.display='none'" style="width: 40px; height: 40px; border-radius: 8px; object-fit: contain; background: #fff; padding: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">` : '🔑'}
+            <!-- Left: Logo Area (1/4th of card width) with themed base background instead of brand color -->
+            <div style="flex: 0 0 25%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px;">
+              ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.display='none'" style="width: 56px; height: 56px; border-radius: 8px; object-fit: contain; background: #fff; padding: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">` : '🔑'}
             </div>
             
             <!-- Right: Details Area (3/4th of card width) with default theme colors -->
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
               <h3 style="margin: 0 0 10px 0; font-size: 17px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; border: none; padding: 0;">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; color: var(--text-main);">${acc.ServiceName}</span>
-                ${acc.LoginURL ? `<a href="${acc.LoginURL}" target="_blank" title="Go to login page" class="icon-btn">🔗</a>` : ''}
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  ${acc.LoginURL ? `<a href="${acc.LoginURL}" target="_blank" title="Go to login page" class="icon-btn" style="text-decoration:none;">🔗</a>` : ''}
+                  ${state.userRole === 'ADMIN' ? `
+                    <button class="icon-btn" onclick="openEditAccountModal('${acc.id}', \`${(acc.ServiceName || '').replace(/`/g, '\\`').replace(/\\$/g, '\\$')}\`, '${acc.LoginURL || ''}', \`${(acc.UsernameEmail || '').replace(/`/g, '\\`').replace(/\\$/g, '\\$')}\`, \`${(acc.Password || '').replace(/`/g, '\\`').replace(/\\$/g, '\\$')}\`, '${acc.ExpiryDate || ''}')" title="Edit Account" style="color: var(--primary-hover); border: none; background: none; font-size: 15px; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center;">✏️</button>
+                    <button class="icon-btn" onclick="deleteSharedAccount('${acc.id}')" title="Delete Account" style="color: #ef4444; border: none; background: none; font-size: 15px; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center;">🗑️</button>
+                  ` : ''}
+                </div>
               </h3>
               
               <div class="account-field" style="margin-bottom: 6px; display: flex; flex-direction: column; gap: 3px;">
@@ -4395,6 +4601,22 @@
           </div>
         `;
       });
+    }
+
+    function deleteSharedAccount(id) {
+      if (!confirm("Are you sure you want to delete this shared credential account?")) return;
+      showLoading(true, "Deleting account...");
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast("Account deleted successfully!", "success");
+          fetchAccountsAndPrompts(); // Refresh credentials grid
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to delete account: " + err.message, "error");
+        })
+        .deleteAccount(id);
     }
 
     function togglePassVisibility(idx) {
@@ -4527,7 +4749,7 @@
         dot.className = 'role-dot member';
         text.innerText = 'Member Mode';
         adminFund.style.display = 'none';
-        adminAddAcc.style.display = 'none';
+        adminAddAcc.style.display = 'inline-flex'; // Allow everyone to add shared accounts
         adminImportAcc.style.display = 'none';
         adminImportPr.style.display = 'none';
         adminAddPr.style.display = 'none';
@@ -4712,7 +4934,7 @@
       }
       
       if ((!state.myLogs || state.myLogs.length === 0)) {
-        const colSpanCount = isAdmin ? 11 : 10;
+        const colSpanCount = isAdmin ? 12 : 11;
         tbody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align: center; color: var(--text-muted);">No logs recorded. Select Work Date and log your quantities above!</td></tr>`;
         return;
       }
@@ -4720,11 +4942,15 @@
       tbody.innerHTML = '';
       state.myLogs.forEach(log => {
         const memberColHTML = isAdmin ? `<td style="color: var(--accent-cyan); font-weight:600;">${log.MemberName}</td>` : '';
+        const mproHTML = log.MproLink 
+          ? `<td><a href="${log.MproLink}" target="_blank" class="mpro-link" style="font-size:13px; font-weight:700; color:var(--accent-cyan);">Open MPRO Link</a></td>`
+          : `<td style="color:var(--text-muted); font-family:monospace;">-</td>`;
         
         tbody.innerHTML += `
           <tr>
             <td style="font-weight:600;">${log.Date}</td>
             ${memberColHTML}
+            ${mproHTML}
             <td>${log.Content6s || 0}</td>
             <td>${log.Content10s || 0}</td>
             <td>${log.Content15s || 0}</td>
@@ -4773,7 +4999,9 @@
           const m = link.match(/\/(\d+)\/?$/);
           return m ? m[1] : "";
         })(),
-        assignDate: document.getElementById('logAssignDate').value
+        assignDate: document.getElementById('logAssignDate').value || document.getElementById('logDate').value,
+        brand: document.getElementById('logBrand') ? document.getElementById('logBrand').value : "",
+        status: document.getElementById('logStatus') ? document.getElementById('logStatus').value : "Today's MPRO Work Submission:"
       };
       
       if (!logData.memberName) {
@@ -5424,10 +5652,12 @@
       const statusDiv = document.getElementById('mproIdAssignStatus');
       const assignDateGroup = document.getElementById('logAssignDateGroup');
       const assignDateInput = document.getElementById('logAssignDate');
+      const autoAssignFields = document.getElementById('logAutoAssignFields');
       
       if (!mproLink) {
         if (statusDiv) statusDiv.style.display = 'none';
         if (assignDateGroup) assignDateGroup.style.display = 'none';
+        if (autoAssignFields) autoAssignFields.style.display = 'none';
         if (assignDateInput) assignDateInput.removeAttribute('required');
         return;
       }
@@ -5442,6 +5672,7 @@
           statusDiv.style.display = 'block';
         }
         if (assignDateGroup) assignDateGroup.style.display = 'none';
+        if (autoAssignFields) autoAssignFields.style.display = 'none';
         if (assignDateInput) assignDateInput.removeAttribute('required');
         return;
       }
@@ -5472,21 +5703,41 @@
           statusDiv.style.display = 'block';
         }
         if (assignDateGroup) assignDateGroup.style.display = 'none';
+        if (autoAssignFields) {
+          autoAssignFields.style.display = 'grid';
+          // Pre-populate with existing values
+          const brandSelect = document.getElementById('logBrand');
+          const statusSelect = document.getElementById('logStatus');
+          if (brandSelect) brandSelect.value = matched.Group || "";
+          if (statusSelect) statusSelect.value = matched.Status || "";
+        }
         if (assignDateInput) {
           assignDateInput.removeAttribute('required');
           assignDateInput.value = matched.AssignDate;
         }
       } else {
         if (statusDiv) {
-          statusDiv.innerHTML = `<span style="color: #f59e0b;">?? Not assigned yet (MPRO ID: ${mproId}). Please enter Assign Date.</span>`;
+          statusDiv.innerHTML = `
+            <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 12px; margin-bottom: 8px; color: var(--text-main);">
+              <div style="font-weight: 700; color: #f59e0b; margin-bottom: 4px;">ℹ️ Not assigned yet (MPRO ID: ${mproId})</div>
+              <div style="font-size: 12px; margin-bottom: 6px;">This task will be automatically assigned to you on the selected Work Date.</div>
+              <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Please specify the Brand and Current Status below.</div>
+            </div>
+          `;
           statusDiv.style.display = 'block';
         }
-        if (assignDateGroup) assignDateGroup.style.display = 'block';
+        if (assignDateGroup) assignDateGroup.style.display = 'none';
+        if (autoAssignFields) {
+          autoAssignFields.style.display = 'grid';
+          // Set defaults for unassigned
+          const brandSelect = document.getElementById('logBrand');
+          const statusSelect = document.getElementById('logStatus');
+          if (brandSelect) brandSelect.value = "";
+          if (statusSelect) statusSelect.value = "Work Submitted";
+        }
         if (assignDateInput) {
-          assignDateInput.setAttribute('required', 'required');
-          if (!assignDateInput.value) {
-            assignDateInput.value = new Date().toISOString().split('T')[0];
-          }
+          assignDateInput.removeAttribute('required');
+          assignDateInput.value = document.getElementById('logDate').value || new Date().toISOString().split('T')[0];
         }
       }
     }
@@ -6040,6 +6291,19 @@
               select.value = currentVal;
             }
           }
+          
+          // Populate logBrand dropdown in the logging form
+          const logBrandSelect = document.getElementById('logBrand');
+          if (logBrandSelect) {
+            const currentLogBrand = logBrandSelect.value;
+            logBrandSelect.innerHTML = '<option value="">Select Brand...</option>';
+            brands.forEach(function(b) {
+              logBrandSelect.innerHTML += `<option value="${b}">${b}</option>`;
+            });
+            if (currentLogBrand && brands.indexOf(currentLogBrand) !== -1) {
+              logBrandSelect.value = currentLogBrand;
+            }
+          }
         })
         .withFailureHandler(function(err) {
           showToast("Failed to load brands: " + err.message, "error");
@@ -6222,11 +6486,27 @@
 
     // Add Shared Account Credential Modal Controls
     function openAddAccountModal() {
+      document.getElementById('editAccId').value = '';
+      document.getElementById('addAccountModalTitle').innerText = "Add Shared Credentials";
+      document.getElementById('btnSubmitAccount').innerText = "Add Account";
+      document.getElementById('addAccountModal').classList.add('active');
+    }
+    
+    function openEditAccountModal(id, serviceName, loginUrl, username, password, expiryDate) {
+      document.getElementById('editAccId').value = id;
+      document.getElementById('addAccountModalTitle').innerText = "Edit Shared Credentials";
+      document.getElementById('newAccService').value = serviceName || '';
+      document.getElementById('newAccUrl').value = loginUrl || '';
+      document.getElementById('newAccEmail').value = username || '';
+      document.getElementById('newAccPass').value = password || '';
+      document.getElementById('newAccExpiry').value = expiryDate || '';
+      document.getElementById('btnSubmitAccount').innerText = "Save Changes";
       document.getElementById('addAccountModal').classList.add('active');
     }
     
     function closeAddAccountModal() {
       document.getElementById('addAccountModal').classList.remove('active');
+      document.getElementById('editAccId').value = '';
       document.getElementById('newAccService').value = '';
       document.getElementById('newAccUrl').value = '';
       document.getElementById('newAccEmail').value = '';
@@ -6235,6 +6515,7 @@
     }
 
     function submitAddAccount() {
+      const editId = document.getElementById('editAccId').value;
       const accData = {
         serviceName: document.getElementById('newAccService').value,
         loginUrl: document.getElementById('newAccUrl').value,
@@ -6248,9 +6529,9 @@
         return;
       }
       
-      showLoading(true, "Saving shared credentials...");
+      showLoading(true, editId ? "Updating shared credentials..." : "Saving shared credentials...");
       
-      google.script.run
+      const runner = google.script.run
         .withSuccessHandler(function(resp) {
           showLoading(false);
           closeAddAccountModal();
@@ -6260,8 +6541,13 @@
         .withFailureHandler(function(err) {
           showLoading(false);
           showToast("Failed to save credentials: " + err.message, "error");
-        })
-        .addAccount(accData);
+        });
+
+      if (editId) {
+        runner.updateAccount(editId, accData);
+      } else {
+        runner.addAccount(accData);
+      }
     }
 
     // Add Prompt Modal Controls
