@@ -1953,7 +1953,7 @@
                   <thead>
                     <tr>
                       <th>Assign Date</th>
-                      <th>MPRO ID</th>
+                      <th>MPRO Link</th>
                       <th>Brand</th>
                       <th>Quantity</th>
                       <th>Submit Date</th>
@@ -4766,6 +4766,16 @@
     // ----------------------------------------------------
 
     function checkMemberLoginStatus() {
+      // Auto-detect Admin role based on logged-in member role in DB
+      if (state.loggedInMember && state.members) {
+        const currentMember = state.members.find(function(m) { return m.Name === state.loggedInMember; });
+        if (currentMember && currentMember.Role === 'ADMIN') {
+          state.userRole = 'ADMIN';
+        }
+      } else if (!state.loggedInMember) {
+        state.userRole = 'MEMBER';
+      }
+
       const loginCard = document.getElementById('memberLoginCard');
       const loggerContainer = document.getElementById('memberLoggerContainer');
       const memberLockedGroup = document.getElementById('memberNameLockedGroup');
@@ -4802,6 +4812,11 @@
       } else {
         if (loginCard) loginCard.style.display = 'block';
         if (loggerContainer) loggerContainer.style.display = 'none';
+      }
+
+      // Automatically re-render Shared Logins to sync Edit/Delete buttons visibility
+      if (typeof renderAccountsGrid === 'function' && document.getElementById('accountsContainer')) {
+        renderAccountsGrid();
       }
     }
 
@@ -4843,6 +4858,7 @@
       if (confirm("Are you sure you want to log out of member portal?")) {
         state.loggedInMember = '';
         state.loggedInPin = '';
+        state.userRole = 'MEMBER';
         localStorage.removeItem('sct_member_name');
         localStorage.removeItem('sct_member_pin');
         
@@ -6260,11 +6276,21 @@
         if (mCompletedList.length === 0) {
           completedTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); font-size:12px;">No completed tasks in history.</td></tr>`;
         } else {
-          mCompletedList.forEach(function(t) {
+          // Sort completed tasks by ApproveDate/SubmitDate descending
+          const sortedCompleted = [...mCompletedList].sort((a, b) => {
+            const dateA = new Date(a.ApproveDate || a.SubmitDate || a.AssignDate);
+            const dateB = new Date(b.ApproveDate || b.SubmitDate || b.AssignDate);
+            return dateB - dateA;
+          });
+          
+          // Show only the 5 most recent completed tasks
+          const latest5 = sortedCompleted.slice(0, 5);
+          
+          latest5.forEach(function(t) {
             completedTbody.innerHTML += `
               <tr>
                 <td>${t.AssignDate}</td>
-                <td><a href="${t.MPROLink}" target="_blank" class="mpro-link" style="font-family:monospace; font-weight:700;">${t.MPROID}</a></td>
+                <td><a href="${t.MPROLink}" target="_blank" class="mpro-link" style="font-size:13px; font-weight:700; color:var(--accent-cyan);">MPRO Link</a></td>
                 <td><span class="status-badge" style="background:rgba(255,255,255,0.03); color:var(--text-main); border:1px solid var(--border-color);">${t.Group}</span></td>
                 <td style="font-weight:700; color:#10b981;">${t.Quantity}</td>
                 <td>${t.SubmitDate || '-'}</td>
