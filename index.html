@@ -4381,10 +4381,18 @@
           .substring(0, 2)
           .toUpperCase();
           
+        const member = state.members ? state.members.find(function(m) { return m.Name === log.MemberName; }) : null;
+        const avatar = member ? member.Avatar : "";
+        const hasAvatar = avatar && avatar.trim() !== "";
+           
         container.innerHTML += `
           <div style="display: flex; gap: 16px; padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; align-items: flex-start; box-shadow: var(--shadow-sm); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-cyan)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-              ${initials}
+            <div style="width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--border-color); overflow: hidden; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative;">
+              ${hasAvatar 
+                ? `<img src="${avatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+                : ''
+              }
+              <span style="font-weight: 700; font-size: 13px; color: var(--text-main); display: ${hasAvatar ? 'none' : 'flex'};">${initials}</span>
             </div>
             <div style="flex-grow: 1; min-width: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
