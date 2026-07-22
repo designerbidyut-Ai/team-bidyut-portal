@@ -871,7 +871,7 @@
         <div class="logo-box">?</div>
         <div class="logo-text">
           <h2>Team Bidyut</h2>
-          <span>Content Tracker Portal</span>
+          <span>Content Tracker Portal v15</span>
         </div>
       </div>
       
@@ -1043,26 +1043,53 @@
           👑 Top Performers Podium
         </h3>
         
-        <div class="podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-bottom: 30px; margin-top: 10px;">
-          <!-- 2nd Place -->
-          <div class="podium-card silver" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 165px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
-            <div id="podium2ndAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
-            <div id="podium2ndName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">-</div>
-            <div id="podium2ndPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
+        <div class="podium-wrapper" style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-bottom: 30px; margin-top: 10px; flex-wrap: wrap; width: 100%;">
+          <!-- Left side other ranks (Even: 12, 10, 8, 6, 4) - circular horizontal row aligned bottom-right towards podium -->
+          <div id="podiumLeftRanks" style="display: flex; flex-direction: row; gap: 12px; align-items: flex-end; justify-content: flex-end; padding: 5px 5px 20px 5px; flex-wrap: wrap; flex: 0 1 auto; max-width: 380px;"></div>
+          
+          <!-- Main Top 3 Podium -->
+          <div class="podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 16px; flex-shrink: 0; padding-bottom: 5px;">
+            <!-- 2nd Place -->
+            <div class="podium-card silver" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 190px; height: 165px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
+              <div id="podium2ndAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
+              <div id="podium2ndName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">-</div>
+              <div id="podium2ndPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
+            </div>
+            
+            <!-- 1st Place -->
+            <div class="podium-card gold" style="background: var(--bg-surface); border: 2px solid #eab308; border-radius: 16px; padding: 24px; width: 210px; height: 195px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-lg); transform: translateY(-10px);">
+              <div id="podium1stAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
+              <div id="podium1stName" style="font-weight: 800; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: #eab308;">-</div>
+              <div id="podium1stPoints" style="font-size: 14px; color: var(--text-main); font-weight: 700; margin-top: 6px;">0 pts</div>
+            </div>
+            
+            <!-- 3rd Place -->
+            <div class="podium-card bronze" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 190px; height: 145px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
+              <div id="podium3rdAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
+              <div id="podium3rdName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">-</div>
+              <div id="podium3rdPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
+            </div>
           </div>
           
-          <!-- 1st Place -->
-          <div class="podium-card gold" style="background: var(--bg-surface); border: 2px solid #eab308; border-radius: 16px; padding: 24px; width: 220px; height: 195px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-lg); transform: translateY(-10px);">
-            <div id="podium1stAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
-            <div id="podium1stName" style="font-weight: 800; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; color: #eab308;">-</div>
-            <div id="podium1stPoints" style="font-size: 14px; color: var(--text-main); font-weight: 700; margin-top: 6px;">0 pts</div>
+          <!-- Right side other ranks (Odd: 5, 7, 9, 11, 13) - circular horizontal row aligned bottom-left towards podium -->
+          <div id="podiumRightRanks" style="display: flex; flex-direction: row; gap: 12px; align-items: flex-end; justify-content: flex-start; padding: 5px 5px 20px 5px; flex-wrap: wrap; flex: 0 1 auto; max-width: 380px;"></div>
+        </div>
+
+        <!-- 5 Oldest Unstarted Tasks Cards Container -->
+        <div id="dbUnstartedTasksSection" class="card" style="margin-bottom: 30px; background: var(--bg-surface);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+              ⏳ 5 Oldest Unstarted Tasks (Not Started)
+            </h4>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Filter by Member:</span>
+              <select id="dbUnstartedMemberFilter" onchange="generateDesignerReport(this.value)" style="padding: 6px 12px; font-size: 12px; font-weight: 700; color: var(--text-main); background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; outline: none;">
+                <option value="ALL" selected>Consolidated Team</option>
+              </select>
+            </div>
           </div>
-          
-          <!-- 3rd Place -->
-          <div class="podium-card bronze" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 200px; height: 145px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; box-shadow: var(--shadow-md);">
-            <div id="podium3rdAvatarContainer" style="position: relative; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;"></div>
-            <div id="podium3rdName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">-</div>
-            <div id="podium3rdPoints" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">0 pts</div>
+          <div id="unstartedTasksCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <!-- Unstarted task cards will be rendered dynamically here -->
           </div>
         </div>
 
@@ -1820,16 +1847,6 @@
                 <option value="ALL" selected>Consolidated Team Report</option>
               </select>
             </div>
-          </div>
-        </div>
-
-        <!-- 5 Oldest Unstarted Tasks Cards Container -->
-        <div id="repUnstartedTasksSection" class="card" style="margin-bottom: 24px; background: var(--bg-surface);">
-          <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
-            ⏳ 5 Oldest Unstarted Tasks (Not Started)
-          </h4>
-          <div id="unstartedTasksCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-            <!-- Unstarted task cards will be rendered dynamically here -->
           </div>
         </div>
 
@@ -4105,6 +4122,9 @@
         .withSuccessHandler(function(data) {
           state.assignments = data;
           renderAssignmentsTable();
+          if (typeof generateDesignerReport === 'function') {
+            generateDesignerReport('ALL');
+          }
           
           // Now fetch Funds ledger
           fetchFundLedger();
@@ -4171,6 +4191,7 @@
       const logMemberNameSelect = document.getElementById('logMemberNameSelect');
       const logsMemberFilter = document.getElementById('logsMemberFilter');
       const reportMemberFilter = document.getElementById('reportMemberFilter');
+      const dbUnstartedMemberFilter = document.getElementById('dbUnstartedMemberFilter');
       
       // Store current selections
       const currentLogSel = loginMemberSelect ? loginMemberSelect.value : '';
@@ -4181,6 +4202,7 @@
       const currentSelectSel = logMemberNameSelect ? logMemberNameSelect.value : '';
       const currentLogsFilterSel = logsMemberFilter ? logsMemberFilter.value : '';
       const currentReportFilterSel = reportMemberFilter ? reportMemberFilter.value : 'ALL';
+      const currentDbUnstartedFilterSel = dbUnstartedMemberFilter ? dbUnstartedMemberFilter.value : 'ALL';
       
       // Clear dropdowns
       if (loginMemberSelect) loginMemberSelect.innerHTML = `<option value="">Choose your name...</option>`;
@@ -4192,6 +4214,7 @@
       if (logMemberNameSelect) logMemberNameSelect.innerHTML = '';
       if (logsMemberFilter) logsMemberFilter.innerHTML = `<option value="">All Members</option>`;
       if (reportMemberFilter) reportMemberFilter.innerHTML = `<option value="ALL">Consolidated Team Report</option>`;
+      if (dbUnstartedMemberFilter) dbUnstartedMemberFilter.innerHTML = `<option value="ALL">Consolidated Team</option>`;
       
       state.members.forEach(member => {
         const optionHTML = `<option value="${member.Name}">${member.Name}</option>`;
@@ -4207,6 +4230,7 @@
         if (logMemberNameSelect) logMemberNameSelect.innerHTML += optionHTML;
         if (logsMemberFilter) logsMemberFilter.innerHTML += optionHTML;
         if (reportMemberFilter) reportMemberFilter.innerHTML += optionHTML;
+        if (dbUnstartedMemberFilter) dbUnstartedMemberFilter.innerHTML += optionHTML;
       });
       
       // Restore selections
@@ -4217,6 +4241,7 @@
       if (logMemberNameSelect) logMemberNameSelect.value = currentSelectSel;
       if (logsMemberFilter) logsMemberFilter.value = currentLogsFilterSel;
       if (reportMemberFilter) reportMemberFilter.value = currentReportFilterSel;
+      if (dbUnstartedMemberFilter) dbUnstartedMemberFilter.value = currentDbUnstartedFilterSel;
     }
     function renderLeaderboard() {
       const tbody = document.getElementById('leaderboardTableBody');
@@ -4347,6 +4372,73 @@
       renderPodiumAvatar('podium1stAvatarContainer', top1, 1, '#eab308');
       renderPodiumAvatar('podium2ndAvatarContainer', top2, 2, '#94a3b8');
       renderPodiumAvatar('podium3rdAvatarContainer', top3, 3, '#ca8a04');
+      
+      // Render other ranks (Even: 12, 10, 8, 6, 4) on the Left Container
+      const leftContainer = document.getElementById('podiumLeftRanks');
+      if (leftContainer) {
+        leftContainer.innerHTML = '';
+        const evens = [];
+        leaderboard.slice(3).forEach((m, idx) => {
+          const rankNum = idx + 4;
+          if (rankNum % 2 === 0) {
+            evens.push({ member: m, rank: rankNum });
+          }
+        });
+        // Sort descending so 4 is closest to the podium (on the right of the row)
+        evens.sort((a, b) => b.rank - a.rank);
+        evens.forEach(item => {
+          const scale = 1.0 - (item.rank - 4) * 0.045;
+          leftContainer.innerHTML += renderMiniRankAvatar(item.member, item.rank, scale);
+        });
+      }
+      
+      // Render other ranks (Odd: 5, 7, 9, 11, 13) on the Right Container
+      const rightContainer = document.getElementById('podiumRightRanks');
+      if (rightContainer) {
+        rightContainer.innerHTML = '';
+        const odds = [];
+        leaderboard.slice(3).forEach((m, idx) => {
+          const rankNum = idx + 4;
+          if (rankNum % 2 !== 0) {
+            odds.push({ member: m, rank: rankNum });
+          }
+        });
+        // Sort ascending so 5 is closest to the podium (on the left of the row)
+        odds.sort((a, b) => a.rank - b.rank);
+        odds.forEach(item => {
+          const scale = 1.0 - (item.rank - 4) * 0.045;
+          rightContainer.innerHTML += renderMiniRankAvatar(item.member, item.rank, scale);
+        });
+      }
+    }
+
+    // Helper to render small circular rank avatars with dynamic responsive scale
+    function renderMiniRankAvatar(member, rankNum, scale) {
+      if (!member || member.name === "-") return '';
+      const initials = member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const hasAvatar = member.avatar && member.avatar.trim() !== "";
+      
+      // Responsive base size clamp(48px, 4.5vw, 68px) scaled dynamically by rank distance
+      const avatarSize = `calc(clamp(48px, 4.5vw, 68px) * ${scale})`;
+      const badgeSize = `calc(19px * ${scale})`;
+      const fontSize = `calc(12px * ${scale})`;
+      const badgeFontSize = `calc(9.5px * ${scale})`;
+      
+      return `
+        <div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; transition: transform 0.2s; flex-shrink: 0; align-self: flex-end;" onmouseover="this.style.transform='scale(1.2)';" onmouseout="this.style.transform='none';" title="${member.name} (${member.points.toFixed(2)} pts)">
+          <div style="width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--border-color); overflow: hidden; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm);">
+            ${hasAvatar 
+              ? `<img src="${member.avatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+              : ''
+            }
+            <span style="font-weight: 700; font-size: ${fontSize}; color: var(--text-main); display: ${hasAvatar ? 'none' : 'flex'};">${initials}</span>
+          </div>
+          <!-- Rank Badge at bottom right of avatar -->
+          <div style="position: absolute; bottom: -2.5px; right: -2.5px; width: ${badgeSize}; height: ${badgeSize}; border-radius: 50%; background: var(--bg-surface); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: ${badgeFontSize}; font-weight: 900; border: 1.5px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.15); font-family: 'Outfit', sans-serif; z-index: 2;">
+            ${rankNum}
+          </div>
+        </div>
+      `;
     }
 
     function renderPodiumAvatar(containerId, member, rank, badgeColor) {
@@ -6292,6 +6384,12 @@
     function generateDesignerReport(filterValue) {
       if (!state.assignments || !state.members) return;
       
+      // Keep report and dashboard filter dropdown values synchronized
+      const repFilter = document.getElementById('reportMemberFilter');
+      const dbFilter = document.getElementById('dbUnstartedMemberFilter');
+      if (repFilter && repFilter.value !== filterValue) repFilter.value = filterValue;
+      if (dbFilter && dbFilter.value !== filterValue) dbFilter.value = filterValue;
+      
       // Render 5 Oldest Unstarted Tasks Card List (for selected member or all)
       let unstartedList = [];
       if (filterValue === 'ALL') {
@@ -6316,7 +6414,7 @@
       // Get oldest 5 tasks
       const oldest5Unstarted = unstartedList.slice(0, 5);
       const unstartedCardsContainer = document.getElementById('unstartedTasksCardsContainer');
-      const unstartedSectionHeader = document.querySelector('#repUnstartedTasksSection h4');
+      const unstartedSectionHeader = document.querySelector('#dbUnstartedTasksSection h4');
 
       if (unstartedSectionHeader) {
         unstartedSectionHeader.innerText = filterValue === 'ALL'
