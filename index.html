@@ -2116,15 +2116,20 @@
 
       <!-- TAB 7: REPORT DASHBOARD -->
       <section id="reportTab" class="tab-content">
-        <!-- Premium Centered Select Box -->
-        <div class="card" style="margin-bottom: 24px; display: flex; justify-content: center; align-items: center; padding: 24px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 450px;">
-            <div style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: center;">View Performance Report For:</div>
-            <div style="width: 100%; position: relative;">
-              <select id="reportMemberFilter" onchange="generateDesignerReport(this.value)" style="width: 100%; padding: 12px 18px; font-size: 16px; font-weight: 700; color: var(--text-main); background: var(--bg-base); border: 2px solid var(--primary); border-radius: 10px; cursor: pointer; text-align-last: center; box-shadow: 0 0 12px rgba(79, 70, 229, 0.1); transition: all 0.3s; outline: none;">
-                <option value="ALL" selected>Consolidated Team Report</option>
-              </select>
+        <!-- Compact Sleek Report Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 20px; box-shadow: var(--shadow-sm); margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 22px;">📊</span>
+            <div style="text-align: left;">
+              <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: var(--text-main); line-height: 1.2;">Performance Report</h3>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted);">Consolidated and individual member insights</p>
             </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">View Report For:</span>
+            <select id="reportMemberFilter" onchange="generateDesignerReport(this.value)" style="padding: 8px 16px; font-size: 13px; font-weight: 700; color: var(--text-main); background: var(--bg-base); border: 1.5px solid var(--primary); border-radius: 8px; cursor: pointer; outline: none; transition: all 0.2s;">
+              <option value="ALL" selected>Consolidated Team Report</option>
+            </select>
           </div>
         </div>
 
@@ -2150,28 +2155,94 @@
             </div>
           </div>
 
-          <!-- Team Workload Table -->
-          <div class="card">
-            <h4 class="font-outfit" style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-              &#128203; Team Member Status Summary
-            </h4>
-            <div class="table-container">
-              <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                  <tr>
-                    <th>Designer Name</th>
-                    <th>Role</th>
-                    <th>Active Tasks</th>
-                    <th>Completed Tasks</th>
-                    <th>Total Items (Qty)</th>
-                    <th>Completed Items (Qty)</th>
-                    <th>Completion %</th>
-                  </tr>
-                </thead>
-                <tbody id="teamReportTableBody">
-                  <!-- Generated dynamically -->
-                </tbody>
-              </table>
+
+
+          <!-- Monthly Billing Cycles (21st - 20th) Report -->
+          <div class="card" style="margin-top: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 14px; margin-bottom: 20px;">
+              <div>
+                <h4 class="font-outfit" style="font-size: 16px; font-weight: 800; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+                  📅 Monthly Work Performance Report (21st - 20th Cycle)
+                </h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">Billing cycle runs from the 21st of the previous month to the 20th of the current month.</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <!-- Billing Month Selector -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Cycle Month:</span>
+                  <select id="billingMonthSelector" onchange="renderBillingCycleReports()" style="padding: 6px 12px; font-size: 12px; font-weight: 700; color: var(--text-main); background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; outline: none;">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+                <!-- Download Buttons -->
+                <div style="display: flex; gap: 8px;">
+                  <button onclick="downloadBillingCSV()" style="padding: 6px 12px; font-size: 12px; font-weight: 800; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; border: none; background: var(--primary); color: #fff; transition: opacity 0.2s;">
+                    📥 Export CSV
+                  </button>
+                  <button onclick="downloadBillingPDF()" style="padding: 6px 12px; font-size: 12px; font-weight: 800; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; border: none; background: #e11d48; color: #fff; transition: opacity 0.2s;">
+                    📄 Export PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Premium Filter Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; background: var(--bg-base); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <!-- Member Filter -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Member / Designer</label>
+                <select id="billingMemberFilterSelector" onchange="renderBillingCycleReports()" style="padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--text-main); background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; outline: none; cursor: pointer; width: 100%;">
+                  <option value="ALL" selected>All Members</option>
+                </select>
+              </div>
+              <!-- Status Filter -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Work Status</label>
+                <select id="billingStatusFilter" onchange="renderBillingCycleReports()" style="padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--text-main); background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; outline: none; cursor: pointer; width: 100%;">
+                  <option value="ALL" selected>All Statuses</option>
+                  <option value="APPROVED">HOM Approved</option>
+                  <option value="SUBMITTED">Submitted Work</option>
+                  <option value="ACTIVE">Active / In Progress</option>
+                </select>
+              </div>
+              <!-- Text Query Search -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Search Query</label>
+                <input type="text" id="billingSearchQuery" oninput="renderBillingCycleReports()" placeholder="Search MPRO, Brand..." style="padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--text-main); background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; outline: none; width: 100%;">
+              </div>
+              <!-- Start Date -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Start Date</label>
+                <input type="date" id="billingStartDate" onchange="renderBillingCycleReports()" style="padding: 5px 10px; font-size: 12px; font-weight: 600; color: var(--text-main); background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; outline: none; width: 100%;">
+              </div>
+              <!-- End Date -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">End Date</label>
+                <input type="date" id="billingEndDate" onchange="renderBillingCycleReports()" style="padding: 5px 10px; font-size: 12px; font-weight: 600; color: var(--text-main); background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; outline: none; width: 100%;">
+              </div>
+            </div>
+
+            <!-- Full Width MPRO Details List -->
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+              <h5 style="font-size: 13px; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 6px;">
+                📜 MPRO Details List
+              </h5>
+              <div class="table-container" style="border: 1px solid var(--border-color); border-radius: 8px; max-height: 480px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                  <thead>
+                    <tr style="background: var(--bg-base); position: sticky; top: 0; z-index: 10;">
+                      <th style="padding: 10px; text-align: left;">Date</th>
+                      <th style="padding: 10px; text-align: center;">MPRO ID</th>
+                      <th style="padding: 10px; text-align: left;">Designer</th>
+                      <th style="padding: 10px; text-align: left;">Status</th>
+                      <th style="padding: 10px; text-align: center;">Points/Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody id="billingApprovedMproTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -5323,12 +5394,12 @@
         return;
       }
       
-      // Override container styling to render tool-groups as a grid filling the screen width
+      // Override container styling to render tool-groups in a masonry column layout to prevent height gaps
       container.removeAttribute('class');
-      container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(320px, 1fr))';
-      container.style.gap = '24px';
-      container.style.alignItems = 'start';
+      container.style.display = 'block';
+      container.style.columnWidth = '320px';
+      container.style.columnGap = '24px';
+      container.style.width = '100%';
       container.innerHTML = '';
       
       // Sort accounts alphabetically by ServiceName
@@ -5385,7 +5456,7 @@
         else if (lowerG.includes("motion") || lowerG.includes("capcut")) emoji = "🎬";
         
         let groupHTML = `
-          <div class="account-group-card" style="display: flex; flex-direction: column; gap: 16px; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm);">
+          <div class="account-group-card" style="display: inline-flex; flex-direction: column; gap: 16px; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); width: 100%; break-inside: avoid; margin-bottom: 24px;">
             <h4 class="font-outfit" style="font-size: 14px; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; text-align: left;">
               <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 6px; background: rgba(16, 185, 129, 0.1); color: var(--primary); font-size: 13px;">${emoji}</span>
               ${groupName}
@@ -5438,8 +5509,8 @@
                   <div style="display: flex; gap: 6px; align-items: center;">
                     ${acc.LoginURL ? `<a href="${acc.LoginURL}" target="_blank" title="Go to login page" class="icon-btn" style="text-decoration:none; font-size: 11px;">🔗</a>` : ''}
                     ${state.userRole === 'ADMIN' ? `
-                      <button class="icon-btn" onclick="openEditAccountModal('${acc.id}')" title="Edit Account" style="color: var(--primary-hover); border: none; background: none; font-size: 12px; cursor: pointer; padding: 0;">✏️</button>
-                      <button class="icon-btn" onclick="deleteSharedAccount('${acc.id}')" title="Delete Account" style="color: #ef4444; border: none; background: none; font-size: 12px; cursor: pointer; padding: 0;">🗑️</button>
+                      <button class="icon-btn" onclick="openEditAccountModal('${acc.RowIndex}')" title="Edit Account" style="color: var(--primary-hover); border: none; background: none; font-size: 12px; cursor: pointer; padding: 0;">✏️</button>
+                      <button class="icon-btn" onclick="deleteSharedAccount('${acc.RowIndex}')" title="Delete Account" style="color: #ef4444; border: none; background: none; font-size: 12px; cursor: pointer; padding: 0;">🗑️</button>
                     ` : ''}
                   </div>
                 </h3>
@@ -7214,49 +7285,10 @@
         document.getElementById('repCompletedTasks').innerText = completedTasks;
         document.getElementById('repPendingSubmissions').innerText = pendingSubmissions;
         
-        const tbody = document.getElementById('teamReportTableBody');
-        tbody.innerHTML = '';
+        if (typeof populateBillingMonths === 'function') populateBillingMonths();
+        if (typeof renderBillingCycleReports === 'function') renderBillingCycleReports();
         
-        state.members.forEach(function(member) {
-          const mTasks = state.assignments.filter(function(t) { return t.AssignedTo === member.Name; });
-          const mActive = mTasks.filter(function(t) {
-            const st = t.Status.toLowerCase();
-            return !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass') && !st.includes('submit');
-          }).length;
-          
-          const mCompleted = mTasks.filter(function(t) {
-            const st = t.Status.toLowerCase();
-            return st.includes('approved') || st.includes('completed') || st.includes('pass') || st.includes('ok');
-          }).length;
-          
-          let totalQty = 0;
-          let completedQty = 0;
-          mTasks.forEach(function(t) {
-            totalQty += Number(t.Quantity) || 0;
-            completedQty += Number(t.CompletedQty) || 0;
-          });
-          
-          const completionPercent = totalQty > 0 ? Math.round((completedQty / totalQty) * 100) : 0;
-          
-          tbody.innerHTML += `
-            <tr>
-              <td style="font-weight:700; color:var(--text-main);">${member.Name}</td>
-              <td style="font-size:12px; color:var(--text-muted);">${member.Role || 'Designer'}</td>
-              <td><span class="status-badge ${mActive > 0 ? 'in-progress' : 'not-started'}">${mActive} active</span></td>
-              <td><span class="status-badge ${mCompleted > 0 ? 'completed' : 'not-started'}">${mCompleted} approved</span></td>
-              <td style="font-weight:600;">${totalQty}</td>
-              <td style="font-weight:600; color:#10b981;">${completedQty}</td>
-              <td>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-weight:700; width:35px;">${completionPercent}%</span>
-                  <div style="flex:1; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
-                    <div style="width:${completionPercent}%; height:100%; background:linear-gradient(90deg, var(--accent-blue), #10b981); border-radius:3px;"></div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          `;
-        });
+
       } else {
         teamView.style.display = 'none';
         memberView.style.display = 'block';
@@ -8510,6 +8542,339 @@
     window.closeGlobalSearchResultsModal = function() {
       const modal = document.getElementById('globalSearchResultsModal');
       if (modal) modal.classList.remove('active');
+    };
+
+    // Helper: Parse date to billing month (21st of prev month to 20th of current month)
+    function parseToBillingMonth(dateString) {
+      if (!dateString) return null;
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return null;
+      
+      const day = date.getDate();
+      let month = date.getMonth(); // 0-indexed
+      let year = date.getFullYear();
+      
+      if (day >= 21) {
+        month = (month + 1) % 12;
+        if (month === 0) year++;
+      }
+      
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      return `${monthNames[month]} ${year}`;
+    }
+
+    // Populate billing cycle months and members selection list
+    window.populateBillingMonths = function() {
+      const monthSel = document.getElementById('billingMonthSelector');
+      const memberSel = document.getElementById('billingMemberFilterSelector');
+      
+      if (monthSel) {
+        const uniqueMonths = new Set();
+        // Add last 6 months as default options
+        const tempDate = new Date();
+        for (let i = 0; i < 6; i++) {
+          const m = parseToBillingMonth(tempDate);
+          if (m) uniqueMonths.add(m);
+          tempDate.setMonth(tempDate.getMonth() - 1);
+        }
+
+        // Scan assignments
+        if (state.assignments) {
+          state.assignments.forEach(a => {
+            const m = parseToBillingMonth(a.ApproveDate || a.SubmitDate || a.AssignDate);
+            if (m) uniqueMonths.add(m);
+          });
+        }
+        
+        // Scan logs
+        if (state.dailyLogs) {
+          state.dailyLogs.forEach(log => {
+            const m = parseToBillingMonth(log.Date);
+            if (m) uniqueMonths.add(m);
+          });
+        }
+
+        // Convert to array and sort descending
+        const sortedMonths = Array.from(uniqueMonths).sort((a, b) => {
+          const dateA = new Date("1 " + a);
+          const dateB = new Date("1 " + b);
+          return dateB - dateA;
+        });
+
+        const oldVal = monthSel.value;
+        monthSel.innerHTML = sortedMonths.map(m => `<option value="${m}">${m}</option>`).join('');
+        if (oldVal && sortedMonths.includes(oldVal)) {
+          monthSel.value = oldVal;
+        }
+      }
+
+      if (memberSel && state.members) {
+        const oldMemberVal = memberSel.value;
+        const memberOptions = ['<option value="ALL">All Members</option>'];
+        state.members.forEach(m => {
+          memberOptions.push(`<option value="${m.Name}">${m.Name}</option>`);
+        });
+        memberSel.innerHTML = memberOptions.join('');
+        if (oldMemberVal) memberSel.value = oldMemberVal;
+      }
+    };
+
+    // Render Billing cycle approved MPROs and incentives report tables
+    window.renderBillingCycleReports = function() {
+      const monthSel = document.getElementById('billingMonthSelector');
+      const memberFilter = document.getElementById('billingMemberFilterSelector');
+      const statusFilter = document.getElementById('billingStatusFilter');
+      const searchQuery = document.getElementById('billingSearchQuery');
+      const startDateInput = document.getElementById('billingStartDate');
+      const endDateInput = document.getElementById('billingEndDate');
+      
+      const approvedMproTbody = document.getElementById('billingApprovedMproTableBody');
+      
+      if (!monthSel || !approvedMproTbody) return;
+      
+      const selectedMonth = monthSel.value;
+      const memberVal = memberFilter ? memberFilter.value : 'ALL';
+      const statusVal = statusFilter ? statusFilter.value : 'ALL';
+      const searchVal = searchQuery ? searchQuery.value.trim().toLowerCase() : '';
+      const startVal = startDateInput ? startDateInput.value : '';
+      const endVal = endDateInput ? endDateInput.value : '';
+      
+      // Parse dates for comparison
+      const startLimit = startVal ? new Date(startVal + 'T00:00:00') : null;
+      const endLimit = endVal ? new Date(endVal + 'T23:59:59') : null;
+
+      // 1. Gather and filter assignments
+      const filteredAssignments = (state.assignments || []).filter(a => {
+        // Member Filter
+        if (memberVal !== 'ALL' && a.MemberName !== memberVal) return false;
+        const itemDateStr = a.ApproveDate || a.SubmitDate || a.AssignDate;
+        const itemDate = itemDateStr ? new Date(itemDateStr) : null;
+        
+        // Date range or cycle month filter
+        if (startLimit || endLimit) {
+          if (!itemDate) return false;
+          if (startLimit && itemDate < startLimit) return false;
+          if (endLimit && itemDate > endLimit) return false;
+        } else {
+          // Fallback to billing cycle month
+          const m = parseToBillingMonth(itemDateStr);
+          if (m !== selectedMonth) return false;
+        }
+        
+        // Status filter
+        const st = (a.Status || '').toLowerCase();
+        const isApproved = st.includes('approved') || st.includes('pass') || st.includes('completed') || st.includes('ok');
+        const isSubmitted = st.includes('submit') && !isApproved;
+        const isActive = !isApproved && !isSubmitted;
+        
+        if (statusVal === 'APPROVED' && !isApproved) return false;
+        if (statusVal === 'SUBMITTED' && !isSubmitted) return false;
+        if (statusVal === 'ACTIVE' && !isActive) return false;
+        
+        // Search query filter
+        if (searchVal) {
+          const name = String(a.MemberName || '').toLowerCase();
+          const mpro = String(a.MPROID || '').toLowerCase();
+          const brand = String(a.Brand || a.brands || '').toLowerCase();
+          const grp = String(a.Group || '').toLowerCase();
+          if (!name.includes(searchVal) && !mpro.includes(searchVal) && !brand.includes(searchVal) && !grp.includes(searchVal)) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+
+      // Cache filtered assignments globally for download utility
+      window.lastFilteredAssignments = filteredAssignments;
+
+      // Sort assignments by date descending
+      filteredAssignments.sort((a, b) => {
+        const dateA = new Date(a.ApproveDate || a.SubmitDate || a.AssignDate || 0);
+        const dateB = new Date(b.ApproveDate || b.SubmitDate || b.AssignDate || 0);
+        return dateB - dateA;
+      });
+
+      // Render MPRO Details List Table
+      if (filteredAssignments.length === 0) {
+        approvedMproTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">No MPROs found matching the filter criteria.</td></tr>`;
+      } else {
+        approvedMproTbody.innerHTML = filteredAssignments.map(a => {
+          const dateStr = a.ApproveDate || a.SubmitDate || a.AssignDate || '-';
+          const qty = Number(a.Quantity) || 0;
+          const comp = Number(a.CompletedQty) || 0;
+          
+          let statusBadge = 'not-started';
+          const st = (a.Status || '').toLowerCase();
+          if (st.includes('approved') || st.includes('completed') || st.includes('ok') || st.includes('pass')) statusBadge = 'completed';
+          else if (st.includes('submit')) statusBadge = 'submitted';
+          else if (st.includes('progress') || st.includes('running')) statusBadge = 'in-progress';
+          
+          return "<tr>" +
+            "<td><strong>" + dateStr + "</strong></td>" +
+            "<td style='font-family: monospace; font-weight: bold; color: #2563eb;'>#" + a.MPROID + "</td>" +
+            "<td>" + a.MemberName + "</td>" +
+            "<td><span class='badge " + statusBadge + "'>" + a.Status + "</span></td>" +
+            "<td style='text-align: center; font-weight: 800; color: var(--accent-cyan);'>" + comp + " / " + qty + " items</td>" +
+          "</tr>";
+        }).join('');
+      }
+    };
+
+    // Export billing report to CSV
+    window.downloadBillingCSV = function() {
+      const list = window.lastFilteredAssignments || [];
+      if (list.length === 0) {
+        showToast("No data in current report to download!", "error");
+        return;
+      }
+      
+      const csvRows = [
+        ["Date", "MPRO ID", "Designer", "Brand", "Status", "Items Qty", "Completed Qty"].join(",")
+      ];
+      
+      list.forEach(a => {
+        const row = [
+          `"${a.ApproveDate || a.SubmitDate || a.AssignDate || '-'}"`,
+          `"${a.MPROID || ''}"`,
+          `"${a.MemberName || ''}"`,
+          `"${a.Brand || a.brands || a.Group || ''}"`,
+          `"${a.Status || ''}"`,
+          `"${a.Quantity || 0}"`,
+          `"${a.CompletedQty || 0}"`
+        ];
+        csvRows.push(row.join(","));
+      });
+      
+      const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      
+      const monthSel = document.getElementById('billingMonthSelector');
+      const filename = `Work_Report_${(monthSel ? monthSel.value : 'export').replace(/\s+/g, '_')}.csv`;
+      link.setAttribute("download", filename);
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Report download started!", "success");
+    };
+
+    // Export billing report to beautifully styled PDF
+    window.downloadBillingPDF = function() {
+      const list = window.lastFilteredAssignments || [];
+      if (list.length === 0) {
+        showToast("No data in current report to download!", "error");
+        return;
+      }
+      
+      const monthSel = document.getElementById('billingMonthSelector');
+      const selectedMonth = monthSel ? monthSel.value : 'Report';
+      
+      // Calculate summary stats
+      let totalQty = 0;
+      let totalComp = 0;
+      list.forEach(a => {
+        totalQty += Number(a.Quantity) || 0;
+        totalComp += Number(a.CompletedQty) || 0;
+      });
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+        <head>
+          <title>Work Report - ${selectedMonth}</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #333; }
+            h1 { margin: 0 0 5px 0; font-size: 24px; color: #1e293b; }
+            h2 { margin: 0 0 20px 0; font-size: 14px; color: #64748b; font-weight: normal; }
+            .stats-container { display: flex; gap: 20px; margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+            .stat-box { flex: 1; }
+            .stat-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: bold; }
+            .stat-value { font-size: 18px; font-weight: bold; color: #0f172a; margin-top: 4px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th { background: #f1f5f9; text-align: left; padding: 10px; font-size: 12px; font-weight: bold; color: #475569; border-bottom: 2px solid #cbd5e1; }
+            td { padding: 10px; font-size: 12px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+            tr:nth-child(even) td { background: #fafafa; }
+            .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+            .completed { background: #dcfce7; color: #15803d; }
+            .submitted { background: #fef9c3; color: #854d0e; }
+            .in-progress { background: #fce7f3; color: #9d174d; }
+            .not-started { background: #f1f5f9; color: #475569; }
+            @media print {
+              body { padding: 0; }
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+            <div>
+              <h1>Work Performance Report</h1>
+              <h2>Billing Cycle: ${selectedMonth} (21st - 20th)</h2>
+            </div>
+            <div style="text-align: right; font-size: 11px; color: #64748b;">
+              <strong>Generated:</strong> ${new Date().toLocaleDateString()}<br>
+              <strong>Status:</strong> Filtered Results
+            </div>
+          </div>
+          
+          <div class="stats-container">
+            <div class="stat-box">
+              <div class="stat-label">Total MPRO tasks</div>
+              <div class="stat-value">${list.length}</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Assigned Qty</div>
+              <div class="stat-value">${totalQty} items</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Completed Qty</div>
+              <div class="stat-value" style="color: #15803d;">${totalComp} items</div>
+            </div>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 15%;">Date</th>
+                <th style="width: 15%;">MPRO ID</th>
+                <th style="width: 25%;">Designer</th>
+                <th style="width: 25%;">Brand / Group</th>
+                <th style="width: 20%;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(a => {
+                const dateStr = a.ApproveDate || a.SubmitDate || a.AssignDate || '-';
+                const st = (a.Status || '').toLowerCase();
+                let badgeClass = 'not-started';
+                if (st.includes('approved') || st.includes('completed') || st.includes('ok') || st.includes('pass')) badgeClass = 'completed';
+                else if (st.includes('submit')) badgeClass = 'submitted';
+                else if (st.includes('progress') || st.includes('running')) badgeClass = 'in-progress';
+                
+                return "<tr>" +
+                  "<td><strong>" + dateStr + "</strong></td>" +
+                  "<td style='font-family: monospace; font-weight: bold; color: #2563eb;'>#" + a.MPROID + "</td>" +
+                  "<td>" + a.MemberName + "</td>" +
+                  "<td>" + (a.Brand || a.brands || a.Group || '-') + "</td>" +
+                  "<td><span class='badge " + badgeClass + "'>" + a.Status + "</span></td>" +
+                "</tr>";
+              }).join('')}
+            </tbody>
+          </table>
+          
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
     };
 
 </script>
