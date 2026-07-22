@@ -1427,7 +1427,7 @@
                   <div class="form-group">
                     <label for="logBrand" style="font-size: 14px; font-weight: 700; color: #f59e0b; display: flex; justify-content: space-between; align-items: center;">
                       <span>Brand Name</span>
-                      <button type="button" onclick="promptAddBrand()" style="background: none; border: none; color: var(--primary-light); font-size: 11px; cursor: pointer; font-weight: bold; text-transform: none; text-decoration: underline;">+ Add Brand</button>
+                      <button type="button" onclick="openManageBrandsModal()" style="background: none; border: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: bold; text-transform: none; text-decoration: underline;">⚙️ Manage Brands</button>
                     </label>
                     <select id="logBrand" style="font-size: 14px; padding: 12px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-weight: 700;">
                       <option value="">Select Brand...</option>
@@ -1808,14 +1808,11 @@
                   Brands <span style="color: var(--accent-pink);">*</span>
                 </label>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                  <select id="assignGroup" required style="flex-grow: 1; min-width: 120px; font-size: 14px; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);">
+                  <select id="assignGroup" required style="flex-grow: 1; min-width: 120px; font-size: 14px; padding: 10px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);">
                     <option value="">Select Brand...</option>
                   </select>
-                  <button type="button" class="btn btn-sm" onclick="promptAddBrand()" style="padding: 8px 14px; font-weight: 700; background: var(--primary); color: #fff; border: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; height: 38px; font-size: 12px; cursor: pointer; white-space: nowrap;">
-                    ➕ Add
-                  </button>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="promptDeleteBrand()" style="padding: 8px 14px; font-weight: 700; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.03); border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; height: 38px; font-size: 12px; cursor: pointer; white-space: nowrap;">
-                    🗑️ Del
+                  <button type="button" class="btn btn-primary btn-sm" onclick="openManageBrandsModal()" style="padding: 8px 14px; font-weight: 700; background: var(--primary); color: #fff; border: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px; height: 38px; font-size: 12px; cursor: pointer; white-space: nowrap;">
+                    ⚙️ Manage Brands
                   </button>
                 </div>
               </div>
@@ -1857,11 +1854,22 @@
 
         <!-- Assignments Board -->
         <div class="card">
-          <div class="section-header">
-            <h3 class="font-outfit" style="font-size: 20px; font-weight: 700;">Task Assignments Board</h3>
-            <div class="form-group" style="width: 220px; flex-direction: row; align-items: center; gap: 8px;">
-              <label style="white-space: nowrap; margin-bottom: 0;">Filter By:</label>
-              <select id="assignFilterSelect" onchange="filterAssignments(this.value)">
+          <div class="section-header" style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <h3 class="font-outfit" style="font-size: 20px; font-weight: 700; margin-bottom: 0;">Task Assignments Board</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+              <!-- Search Bar -->
+              <input type="text" id="assignSearchInput" oninput="applyAssignmentsFilters()" placeholder="Search Brand, Member, MPRO..." style="width: clamp(180px, 20vw, 240px); font-size: 13px; padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: 8px; background: var(--input-bg); color: var(--text-main); font-weight: 600; outline: none; transition: border-color 0.2s;">
+              
+              <!-- Sort Selector -->
+              <select id="assignSortSelect" onchange="applyAssignmentsFilters()" style="width: 180px; font-size: 13px; padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: 8px; background: var(--input-bg); color: var(--text-main); font-weight: 600; outline: none; transition: border-color 0.2s;">
+                <option value="newest_assign" selected>📅 Newest Assign Date</option>
+                <option value="oldest_assign">📅 Oldest Assign Date</option>
+                <option value="newest_mpro">🔢 New MPRO ID First</option>
+                <option value="oldest_mpro">🔢 Old MPRO ID First</option>
+              </select>
+              
+              <!-- Member Filter -->
+              <select id="assignFilterSelect" onchange="applyAssignmentsFilters()" style="width: 160px; font-size: 13px; padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: 8px; background: var(--input-bg); color: var(--text-main); font-weight: 600; outline: none; transition: border-color 0.2s;">
                 <option value="ALL" selected>All Members</option>
               </select>
             </div>
@@ -2358,6 +2366,12 @@
         </select>
       </div>
       <div class="form-group" style="margin-bottom: 16px;">
+        <label for="statusBrandSelect">Brand Name</label>
+        <select id="statusBrandSelect" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-size: 14px; font-weight: 700; width: 100%;">
+          <option value="">Select Brand...</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 16px;">
         <label for="statusMproLink">MPRO Link (Edit if needed)</label>
         <input type="url" id="statusMproLink" placeholder="http://mpro.prangroup.com/...">
       </div>
@@ -2555,6 +2569,44 @@
       <div style="display:flex; justify-content: flex-end; gap: 12px;">
         <button class="btn btn-outline" onclick="closeChangeResourcePinModal()">Cancel</button>
         <button class="btn btn-primary" onclick="submitChangeResourcePin()">Update PIN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Manage Brands Modal (Add, Rename, Delete) -->
+  <div id="manageBrandsModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3>⚙️ Manage Brand Names</h3>
+        <button class="icon-btn" onclick="closeManageBrandsModal()">✕</button>
+      </div>
+      
+      <!-- Part 1: Add Brand -->
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 10px;">➕ Add New Brand</h4>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="newBrandInputName" placeholder="e.g. AMCL PRAN" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-size: 13px;">
+          <button class="btn btn-primary" onclick="submitAddBrandFromModal()" style="padding: 10px 16px; font-size: 13px; font-weight: 700; border-radius: 8px;">Add</button>
+        </div>
+      </div>
+      
+      <!-- Part 2: Edit / Rename / Delete Brand -->
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--accent-pink); margin-bottom: 10px;">✏️ Rename or Delete Brand</h4>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label for="manageBrandSelect" style="font-size: 11px;">Select Existing Brand</label>
+          <select id="manageBrandSelect" onchange="onManageBrandSelectChange(this.value)" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-size: 13px; font-weight: 700; width: 100%;">
+            <option value="">Select Brand...</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="renameBrandInputName" style="font-size: 11px;">New Brand Name</label>
+          <input type="text" id="renameBrandInputName" placeholder="Type new brand name" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-size: 13px; width: 100%;">
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+          <button class="btn btn-outline" onclick="submitDeleteBrandFromModal()" style="border-color: rgba(239,68,68,0.25); color: #ef4444; background: rgba(239,68,68,0.03); font-size: 13px; font-weight: 700; border-radius: 8px; padding: 10px 16px;">Delete Brand</button>
+          <button class="btn btn-primary" onclick="submitRenameBrandFromModal()" style="background: var(--primary); color: #fff; font-size: 13px; font-weight: 700; border-radius: 8px; padding: 10px 16px;">Rename Brand</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2816,12 +2868,14 @@
           },
           
           // 3. updateAssignmentStatus()
-          updateAssignmentStatus: async function(taskId, status, note, mproLink, completedQty) {
+          updateAssignmentStatus: async function(taskId, status, note, mproLink, completedQty, brand) {
             try {
               const updateData = { 
                 status: status || "Not Started", 
                 completed_qty: Number(completedQty) || 0
               };
+              
+              if (brand) updateData.brands = brand;
               
               const stLower = (status || "Not Started").toLowerCase();
               if (stLower.includes("submit")) {
@@ -3173,15 +3227,20 @@
           // 9e. verifyResourcePin()
           verifyResourcePin: async function(pin) {
             try {
+              let expectedPin = "1234";
               const { data, error } = await supabaseClient.from('settings').select('value').eq('key', 'resource_access_pin').maybeSingle();
-              let expectedPin = sessionStorage.getItem('resource_access_pin') || "1234";
-              if (!error && data) {
+              if (!error && data && data.value) {
                 expectedPin = String(data.value).trim();
+              } else {
+                const { data: data2, error: err2 } = await supabaseClient.from('settings').select('value').eq('key', 'resource_pin').maybeSingle();
+                if (!err2 && data2 && data2.value) {
+                  expectedPin = String(data2.value).trim();
+                }
               }
               const isValid = expectedPin === String(pin).trim();
               if (this.successHandler) this.successHandler(isValid);
             } catch(e) {
-              const expectedPin = sessionStorage.getItem('resource_access_pin') || "1234";
+              const expectedPin = "1234";
               const isValid = expectedPin === String(pin).trim();
               if (this.successHandler) this.successHandler(isValid);
             }
@@ -3190,15 +3249,17 @@
           // 9f. updateResourcePin()
           updateResourcePin: async function(newPin) {
             try {
-              const { error } = await supabaseClient.from('settings').upsert({
+              await supabaseClient.from('settings').upsert({
                 key: 'resource_access_pin',
                 value: String(newPin).trim()
               });
-              if (error) throw error;
-              if (this.successHandler) this.successHandler({ success: true, message: "Access PIN updated successfully in Supabase settings!" });
+              await supabaseClient.from('settings').upsert({
+                key: 'resource_pin',
+                value: String(newPin).trim()
+              });
+              if (this.successHandler) this.successHandler({ success: true, message: "Access PIN updated successfully!" });
             } catch(e) {
-              sessionStorage.setItem('resource_access_pin', String(newPin).trim());
-              if (this.successHandler) this.successHandler({ success: true, message: "Access PIN updated locally (session storage)!" });
+              if (this.failureHandler) this.failureHandler(e);
             }
           },
           changeMemberPIN: async function(memberName, oldPin, newPin) {
@@ -3534,29 +3595,66 @@
             }
           },
 
+          // 23b. updateBrand()
+          updateBrand: async function(oldName, newName) {
+            try {
+              const cleanOld = String(oldName).trim();
+              const cleanNew = String(newName).trim();
+              if (!cleanOld || !cleanNew) throw new Error("Brand names cannot be empty");
+              
+              // Check if exists
+              const { data, error: selectErr } = await supabaseClient.from('brands').select('name').eq('name', cleanNew).maybeSingle();
+              if (selectErr) throw selectErr;
+              if (data) {
+                if (this.successHandler) this.successHandler({ success: false, message: "New brand name already exists" });
+                return;
+              }
+              
+              const { error } = await supabaseClient.from('brands').update({ name: cleanNew }).eq('name', cleanOld);
+              if (error) throw error;
+              
+              // Also update assignment references to avoid breaking them
+              await supabaseClient.from('assignments').update({ brands: cleanNew }).eq('brands', cleanOld);
+              
+              if (this.successHandler) this.successHandler({ success: true, message: "Brand updated from '" + cleanOld + "' to '" + cleanNew + "' successfully!" });
+            } catch(e) {
+              if (this.failureHandler) this.failureHandler(e);
+            }
+          },
+
           // 24. verifyResourcePin()
           verifyResourcePin: async function(pin) {
             try {
-              let expectedPin = "1234"; // Default fallback
-              const { data, error } = await supabaseClient.from('settings').select('value').eq('key', 'resource_pin').maybeSingle();
-              if (!error && data) {
+              let expectedPin = "1234";
+              const { data, error } = await supabaseClient.from('settings').select('value').eq('key', 'resource_access_pin').maybeSingle();
+              if (!error && data && data.value) {
                 expectedPin = String(data.value).trim();
+              } else {
+                const { data: data2, error: err2 } = await supabaseClient.from('settings').select('value').eq('key', 'resource_pin').maybeSingle();
+                if (!err2 && data2 && data2.value) {
+                  expectedPin = String(data2.value).trim();
+                }
               }
               const isValid = expectedPin === String(pin).trim();
               if (this.successHandler) this.successHandler(isValid);
             } catch(e) {
-              if (this.failureHandler) this.failureHandler(e);
+              const expectedPin = "1234";
+              const isValid = expectedPin === String(pin).trim();
+              if (this.successHandler) this.successHandler(isValid);
             }
           },
 
           // 25. updateResourcePin()
           updateResourcePin: async function(newPin) {
             try {
-              const { error } = await supabaseClient.from('settings').upsert({
+              await supabaseClient.from('settings').upsert({
+                key: 'resource_access_pin',
+                value: String(newPin).trim()
+              });
+              await supabaseClient.from('settings').upsert({
                 key: 'resource_pin',
                 value: String(newPin).trim()
               });
-              if (error) throw error;
               if (this.successHandler) this.successHandler({ success: true, message: "Resource Access PIN updated successfully!" });
             } catch(e) {
               if (this.failureHandler) this.failureHandler(e);
@@ -4461,6 +4559,9 @@
       if (logsMemberFilter) logsMemberFilter.value = currentLogsFilterSel;
       if (reportMemberFilter) reportMemberFilter.value = currentReportFilterSel;
       if (dbUnstartedMemberFilter) dbUnstartedMemberFilter.value = currentDbUnstartedFilterSel;
+      
+      // Initialize/Sync the custom searchable selector with member avatars
+      initMemberSearchableSelect('assignMemberDropdownSelect');
     }
     function renderLeaderboard() {
       const tbody = document.getElementById('leaderboardTableBody');
@@ -4841,12 +4942,18 @@
     }
 
     // Render Assignments Board
-    function renderAssignmentsTable(filteredMember = "ALL") {
+    function renderAssignmentsTable(customList = null) {
       updateAssignmentsAnalytics();
       const tbody = document.getElementById('assignmentsTableBody');
-      const visibleTasks = filteredMember === "ALL" 
-        ? state.assignments 
-        : state.assignments.filter(t => t.AssignedTo === filteredMember);
+      if (!tbody) return;
+      
+      let visibleTasks = customList;
+      if (visibleTasks === null) {
+        const filteredMember = document.getElementById('assignFilterSelect') ? document.getElementById('assignFilterSelect').value : "ALL";
+        visibleTasks = filteredMember === "ALL" 
+          ? state.assignments 
+          : state.assignments.filter(t => t.AssignedTo === filteredMember);
+      }
       
       if (visibleTasks.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted);">No task assignments found for this filter.</td></tr>`;
@@ -4922,7 +5029,60 @@
       });
     }
     function filterAssignments(memberName) {
-      renderAssignmentsTable(memberName);
+      if (document.getElementById('assignFilterSelect')) {
+        document.getElementById('assignFilterSelect').value = memberName;
+      }
+      applyAssignmentsFilters();
+    }
+    
+    function applyAssignmentsFilters() {
+      const memberFilter = document.getElementById('assignFilterSelect') ? document.getElementById('assignFilterSelect').value : "ALL";
+      const searchVal = document.getElementById('assignSearchInput') ? document.getElementById('assignSearchInput').value.toLowerCase().trim() : "";
+      const sortVal = document.getElementById('assignSortSelect') ? document.getElementById('assignSortSelect').value : "newest_assign";
+      
+      // 1. Filter by Member Name
+      let filtered = memberFilter === "ALL" 
+        ? [...state.assignments] 
+        : state.assignments.filter(t => t.AssignedTo === memberFilter);
+        
+      // 2. Filter by Search Query
+      if (searchVal) {
+        filtered = filtered.filter(t => {
+          const brand = String(t.Group || '').toLowerCase();
+          const member = String(t.AssignedTo || '').toLowerCase();
+          const mproId = String(t.MPROID || '').toLowerCase();
+          const status = String(t.Status || '').toLowerCase();
+          const note = String(t.Note || '').toLowerCase();
+          const date = String(t.AssignDate || '').toLowerCase();
+          const deadline = String(t.Deadline || '').toLowerCase();
+          
+          return brand.includes(searchVal) ||
+                 member.includes(searchVal) ||
+                 mproId.includes(searchVal) ||
+                 status.includes(searchVal) ||
+                 note.includes(searchVal) ||
+                 date.includes(searchVal) ||
+                 deadline.includes(searchVal);
+        });
+      }
+      
+      // 3. Sort List
+      // Options: 'newest_assign', 'oldest_assign', 'newest_mpro', 'oldest_mpro'
+      filtered.sort((a, b) => {
+        if (sortVal === 'newest_assign' || sortVal === 'oldest_assign') {
+          const dateA = new Date(a.AssignDate || '1970-01-01');
+          const dateB = new Date(b.AssignDate || '1970-01-01');
+          return sortVal === 'newest_assign' ? dateB - dateA : dateA - dateB;
+        } else if (sortVal === 'newest_mpro' || sortVal === 'oldest_mpro') {
+          const idA = Number(a.MPROID) || 0;
+          const idB = Number(b.MPROID) || 0;
+          return sortVal === 'newest_mpro' ? idB - idA : idA - idB;
+        }
+        return 0;
+      });
+      
+      // 4. Render
+      renderAssignmentsTable(filtered);
     }
 
     // Render Fund Ledger Table
@@ -5726,6 +5886,14 @@
       document.getElementById('statusMproLink').value = mproLink || '';
       document.getElementById('statusNote').value = note || '';
       
+      // Set active task Brand Name
+      const activeTask = state.assignments ? state.assignments.find(t => t.TaskID === taskId) : null;
+      const brandSelect = document.getElementById('statusBrandSelect');
+      if (brandSelect && activeTask) {
+        brandSelect.value = activeTask.Group || '';
+        initSearchableSelect('statusBrandSelect');
+      }
+      
       // Populate selects if empty
       ['statusQty6s', 'statusQty10s', 'statusQty15s', 'statusQty20s', 'statusQty30s', 'statusQty1m', 'statusQtySp'].forEach(populateDropdown0to50);
       
@@ -5767,6 +5935,7 @@
       const status = document.getElementById('statusSelect').value;
       const mproLink = document.getElementById('statusMproLink').value;
       const note = document.getElementById('statusNote').value;
+      const brand = document.getElementById('statusBrandSelect') ? document.getElementById('statusBrandSelect').value : '';
       
       const q6s = parseInt(document.getElementById('statusQty6s').value) || 0;
       const q10s = parseInt(document.getElementById('statusQty10s').value) || 0;
@@ -5815,7 +5984,7 @@
               showLoading(false);
               showToast("Status Update failed: " + err.message, "error");
             })
-            .updateAssignmentStatus(taskId, status, note, mproLink, newCompletedQty);
+            .updateAssignmentStatus(taskId, status, note, mproLink, newCompletedQty, brand);
         } catch (e) {
           showLoading(false);
           showToast("Failed to log daily work: " + e.message, "error");
@@ -5833,7 +6002,7 @@
             showLoading(false);
             showToast("Status Update failed: " + err.message, "error");
           })
-          .updateAssignmentStatus(taskId, status, note, mproLink, newCompletedQty);
+          .updateAssignmentStatus(taskId, status, note, mproLink, newCompletedQty, brand);
       }
     }
     function deleteAssignment(taskId) {
@@ -6100,13 +6269,25 @@
           
           const progressPercent = stats.totalQty > 0 ? Math.round((stats.completedQty / stats.totalQty) * 100) : 0;
           
+          const member = state.members ? state.members.find(function(m) { return m.Name === stats.name; }) : null;
+          const hasAvatar = member && member.Avatar && member.Avatar.trim() !== "";
+          const initials = stats.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+
           grid.innerHTML += `
-            <div style="padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="font-weight: 700; font-size: 13px; color: var(--text-main);">${stats.name}</div>
-                <span class="status-badge" style="font-size:10px; padding: 2px 6px; background: ${stats.activeTasks > 3 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${stats.activeTasks > 3 ? '#ef4444' : '#10b981'}; border: none;">
-                  ${stats.activeTasks} active
-                </span>
+            <div style="padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <!-- Avatar -->
+                ${hasAvatar 
+                  ? `<img src="${member.Avatar}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color); flex-shrink: 0;">`
+                  : `<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-surface-hover); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 1.5px solid var(--border-color); flex-shrink: 0;">${initials}</div>`
+                }
+                <!-- Info -->
+                <div style="flex-grow: 1; min-width: 0;">
+                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${stats.name}">${stats.name}</div>
+                  <span class="status-badge" style="font-size: 9px; padding: 1px 4px; background: ${stats.activeTasks > 3 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${stats.activeTasks > 3 ? '#ef4444' : '#10b981'}; border: none; font-weight: 800; border-radius: 4px; display: inline-block; margin-top: 2px;">
+                    ${stats.activeTasks} ACTIVE
+                  </span>
+                </div>
               </div>
               <div style="font-size: 11px; color: var(--text-muted);">
                 Items Done: <span style="font-weight:700; color:var(--text-main);">${stats.completedQty}/${stats.totalQty}</span> | Left: <span style="font-weight:700; color:var(--accent-pink);">${leftQty}</span>
@@ -6919,6 +7100,8 @@
     function fetchBrands() {
       google.script.run
         .withSuccessHandler(function(brands) {
+          state.brands = brands; // Cache brands array
+          
           const select = document.getElementById('assignGroup');
           if (select) {
             const currentVal = select.value;
@@ -6943,15 +7126,274 @@
               logBrandSelect.value = currentLogBrand;
             }
           }
+
+          // Populate manageBrandSelect inside the Manage Brands Modal
+          const manageBrandSelect = document.getElementById('manageBrandSelect');
+          if (manageBrandSelect) {
+            const currentManageBrand = manageBrandSelect.value;
+            manageBrandSelect.innerHTML = '<option value="">Select Brand...</option>';
+            brands.forEach(function(b) {
+              manageBrandSelect.innerHTML += `<option value="${b}">${b}</option>`;
+            });
+            if (currentManageBrand && brands.indexOf(currentManageBrand) !== -1) {
+              manageBrandSelect.value = currentManageBrand;
+            }
+          }
+
+          // Populate statusBrandSelect inside Update Task Details Modal
+          const statusBrandSelect = document.getElementById('statusBrandSelect');
+          if (statusBrandSelect) {
+            const currentStatusBrand = statusBrandSelect.value;
+            statusBrandSelect.innerHTML = '<option value="">Select Brand...</option>';
+            brands.forEach(function(b) {
+              statusBrandSelect.innerHTML += `<option value="${b}">${b}</option>`;
+            });
+            if (currentStatusBrand && brands.indexOf(currentStatusBrand) !== -1) {
+              statusBrandSelect.value = currentStatusBrand;
+            }
+          }
           
           // Initialize/Sync searchable selectors
           initSearchableSelect('assignGroup');
           initSearchableSelect('logBrand');
+          initSearchableSelect('statusBrandSelect');
         })
         .withFailureHandler(function(err) {
           showToast("Failed to load brands: " + err.message, "error");
         })
         .getBrands();
+    }
+
+    function initMemberSearchableSelect(selectId) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      
+      let wrapper = document.getElementById('searchable_wrapper_' + selectId);
+      let listContainer;
+      let trigger;
+      let panel;
+      let searchInput;
+      
+      function renderOptions() {
+        if (!listContainer || !select || !trigger || !panel) return;
+        listContainer.innerHTML = '';
+        const searchVal = searchInput.value.toLowerCase().trim();
+        
+        Array.from(select.options).forEach(function(opt) {
+          if (!opt.value) return; // Skip placeholder/empty values
+          if (searchVal && opt.text.toLowerCase().indexOf(searchVal) === -1) {
+            return;
+          }
+          
+          const member = state.members ? state.members.find(m => m.Name === opt.value) : null;
+          const hasAvatar = member && member.Avatar && member.Avatar.trim() !== "";
+          const initials = opt.text.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+          
+          const item = document.createElement('div');
+          item.className = 'custom-option';
+          item.style.cssText = `
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          `;
+          
+          const avatarHTML = hasAvatar
+            ? `<img src="${member.Avatar}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color);">`
+            : `<div class="avatar-initials-fallback" style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-surface-hover); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border: 1.5px solid var(--border-color);">${initials}</div>`;
+            
+          item.innerHTML = `${avatarHTML}<span>${opt.text}</span>`;
+          
+          item.addEventListener('mouseover', function() {
+            item.style.background = 'var(--primary)';
+            item.style.color = '#ffffff';
+          });
+          item.addEventListener('mouseout', function() {
+            item.style.background = 'none';
+            item.style.color = 'var(--text-main)';
+          });
+          
+          item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            select.value = opt.value;
+            trigger.innerHTML = `${avatarHTML}<span>${opt.text}</span><span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▼</span>`;
+            panel.style.display = 'none';
+            select.dispatchEvent(new Event('change'));
+          });
+          
+          listContainer.appendChild(item);
+        });
+        
+        if (listContainer.children.length === 0) {
+          const noResult = document.createElement('div');
+          noResult.style.cssText = `
+            padding: 8px 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+          `;
+          noResult.textContent = 'No members match search.';
+          listContainer.appendChild(noResult);
+        }
+      }
+      
+      if (wrapper) {
+        trigger = wrapper.querySelector('.custom-select-trigger');
+        panel = wrapper.querySelector('.custom-options');
+        searchInput = panel.querySelector('input');
+        listContainer = panel.querySelector('.list-container');
+        
+        const foundOpt = Array.from(select.options).find(o => o.value === select.value);
+        if (foundOpt && foundOpt.value) {
+          const member = state.members ? state.members.find(m => m.Name === foundOpt.value) : null;
+          const hasAvatar = member && member.Avatar && member.Avatar.trim() !== "";
+          const initials = foundOpt.text.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+          const avatarHTML = hasAvatar
+            ? `<img src="${member.Avatar}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color);">`
+            : `<div class="avatar-initials-fallback" style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-surface-hover); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border: 1.5px solid var(--border-color);">${initials}</div>`;
+          trigger.innerHTML = `${avatarHTML}<span>${foundOpt.text}</span><span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▼</span>`;
+        } else {
+          trigger.innerHTML = `<span>Select Member to Add...</span><span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▼</span>`;
+        }
+        
+        renderOptions();
+        return;
+      }
+      
+      wrapper = document.createElement('div');
+      wrapper.className = 'custom-select-wrapper';
+      wrapper.style.position = 'relative';
+      wrapper.id = 'searchable_wrapper_' + selectId;
+      
+      select.style.display = 'none';
+      
+      trigger = document.createElement('div');
+      trigger.className = 'custom-select-trigger';
+      trigger.style.cssText = `
+        padding: 10px 14px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-main);
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        height: 48px;
+        box-sizing: border-box;
+      `;
+      trigger.innerHTML = `<span>Select Member to Add...</span><span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▼</span>`;
+      
+      panel = document.createElement('div');
+      panel.className = 'custom-options';
+      panel.style.cssText = `
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        border: 1px solid var(--border-color);
+        background: var(--bg-surface);
+        border-radius: 8px;
+        margin-top: 4px;
+        max-height: 280px;
+        overflow-y: auto;
+        z-index: 10000;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        padding: 8px;
+      `;
+      
+      searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.placeholder = 'Search member name...';
+      searchInput.style.cssText = `
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-base);
+        color: var(--text-main);
+        font-size: 13px;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+        outline: none;
+      `;
+      
+      searchInput.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      listContainer = document.createElement('div');
+      listContainer.className = 'list-container';
+      listContainer.style.cssText = `
+        max-height: 180px;
+        overflow-y: auto;
+      `;
+      
+      panel.appendChild(searchInput);
+      panel.appendChild(listContainer);
+      
+      searchInput.addEventListener('input', renderOptions);
+      
+      trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        document.querySelectorAll('.custom-options').forEach(p => {
+          if (p !== panel) p.style.display = 'none';
+        });
+        
+        const isCurrentlyOpen = panel.style.display === 'block';
+        if (isCurrentlyOpen) {
+          panel.style.display = 'none';
+        } else {
+          panel.style.display = 'block';
+          searchInput.value = '';
+          renderOptions();
+          setTimeout(() => searchInput.focus(), 50);
+        }
+      });
+      
+      select.parentNode.insertBefore(wrapper, select);
+      wrapper.appendChild(select);
+      wrapper.appendChild(trigger);
+      wrapper.appendChild(panel);
+      
+      document.addEventListener('click', function() {
+        panel.style.display = 'none';
+      });
+      
+      // Override descriptor to update custom select when programmatic value changes
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+      Object.defineProperty(select, 'value', {
+        get: function() {
+          return descriptor.get.call(this);
+        },
+        set: function(val) {
+          descriptor.set.call(this, val);
+          const foundOpt = Array.from(select.options).find(o => o.value === val);
+          if (foundOpt && foundOpt.value) {
+            const member = state.members ? state.members.find(m => m.Name === foundOpt.value) : null;
+            const hasAvatar = member && member.Avatar && member.Avatar.trim() !== "";
+            const initials = foundOpt.text.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const avatarHTML = hasAvatar
+              ? `<img src="${member.Avatar}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color);">`
+              : `<div class="avatar-initials-fallback" style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-surface-hover); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border: 1.5px solid var(--border-color);">${initials}</div>`;
+            trigger.innerHTML = `${avatarHTML}<span>${foundOpt.text}</span><span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▼</span>`;
+          } else {
+            trigger.innerHTML = `<span>Select Member to Add...</span><span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▼</span>`;
+          }
+        }
+      });
+      
+      renderOptions();
     }
 
     function initSearchableSelect(selectId) {
@@ -7466,6 +7908,133 @@
         if (overlay) overlay.style.display = 'block';
       }
     };
+
+    // Manage Brands Modal Controls
+    function openManageBrandsModal() {
+      // Repopulate options inside modal select
+      const select = document.getElementById('manageBrandSelect');
+      if (select && state.brands) {
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">Select Brand...</option>';
+        state.brands.forEach(function(b) {
+          select.innerHTML += `<option value="${b}">${b}</option>`;
+        });
+        if (currentVal && state.brands.indexOf(currentVal) !== -1) {
+          select.value = currentVal;
+        }
+      }
+      
+      document.getElementById('newBrandInputName').value = '';
+      document.getElementById('renameBrandInputName').value = '';
+      document.getElementById('manageBrandsModal').classList.add('active');
+    }
+    
+    function closeManageBrandsModal() {
+      document.getElementById('manageBrandsModal').classList.remove('active');
+      document.getElementById('newBrandInputName').value = '';
+      document.getElementById('renameBrandInputName').value = '';
+      if (document.getElementById('manageBrandSelect')) {
+        document.getElementById('manageBrandSelect').value = '';
+      }
+    }
+    
+    function onManageBrandSelectChange(val) {
+      document.getElementById('renameBrandInputName').value = val || '';
+    }
+    
+    function submitAddBrandFromModal() {
+      const name = document.getElementById('newBrandInputName').value.trim();
+      if (!name) {
+        showToast("Please enter a brand name", "error");
+        return;
+      }
+      
+      showLoading(true, "Adding brand '" + name + "'...");
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          if (resp.success) {
+            showToast(resp.message, "success");
+            document.getElementById('newBrandInputName').value = '';
+            fetchBrands();
+          } else {
+            showToast(resp.message, "warning");
+          }
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to add brand: " + err.message, "error");
+        })
+        .addBrand(name);
+    }
+    
+    function submitRenameBrandFromModal() {
+      const oldName = document.getElementById('manageBrandSelect').value;
+      const newName = document.getElementById('renameBrandInputName').value.trim();
+      
+      if (!oldName) {
+        showToast("Please select a brand to rename first", "error");
+        return;
+      }
+      if (!newName) {
+        showToast("Please enter the new brand name", "error");
+        return;
+      }
+      if (oldName === newName) {
+        showToast("New name matches current name", "warning");
+        return;
+      }
+      
+      showLoading(true, "Renaming brand from '" + oldName + "' to '" + newName + "'...");
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          if (resp.success) {
+            showToast(resp.message, "success");
+            document.getElementById('renameBrandInputName').value = '';
+            if (document.getElementById('manageBrandSelect')) {
+              document.getElementById('manageBrandSelect').value = '';
+            }
+            fetchBrands();
+          } else {
+            showToast(resp.message, "warning");
+          }
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to rename brand: " + err.message, "error");
+        })
+        .updateBrand(oldName, newName);
+    }
+    
+    function submitDeleteBrandFromModal() {
+      const name = document.getElementById('manageBrandSelect').value;
+      if (!name) {
+        showToast("Please select a brand to delete first", "error");
+        return;
+      }
+      
+      if (!confirm("Are you sure you want to delete brand '" + name + "'? This will remove it from the list of brands.")) {
+        return;
+      }
+      
+      showLoading(true, "Deleting brand '" + name + "'...");
+      google.script.run
+        .withSuccessHandler(function(resp) {
+          showLoading(false);
+          showToast(resp.message, "success");
+          document.getElementById('renameBrandInputName').value = '';
+          if (document.getElementById('manageBrandSelect')) {
+            document.getElementById('manageBrandSelect').value = '';
+          }
+          fetchBrands();
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showToast("Failed to delete brand: " + err.message, "error");
+        })
+        .deleteBrand(name);
+    }
 
 </script>
 </body>
