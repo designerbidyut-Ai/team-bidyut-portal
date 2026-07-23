@@ -4409,17 +4409,33 @@
         wrapper.appendChild(optionsContainer);
         
         // Sync custom trigger when select value is changed programmatically (e.g. during edit)
-        const descriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
-        Object.defineProperty(select, 'value', {
-          get: function() {
-            return descriptor.get.call(this);
-          },
-          set: function(val) {
-            descriptor.set.call(this, val);
-            trigger.querySelector('span').textContent = val;
-          }
-        });
+        try {
+          const descriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+          Object.defineProperty(select, 'value', {
+            get: function() {
+              return descriptor.get.call(this);
+            },
+            set: function(val) {
+              descriptor.set.call(this, val);
+              trigger.querySelector('span').textContent = val;
+            }
+          });
+        } catch (e) {
+          console.warn("Could not redefine HTMLSelectElement value property:", e);
+        }
       });
+    }
+
+    function setSelectValueAndSync(id, val) {
+      const select = document.getElementById(id);
+      if (select) {
+        select.value = val;
+        const wrapper = document.getElementById('wrapper_' + id);
+        if (wrapper) {
+          const trigger = wrapper.querySelector('.custom-select-trigger span');
+          if (trigger) trigger.textContent = val;
+        }
+      }
       
       // Close on document click
       document.addEventListener('click', function() {
@@ -4463,7 +4479,7 @@
     function showLoading(show, message = "Processing request...") {
       const overlay = document.getElementById('loadingOverlay');
       const msg = document.getElementById('loadingMessage');
-      msg.innerText = message;
+      msg.innerHTML = message;
       if (show) {
         overlay.classList.add('active');
       } else {
@@ -4549,7 +4565,7 @@
 
     // Fetch and Sync all data from Google Sheets Backend
     function refreshAllData() {
-      showLoading(true, "Synchronizing portal with Google Sheets...");
+      showLoading(true, "👋 Hello!!<br>✨ Team Bidyut ✨");
       
       // Verify connection and load dashboard
       google.script.run
@@ -6208,13 +6224,13 @@
     function editDailyLog(rowIndex, date, c6, c10, c15, c20, c30, c1m, sp, note, memberName, mproId, mproLink) {
       document.getElementById('editLogRowIndex').value = rowIndex;
       document.getElementById('logDate').value = date;
-      document.getElementById('qty6s').value = c6;
-      document.getElementById('qty10s').value = c10;
-      document.getElementById('qty15s').value = c15;
-      document.getElementById('qty20s').value = c20;
-      document.getElementById('qty30s').value = c30;
-      document.getElementById('qty1m').value = c1m;
-      document.getElementById('qtySp').value = sp;
+      setSelectValueAndSync('qty6s', c6);
+      setSelectValueAndSync('qty10s', c10);
+      setSelectValueAndSync('qty15s', c15);
+      setSelectValueAndSync('qty20s', c20);
+      setSelectValueAndSync('qty30s', c30);
+      setSelectValueAndSync('qty1m', c1m);
+      setSelectValueAndSync('qtySp', sp);
       document.getElementById('logNote').value = note;
       
       document.getElementById('logMproLink').value = mproLink || "";
@@ -6241,8 +6257,7 @@
       
       // Reset all qty dropdowns to 0
       ['qty6s', 'qty10s', 'qty15s', 'qty20s', 'qty30s', 'qty1m', 'qtySp'].forEach(function(id) {
-        const sel = document.getElementById(id);
-        if (sel) sel.value = '0';
+        setSelectValueAndSync(id, '0');
       });
       
       document.getElementById('logMproLink').value = "";
@@ -6927,8 +6942,8 @@
         return;
       }
       
-      const matched = state.assignments.find(function(a) {
-        return String(a.MPROID).trim() === mproId;
+      const matched = (state.assignments || []).find(function(a) {
+        return String(a.MPROID || '').trim() === mproId;
       });
       
       if (matched) {
