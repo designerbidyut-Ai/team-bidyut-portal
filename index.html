@@ -6691,7 +6691,12 @@
         sortedMembers.push(memberStats[k]);
       }
       sortedMembers.sort(function(a, b) {
-        return a.activeTasks - b.activeTasks;
+        const leftA = Math.max(0, a.totalQty - a.completedQty);
+        const leftB = Math.max(0, b.totalQty - b.completedQty);
+        if (leftA !== leftB) {
+          return leftA - leftB;
+        }
+        return a.completedQty - b.completedQty;
       });
       
       // Populate member workload breakdown grid
