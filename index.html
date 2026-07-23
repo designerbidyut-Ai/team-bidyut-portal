@@ -6081,9 +6081,91 @@
         }
       }
       
+      // Perform Supabase update/insert synchronously in the frontend
+      async function syncToSupabase() {
+        try {
+          if (isEdit) {
+            await supabaseClient.from('daily_logs').update({
+              date: logData.date,
+              member_name: logData.memberName,
+              content_6s: Number(logData.content6s) || 0,
+              content_10s: Number(logData.content10s) || 0,
+              content_15s: Number(logData.content15s) || 0,
+              content_20s: Number(logData.content20s) || 0,
+              content_30s: Number(logData.content30s) || 0,
+              content_1m: Number(logData.content1m) || 0,
+              social_post: Number(logData.socialPost) || 0,
+              note: logData.note || "",
+              mpro_id: logData.mproId || "",
+              mpro_link: logData.mproLink || ""
+            }).eq('id', Number(rowIndex));
+            
+            if (logData.mproId) {
+              await syncAssignmentCompletedQty(logData.mproId);
+            }
+          } else {
+            await supabaseClient.from('daily_logs').insert({
+              date: logData.date,
+              member_name: logData.memberName,
+              content_6s: Number(logData.content6s) || 0,
+              content_10s: Number(logData.content10s) || 0,
+              content_15s: Number(logData.content15s) || 0,
+              content_20s: Number(logData.content20s) || 0,
+              content_30s: Number(logData.content30s) || 0,
+              content_1m: Number(logData.content1m) || 0,
+              social_post: Number(logData.socialPost) || 0,
+              note: logData.note || "",
+              mpro_id: logData.mproId || "",
+              mpro_link: logData.mproLink || ""
+            });
+            
+            if (logData.mproId) {
+              const sumQty = (Number(logData.content6s) || 0) + 
+                             (Number(logData.content10s) || 0) + 
+                             (Number(logData.content15s) || 0) + 
+                             (Number(logData.content20s) || 0) + 
+                             (Number(logData.content30s) || 0) + 
+                             (Number(logData.content1m) || 0) + 
+                             (Number(logData.socialPost) || 0);
+                             
+              const { data: existing } = await supabaseClient
+                .from('assignments')
+                .select('task_id')
+                .eq('mpro_id', logData.mproId)
+                .maybeSingle();
+                
+              if (existing) {
+                await supabaseClient.from('assignments').update({
+                  status: logData.status || "Today's MPRO Work Submission:",
+                  mpro_link: logData.mproLink
+                }).eq('task_id', existing.task_id);
+              } else {
+                const generatedTaskId = "T-" + Math.floor(100000 + Math.random() * 900000);
+                await supabaseClient.from('assignments').insert({
+                  task_id: generatedTaskId,
+                  mpro_id: logData.mproId,
+                  mpro_link: logData.mproLink,
+                  assign_date: logData.assignDate,
+                  brands: logData.brand || "",
+                  member_name: logData.memberName,
+                  quantity: Number(logData.assignQty) || sumQty || 1,
+                  completed_qty: sumQty || 0,
+                  status: logData.status || "Today's MPRO Work Submission:",
+                  note: logData.note || ""
+                });
+              }
+              await syncAssignmentCompletedQty(logData.mproId);
+            }
+          }
+        } catch (e) {
+          console.error("Supabase sync failed:", e);
+        }
+      }
+      
       showLoading(true, isEdit ? "Updating content log..." : "Recording daily content sizes...");
       
-      const successCb = function(resp) {
+      const successCb = async function(resp) {
+        await syncToSupabase();
         showLoading(false);
         showToast(resp.message, "success");
         cancelLogEdit();
@@ -6403,6 +6485,30 @@
           const { error: logErr } = await supabaseClient.from('daily_logs').insert(dailyLogData);
           if (logErr) throw logErr;
           
+          // Sync assignment fields to Supabase assignments table
+          await supabaseClient.from('assignments').update({
+            completed_qty: newCompletedQty,
+            status: status,
+            note: note,
+            mpro_link: mproLink,
+            brands: brand
+          }).eq('task_id', taskId);
+          
+          // Log daily work row in Google Sheets
+          google.script.run.logDailyWork({
+            date: dailyLogData.date,
+            memberName: dailyLogData.member_name,
+            content6s: dailyLogData.content_6s,
+            content10s: dailyLogData.content_10s,
+            content15s: dailyLogData.content_15s,
+            content20s: dailyLogData.content_20s,
+            content30s: dailyLogData.content_30s,
+            content1m: dailyLogData.content_1m,
+            socialPost: dailyLogData.social_post,
+            note: dailyLogData.note,
+            pin: "1234"
+          });
+          
           google.script.run
             .withSuccessHandler(function(resp) {
               showLoading(false);
@@ -6421,6 +6527,16 @@
         }
       } else {
         showLoading(true, "Updating task records...");
+        try {
+          await supabaseClient.from('assignments').update({
+            status: status,
+            note: note,
+            mpro_link: mproLink,
+            completed_qty: newCompletedQty,
+            brands: brand
+          }).eq('task_id', taskId);
+        } catch(e) {}
+
         google.script.run
           .withSuccessHandler(function(resp) {
             showLoading(false);
