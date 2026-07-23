@@ -6183,6 +6183,22 @@
           .withFailureHandler(failureCb)
           .updateDailyLog(Number(rowIndex), logData, targetMemberName, targetPin);
       } else {
+        if (logData.mproId) {
+          const matched = state.assignments.find(a => String(a.MPROID || '').trim() === logData.mproId);
+          if (!matched) {
+            google.script.run.assignTask({
+              assignDate: logData.assignDate,
+              assignedTo: [logData.memberName],
+              mproId: logData.mproId,
+              mproLink: logData.mproLink,
+              group: logData.brand,
+              quantity: logData.assignQty,
+              status: logData.status,
+              deadline: "",
+              note: logData.note
+            });
+          }
+        }
         google.script.run
           .withSuccessHandler(successCb)
           .withFailureHandler(failureCb)
