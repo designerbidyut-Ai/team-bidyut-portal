@@ -6671,19 +6671,22 @@
       
       state.assignments.forEach(function(t) {
         if (getTaskType(t) !== typeFilter) return;
-        const mName = t.AssignedTo;
-        if (memberStats[mName]) {
-          const st = t.Status.toLowerCase();
-          const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass') && !st.includes('submit');
-          
-          if (isActive) memberStats[mName].activeTasks++;
-          memberStats[mName].totalQty += Number(t.Quantity) || 0;
-          memberStats[mName].completedQty += Number(t.CompletedQty) || 0;
-          
-          if (t.Group) {
-            memberStats[mName].brands[t.Group] = (memberStats[mName].brands[t.Group] || 0) + 1;
+        const assignedToRaw = String(t.AssignedTo || '');
+        state.members.forEach(function(m) {
+          const mName = m.Name;
+          if (assignedToRaw.includes(mName)) {
+            const st = t.Status.toLowerCase();
+            const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass') && !st.includes('submit');
+            
+            if (isActive) memberStats[mName].activeTasks++;
+            memberStats[mName].totalQty += Number(t.Quantity) || 0;
+            memberStats[mName].completedQty += Number(t.CompletedQty) || 0;
+            
+            if (t.Group) {
+              memberStats[mName].brands[t.Group] = (memberStats[mName].brands[t.Group] || 0) + 1;
+            }
           }
-        }
+        });
       });
       
       const sortedMembers = [];
