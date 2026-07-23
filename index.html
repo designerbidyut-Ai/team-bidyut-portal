@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -1064,7 +1064,7 @@
         <div class="logo-box">?</div>
         <div class="logo-text">
           <h2>Team Bidyut</h2>
-          <span>Content Tracker Portal v15</span>
+          <span>Content Tracker Portal v17</span>
         </div>
       </div>
       
@@ -1901,6 +1901,13 @@
                 </select>
               </div>
               <div class="form-group">
+                <label for="assignTaskType">Task Type <span style="color: var(--accent-pink);">*</span></label>
+                <select id="assignTaskType" required>
+                  <option value="Full Content" selected>🎬 Full Content (Video)</option>
+                  <option value="Social Media Post">🎨 Social Media Post (Static)</option>
+                </select>
+              </div>
+              <div class="form-group">
                 <label for="assignNote">Notes</label>
                 <input type="text" id="assignNote" placeholder="Additional details...">
               </div>
@@ -1916,6 +1923,12 @@
         <div class="card">
           <div class="section-header" style="margin-bottom: 20px;">
             <h3 class="font-outfit" style="font-size: 20px; font-weight: 700; margin-bottom: 0;">Task Assignments Board</h3>
+          </div>
+
+          <!-- Assignments Board Sub-Tabs -->
+          <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1.5px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap;">
+            <button class="sub-tab-btn active" id="assignSubTabBtn_full" onclick="switchAssignmentTypeFilter('Full Content')" style="padding: 8px 16px; font-weight: 800; font-size: 13px; background: var(--primary); color: #fff; border: none; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-family: 'Outfit', sans-serif;">🎬 Full Content</button>
+            <button class="sub-tab-btn" id="assignSubTabBtn_social" onclick="switchAssignmentTypeFilter('Social Media Post')" style="padding: 8px 16px; font-weight: 800; font-size: 13px; background: var(--input-bg); color: var(--text-muted); border: none; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-family: 'Outfit', sans-serif;">🎨 Social Media Post</button>
           </div>
 
           <!-- Workload Analysis Section -->
@@ -2902,7 +2915,9 @@
                 Content30s: l.content_30s,
                 Content1m: l.content_1m,
                 SocialPost: l.social_post,
-                Note: l.note
+                Note: l.note,
+                MproId: l.mpro_id,
+                MproLink: l.mpro_link
               }));
               
               // Totals aggregation
@@ -4303,7 +4318,8 @@
       loggedInMember: localStorage.getItem('sct_member_name') || '',
       loggedInPin: localStorage.getItem('sct_member_pin') || '',
       myLogs: [],
-      resourcePinVerified: sessionStorage.getItem('resource_pin_verified') === 'true'
+      resourcePinVerified: sessionStorage.getItem('resource_pin_verified') === 'true',
+      activeAssignmentTypeFilter: 'Full Content'
     };
 
     // Charts objects
@@ -5227,6 +5243,8 @@
         visibleTasks = filteredMember === "ALL" 
           ? state.assignments 
           : state.assignments.filter(t => t.AssignedTo === filteredMember);
+        const typeFilter = state.activeAssignmentTypeFilter || 'Full Content';
+        visibleTasks = visibleTasks.filter(t => getTaskType(t) === typeFilter);
       }
       
       if (visibleTasks.length === 0) {
@@ -5287,7 +5305,7 @@
             <td><span class="status-badge ${stClass}">${task.Status}</span></td>
             <td style="color:var(--accent-pink); font-weight:600;">${task.calculatedDeadline || task.Deadline || '-'}</td>
             <td style="font-weight:600;">${task.AssignedTo}</td>
-            <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${task.Note}">${task.Note || '-'}</td>
+            <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${cleanNoteText(task.Note)}">${cleanNoteText(task.Note) || '-'}</td>
             <td>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <button class="btn btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
@@ -5302,6 +5320,68 @@
         `;
       });
     }
+    function getTaskType(task) {
+      if (!task) return 'Full Content';
+      if (task.Note && task.Note.includes('[Type:')) {
+        if (task.Note.includes('[Type: Social Media Post]')) return 'Social Media Post';
+        if (task.Note.includes('[Type: Full Content]')) return 'Full Content';
+      }
+      if (state.dailyLogs) {
+        const cleanMproId = String(task.MPROID || '').trim();
+        if (cleanMproId) {
+          const matchedLogs = state.dailyLogs.filter(function(l) {
+            return String(l.MproId || l.mpro_id || l.MproID || '').trim() === cleanMproId;
+          });
+          let hasStatic = false;
+          let hasMotion = false;
+          matchedLogs.forEach(function(l) {
+            if ((Number(l.SocialPost || l.social_post) || 0) > 0) hasStatic = true;
+            if (((Number(l.Content6s || l.content_6s) || 0) +
+                 (Number(l.Content10s || l.content_10s) || 0) +
+                 (Number(l.Content15s || l.content_15s) || 0) +
+                 (Number(l.Content20s || l.content_20s) || 0) +
+                 (Number(l.Content30s || l.content_30s) || 0) +
+                 (Number(l.Content1m || l.content_1m) || 0)) > 0) hasMotion = true;
+          });
+          if (hasStatic && !hasMotion) return 'Social Media Post';
+          if (hasMotion) return 'Full Content';
+        }
+      }
+      const st = String(task.Status || '').toLowerCase();
+      if (st.includes('static approved') || st.includes('static')) return 'Social Media Post';
+      if (st.includes('hom approved') || st.includes('motion')) return 'Full Content';
+      return 'Full Content';
+    }
+
+    function cleanNoteText(note) {
+      if (!note) return '';
+      return String(note).replace(/\[Type:\s*[^\]]+\]/g, '').trim();
+    }
+
+    function switchAssignmentTypeFilter(type) {
+      state.activeAssignmentTypeFilter = type;
+      const btnFull = document.getElementById('assignSubTabBtn_full');
+      const btnSocial = document.getElementById('assignSubTabBtn_social');
+      if (btnFull && btnSocial) {
+        if (type === 'Full Content') {
+          btnFull.classList.add('active');
+          btnFull.style.background = 'var(--primary)';
+          btnFull.style.color = '#fff';
+          btnSocial.classList.remove('active');
+          btnSocial.style.background = 'var(--input-bg)';
+          btnSocial.style.color = 'var(--text-muted)';
+        } else {
+          btnSocial.classList.add('active');
+          btnSocial.style.background = 'var(--primary)';
+          btnSocial.style.color = '#fff';
+          btnFull.classList.remove('active');
+          btnFull.style.background = 'var(--input-bg)';
+          btnFull.style.color = 'var(--text-muted)';
+        }
+      }
+      applyAssignmentsFilters();
+    }
+
     function filterAssignments(memberName) {
       if (document.getElementById('assignFilterSelect')) {
         document.getElementById('assignFilterSelect').value = memberName;
@@ -5319,6 +5399,10 @@
         ? [...state.assignments] 
         : state.assignments.filter(t => t.AssignedTo === memberFilter);
         
+      // 1b. Filter by Task Type
+      const typeFilter = state.activeAssignmentTypeFilter || 'Full Content';
+      filtered = filtered.filter(t => getTaskType(t) === typeFilter);
+
       // 2. Filter by Search Query
       if (searchVal) {
         filtered = filtered.filter(t => {
@@ -5727,7 +5811,9 @@
           state.userRole = 'ADMIN';
         }
       } else if (!state.loggedInMember) {
-        state.userRole = 'MEMBER';
+        if (state.userRole !== 'ADMIN') {
+          state.userRole = 'MEMBER';
+        }
       }
 
       const loginCard = document.getElementById('memberLoginCard');
@@ -6228,7 +6314,7 @@
       document.getElementById('statusTaskId').value = taskId;
       document.getElementById('statusSelect').value = currentStatus;
       document.getElementById('statusMproLink').value = mproLink || '';
-      document.getElementById('statusNote').value = note || '';
+      document.getElementById('statusNote').value = cleanNoteText(note) || '';
       
       // Set active task Brand Name
       const activeTask = state.assignments ? state.assignments.find(t => t.TaskID === taskId) : null;
@@ -6374,6 +6460,9 @@
       e.preventDefault();
       
       const assignedTo = state.selectedAssignMembers || [];
+      const selectedType = document.getElementById('assignTaskType') ? document.getElementById('assignTaskType').value : 'Full Content';
+      const rawNote = document.getElementById('assignNote').value || "";
+      const noteWithType = rawNote ? `${rawNote} [Type: ${selectedType}]` : `[Type: ${selectedType}]`;
       
       const taskData = {
         assignDate: document.getElementById('assignDate').value,
@@ -6384,7 +6473,7 @@
         quantity: document.getElementById('assignQty').value,
         status: document.getElementById('assignStatus').value,
         deadline: document.getElementById('assignDeadline').value,
-        note: document.getElementById('assignNote').value
+        note: noteWithType
       };
       
       if (taskData.assignedTo.length === 0) {
@@ -6446,10 +6535,14 @@
         recDiv.style.display = 'none';
       }
     }
+
     function updateAssignmentsAnalytics() {
       if (!state.assignments || !state.members) return;
       
+      const typeFilter = state.activeAssignmentTypeFilter || 'Full Content';
+      
       const activeTasksCount = state.assignments.filter(function(t) {
+        if (getTaskType(t) !== typeFilter) return false;
         const st = t.Status.toLowerCase();
         return !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass');
       }).length;
@@ -6458,6 +6551,7 @@
       let completedQty = 0;
       
       state.assignments.forEach(function(t) {
+        if (getTaskType(t) !== typeFilter) return;
         totalQty += Number(t.Quantity) || 0;
         completedQty += Number(t.CompletedQty) || 0;
       });
@@ -6531,20 +6625,25 @@
         state.dailyLogs.forEach(function(log) {
           const logDateYMD = normalizeDateToYMD(log.Date);
           if (logDateYMD === targetDateYMD) {
-            const c6 = Number(log.Content6s || 0);
-            const c10 = Number(log.Content10s || 0);
-            const c15 = Number(log.Content15s || 0);
-            const c20 = Number(log.Content20s || 0);
-            const c30 = Number(log.Content30s || 0);
-            const c1m = Number(log.Content1m || 0);
-            const sp = Number(log.SocialPost || 0);
-            targetSubmitted += (c6 + c10 + c15 + c20 + c30 + c1m + sp);
+            if (typeFilter === 'Full Content') {
+              const c6 = Number(log.Content6s || 0);
+              const c10 = Number(log.Content10s || 0);
+              const c15 = Number(log.Content15s || 0);
+              const c20 = Number(log.Content20s || 0);
+              const c30 = Number(log.Content30s || 0);
+              const c1m = Number(log.Content1m || 0);
+              targetSubmitted += (c6 + c10 + c15 + c20 + c30 + c1m);
+            } else {
+              const sp = Number(log.SocialPost || 0);
+              targetSubmitted += sp;
+            }
           }
         });
       }
       
       // 2. Approved: Count from assignments for the selected date
       state.assignments.forEach(function(t) {
+        if (getTaskType(t) !== typeFilter) return;
         const assignDateYMD = normalizeDateToYMD(t.AssignDate);
         const isApproved = t.Status.toLowerCase().includes("approved") || t.Status.toLowerCase().includes("completed") || t.Status.toLowerCase().includes("pass") || t.Status.toLowerCase().includes("ok");
         const approveDateYMD = t.ApproveDate ? normalizeDateToYMD(t.ApproveDate) : (isApproved ? assignDateYMD : "");
@@ -6571,6 +6670,7 @@
       });
       
       state.assignments.forEach(function(t) {
+        if (getTaskType(t) !== typeFilter) return;
         const mName = t.AssignedTo;
         if (memberStats[mName]) {
           const st = t.Status.toLowerCase();
