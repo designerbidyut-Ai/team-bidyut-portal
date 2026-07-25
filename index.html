@@ -1376,6 +1376,7 @@
           </div>
           </div>
         </div>
+      </div>
 
         <!-- Sub Panel 2: Daily Progress & Format Breakdown -->
         <div id="dbPanel_progress" class="db-sub-panel" style="display: none;">
@@ -2549,9 +2550,14 @@
           </div>
         </div>
         
-        <div style="display: flex; gap: 12px; margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-          <button type="button" class="btn btn-outline" style="flex: 1; padding: 12px; font-weight: 700; border-radius: 8px;" onclick="closeProfileModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px; background: var(--primary); border: none; font-weight: 700; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='var(--primary-hover)'" onmouseout="this.style.background='var(--primary)'">Save Changes</button>
+        <div style="display: flex; gap: 10px; margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 20px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn" style="padding: 12px 18px; font-weight: 700; border-radius: 8px; background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;" onclick="closeProfileModal(); submitMemberLogout();" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.12)'">
+            🚪 Logout
+          </button>
+          <div style="display: flex; gap: 10px; flex: 1; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" style="padding: 12px 18px; font-weight: 700; border-radius: 8px;" onclick="closeProfileModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 20px; background: var(--primary); border: none; font-weight: 700; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='var(--primary-hover)'" onmouseout="this.style.background='var(--primary)'">Save Changes</button>
+          </div>
         </div>
       </form>
     </div>
@@ -2638,18 +2644,22 @@
         </div>
       </div>
       <!-- Quantities summary -->
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
-        <div class="form-group">
-          <label style="font-size: 11px;">Prev. Completed</label>
-          <input type="text" id="statusPrevCompleted" readonly style="background: rgba(0,0,0,0.25); font-weight: 700; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; align-items: end;">
+        <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: flex-end;">
+          <label style="font-size: 10px; font-weight: 800; color: var(--primary); min-height: 28px; display: flex; align-items: flex-end; justify-content: center; text-align: center; line-height: 1.2; margin-bottom: 6px; text-transform: uppercase;">Total Qty (Edit)</label>
+          <input type="number" id="statusTotalQty" min="1" onchange="calculateStatusModalQty()" oninput="calculateStatusModalQty()" style="height: 38px; background: var(--input-bg); font-weight: 800; color: var(--text-main); border: 1.5px solid var(--primary); border-radius: 8px; padding: 0 8px; text-align: center; margin: 0; box-sizing: border-box;">
         </div>
-        <div class="form-group">
-          <label style="font-size: 11px; color: #10b981;">Added Today</label>
-          <input type="text" id="statusAddedToday" readonly style="background: rgba(0,0,0,0.25); font-weight: 800; color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 8px;">
+        <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: flex-end;">
+          <label style="font-size: 10px; font-weight: 800; color: var(--text-muted); min-height: 28px; display: flex; align-items: flex-end; justify-content: center; text-align: center; line-height: 1.2; margin-bottom: 6px; text-transform: uppercase;">Prev. Completed</label>
+          <input type="text" id="statusPrevCompleted" readonly style="height: 38px; background: rgba(0,0,0,0.25); font-weight: 700; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 0 8px; text-align: center; margin: 0; box-sizing: border-box;">
         </div>
-        <div class="form-group">
-          <label style="font-size: 11px;">Remaining Left</label>
-          <input type="text" id="statusPendingQty" readonly style="background: rgba(0,0,0,0.25); font-weight: 700; color: var(--accent-pink); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+        <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: flex-end;">
+          <label style="font-size: 10px; font-weight: 800; color: #10b981; min-height: 28px; display: flex; align-items: flex-end; justify-content: center; text-align: center; line-height: 1.2; margin-bottom: 6px; text-transform: uppercase;">Added Today</label>
+          <input type="text" id="statusAddedToday" readonly style="height: 38px; background: rgba(0,0,0,0.25); font-weight: 800; color: #10b981; border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 0 8px; text-align: center; margin: 0; box-sizing: border-box;">
+        </div>
+        <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: flex-end;">
+          <label style="font-size: 10px; font-weight: 800; color: var(--text-muted); min-height: 28px; display: flex; align-items: flex-end; justify-content: center; text-align: center; line-height: 1.2; margin-bottom: 6px; text-transform: uppercase;">Remaining Left</label>
+          <input type="text" id="statusPendingQty" readonly style="height: 38px; background: rgba(0,0,0,0.25); font-weight: 700; color: var(--accent-pink); border: 1px solid var(--border-color); border-radius: 8px; padding: 0 8px; text-align: center; margin: 0; box-sizing: border-box;">
         </div>
       </div>
       <div class="form-group" style="margin-bottom: 20px;">
@@ -3116,12 +3126,16 @@
           },
           
           // 3. updateAssignmentStatus()
-          updateAssignmentStatus: async function(taskId, status, note, mproLink, completedQty, brand) {
+          updateAssignmentStatus: async function(taskId, status, note, mproLink, completedQty, brand, totalQty) {
             try {
               const updateData = { 
                 status: status || "Not Started", 
                 completed_qty: Number(completedQty) || 0
               };
+              
+              if (totalQty !== undefined && totalQty !== null && Number(totalQty) > 0) {
+                updateData.quantity = Number(totalQty);
+              }
               
               if (brand) updateData.brands = brand;
               
@@ -6422,12 +6436,19 @@
       });
       
       document.getElementById('statusPrevCompleted').value = statusModalState.prevCompleted;
+      const totalQtyEl = document.getElementById('statusTotalQty');
+      if (totalQtyEl) totalQtyEl.value = statusModalState.totalQty;
       
       calculateStatusModalQty();
       document.getElementById('taskStatusModal').classList.add('active');
     }
     
     function calculateStatusModalQty() {
+      const customTotalQty = parseInt(document.getElementById('statusTotalQty') ? document.getElementById('statusTotalQty').value : 0);
+      if (!isNaN(customTotalQty) && customTotalQty > 0) {
+        statusModalState.totalQty = customTotalQty;
+      }
+      
       const q6s = parseInt(document.getElementById('statusQty6s').value) || 0;
       const q10s = parseInt(document.getElementById('statusQty10s').value) || 0;
       const q15s = parseInt(document.getElementById('statusQty15s').value) || 0;
@@ -6455,6 +6476,7 @@
       const note = document.getElementById('statusNote').value;
       const brand = document.getElementById('statusBrandSelect') ? document.getElementById('statusBrandSelect').value : '';
       const selectedType = document.getElementById('statusTaskType') ? document.getElementById('statusTaskType').value : 'Full Content';
+      const newTotalQty = parseInt(document.getElementById('statusTotalQty') ? document.getElementById('statusTotalQty').value : 0) || statusModalState.totalQty || 1;
       
       let noteWithType = note || '';
       if (!noteWithType.includes('[Type:')) {
@@ -6504,6 +6526,7 @@
           
           // Sync assignment fields to Supabase assignments table
           await supabaseClient.from('assignments').update({
+            quantity: newTotalQty,
             completed_qty: newCompletedQty,
             status: status,
             note: noteWithType,
@@ -6539,7 +6562,7 @@
               showLoading(false);
               showToast("Status Update failed: " + err.message, "error");
             })
-            .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand);
+            .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand, newTotalQty);
         } catch (e) {
           if (submitBtn) submitBtn.disabled = false;
           showLoading(false);
@@ -6549,6 +6572,7 @@
         showLoading(true, "Updating task records...");
         try {
           await supabaseClient.from('assignments').update({
+            quantity: newTotalQty,
             status: status,
             note: noteWithType,
             mpro_link: mproLink,
@@ -6570,7 +6594,7 @@
             showLoading(false);
             showToast("Status Update failed: " + err.message, "error");
           })
-          .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand);
+          .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand, newTotalQty);
       }
     }
     function deleteAssignment(taskId) {
@@ -6801,14 +6825,32 @@
       const dailyProgressTbody = document.getElementById('dailyProgressTableBody');
       if (dailyProgressTbody) {
         if (state.dailyLogs && state.dailyLogs.length > 0) {
+          const nowObj = new Date();
+          const todayYMD = normalizeDateToYMD(nowObj.toISOString().split('T')[0]);
+          
+          const yesterdayObj = new Date(nowObj.getTime() - (24 * 60 * 60 * 1000));
+          const yesterdayYMD = normalizeDateToYMD(yesterdayObj.toISOString().split('T')[0]);
+
           const rowsHTML = state.dailyLogs.slice(0, 30).map(function(log) {
             const formats = getLogDetailsText(log);
             const mproLink = log.MproLink || (log.MproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + log.MproId) : "#");
             const mproBadge = log.MproId ? `<a href="${mproLink}" target="_blank" style="color: var(--accent-blue); font-weight: 700; text-decoration: none;">#${log.MproId} ↗</a>` : '-';
             const cleanNote = cleanNoteText(log.Note || '');
             
+            const logDateYMD = normalizeDateToYMD(log.Date || '');
+            const shortDate = logDateYMD.replace(/^20(\d\d)/, '$1');
+            
+            let dateBadgeHTML = '';
+            if (logDateYMD === todayYMD) {
+              dateBadgeHTML = `<span class="status-badge" style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 800; border: 1.5px solid rgba(16, 185, 129, 0.35); padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">🟢 ${shortDate}</span>`;
+            } else if (logDateYMD === yesterdayYMD) {
+              dateBadgeHTML = `<span class="status-badge" style="font-size: 11px; background: rgba(6, 182, 212, 0.15); color: #06b6d4; font-weight: 800; border: 1.5px solid rgba(6, 182, 212, 0.35); padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">🔹 ${shortDate}</span>`;
+            } else {
+              dateBadgeHTML = `<span class="status-badge" style="font-size: 11px; background: rgba(142, 155, 178, 0.12); color: var(--text-muted); font-weight: 700; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">⏳ ${shortDate}</span>`;
+            }
+            
             return `<tr>
-              <td style="font-weight: 700;">${log.Date || '-'}</td>
+              <td>${dateBadgeHTML}</td>
               <td style="font-weight: 700; color: var(--text-main);">${log.MemberName || '-'}</td>
               <td><span class="status-badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-weight:700; border: 1px solid rgba(16, 185, 129, 0.2);">${formats}</span></td>
               <td>${mproBadge}</td>
