@@ -783,6 +783,9 @@
       user-select: none;
       width: 100%;
     }
+    .custom-select-wrapper.open {
+      z-index: 1000;
+    }
     .custom-select-trigger {
       display: flex;
       align-items: center;
@@ -837,6 +840,27 @@
     select option, select optgroup {
       background-color: var(--bg-surface) !important;
       color: var(--text-main) !important;
+    }
+
+    /* Style all native select dropdowns in dailyWorkForm for a premium look */
+    #dailyWorkForm select {
+      font-size: 16px;
+      padding: 12px;
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-weight: 700;
+      cursor: pointer;
+      appearance: none; /* remove default arrow */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238e9bb2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 40px; /* space for arrow */
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     /* COMPREHENSIVE RESPONSIVE STYLES */
@@ -2518,6 +2542,13 @@
         </select>
       </div>
       <div class="form-group" style="margin-bottom: 16px;">
+        <label for="statusTaskType" style="color: var(--primary); font-weight: 700;">Task Category (Type)</label>
+        <select id="statusTaskType" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-size: 14px; font-weight: 700; width: 100%;">
+          <option value="Full Content">🎬 Full Content (Video)</option>
+          <option value="Social Media Post">🎨 Social Media Post (Static)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 16px;">
         <label for="statusMproLink">MPRO Link (Edit if needed)</label>
         <input type="url" id="statusMproLink" placeholder="http://mpro.prangroup.com/...">
       </div>
@@ -2581,7 +2612,7 @@
       </div>
       <div style="display:flex; justify-content: flex-end; gap: 12px;">
         <button class="btn btn-outline" onclick="closeStatusModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitStatusUpdate()">Save Status</button>
+        <button class="btn btn-primary" id="btnSubmitStatus" onclick="submitStatusUpdate()">Save Status</button>
       </div>
     </div>
   </div>
@@ -4338,111 +4369,13 @@
       const savedTheme = localStorage.getItem('theme') || 'light';
       setTheme(savedTheme);
       
-      // Initialize custom selects for quantities (0-50, max 5 visible)
-      initCustomQuantityDropdowns();
-      
       // Load initial spreadsheet data
       refreshAllData();
     });
 
-    function initCustomQuantityDropdowns() {
-      const ids = ['qty6s', 'qty10s', 'qty15s', 'qty20s', 'qty30s', 'qty1m', 'qtySp'];
-      ids.forEach(id => {
-        const select = document.getElementById(id);
-        if (!select) return;
-        
-        // Populate options 0 to 50
-        select.innerHTML = '';
-        for (let i = 0; i <= 50; i++) {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.textContent = i;
-          select.appendChild(opt);
-        }
-        
-        // Hide native select
-        select.style.display = 'none';
-        
-        // Create custom structure
-        const wrapper = document.createElement('div');
-        wrapper.className = 'custom-select-wrapper';
-        wrapper.id = 'wrapper_' + id;
-        
-        const trigger = document.createElement('div');
-        trigger.className = 'custom-select-trigger';
-        trigger.innerHTML = `<span>0</span><span class="arrow" style="font-size:10px; margin-left:8px; opacity:0.7;">▼</span>`;
-        
-        const optionsContainer = document.createElement('div');
-        optionsContainer.className = 'custom-options';
-        
-        for (let i = 0; i <= 50; i++) {
-          const optionDiv = document.createElement('div');
-          optionDiv.className = 'custom-option';
-          optionDiv.dataset.value = i;
-          optionDiv.textContent = i;
-          
-          optionDiv.addEventListener('click', function(e) {
-            e.stopPropagation();
-            select.value = i;
-            trigger.querySelector('span').textContent = i;
-            optionsContainer.classList.remove('open');
-            // Trigger change event
-            select.dispatchEvent(new Event('change'));
-          });
-          
-          optionsContainer.appendChild(optionDiv);
-        }
-        
-        trigger.addEventListener('click', function(e) {
-          e.stopPropagation();
-          // Close all other open custom selects
-          document.querySelectorAll('.custom-options.open').forEach(c => {
-            if (c !== optionsContainer) c.classList.remove('open');
-          });
-          optionsContainer.classList.toggle('open');
-        });
-        
-        // Insert wrapper into DOM
-        select.parentNode.insertBefore(wrapper, select);
-        wrapper.appendChild(select); // Move native select inside wrapper
-        wrapper.appendChild(trigger);
-        wrapper.appendChild(optionsContainer);
-        
-        // Sync custom trigger when select value is changed programmatically (e.g. during edit)
-        try {
-          const descriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
-          Object.defineProperty(select, 'value', {
-            get: function() {
-              return descriptor.get.call(this);
-            },
-            set: function(val) {
-              descriptor.set.call(this, val);
-              trigger.querySelector('span').textContent = val;
-            }
-          });
-        } catch (e) {
-          console.warn("Could not redefine HTMLSelectElement value property:", e);
-        }
-      });
-    }
-
-    function setSelectValueAndSync(id, val) {
+    function setSelectValue(id, val) {
       const select = document.getElementById(id);
-      if (select) {
-        select.value = val;
-        const wrapper = document.getElementById('wrapper_' + id);
-        if (wrapper) {
-          const trigger = wrapper.querySelector('.custom-select-trigger span');
-          if (trigger) trigger.textContent = val;
-        }
-      }
-      
-      // Close on document click
-      document.addEventListener('click', function() {
-        document.querySelectorAll('.custom-options.open').forEach(c => {
-          c.classList.remove('open');
-        });
-      });
+      if (select) select.value = val;
     }
 
     // Toggle Themes (Light / Dark)
@@ -5324,7 +5257,7 @@
             <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${cleanNoteText(task.Note)}">${cleanNoteText(task.Note) || '-'}</td>
             <td>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="btn btn-sm" onclick="openStatusModal('${task.TaskID}', '${task.Status}', '${task.MPROLink}', '${task.Note}', ${task.Quantity}, ${task.CompletedQty || 0})" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
+                <button class="btn btn-sm" onclick="openStatusModal('${task.TaskID}')" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';">
                   📝 Update
                 </button>
                 <button class="btn btn-outline btn-sm" onclick="deleteAssignment('${task.TaskID}')" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.03); font-size: 11px; padding: 4px 8px; opacity: 0.85; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
@@ -5338,15 +5271,20 @@
     }
     function getTaskType(task) {
       if (!task) return 'Full Content';
-      if (task.Note && task.Note.includes('[Type:')) {
-        if (task.Note.includes('[Type: Social Media Post]')) return 'Social Media Post';
-        if (task.Note.includes('[Type: Full Content]')) return 'Full Content';
+      const noteStr = String(task.Note || '');
+      if (noteStr.includes('[Type: Social Media Post]') || noteStr.toLowerCase().includes('social media post') || noteStr.toLowerCase().includes('static')) {
+        return 'Social Media Post';
       }
+      if (noteStr.includes('[Type: Full Content]') || noteStr.toLowerCase().includes('full content') || noteStr.toLowerCase().includes('motion')) {
+        return 'Full Content';
+      }
+
       if (state.dailyLogs) {
-        const cleanMproId = String(task.MPROID || '').trim();
+        const cleanMproId = String(task.MPROID || task.mpro_id || '').trim();
         if (cleanMproId) {
           const matchedLogs = state.dailyLogs.filter(function(l) {
-            return String(l.MproId || l.mpro_id || l.MproID || '').trim() === cleanMproId;
+            const lId = String(l.MproId || l.mpro_id || l.MproID || l.MPROID || '').trim();
+            return lId && lId === cleanMproId;
           });
           let hasStatic = false;
           let hasMotion = false;
@@ -6074,7 +6012,7 @@
         assignDate: document.getElementById('logAssignDate').value || document.getElementById('logDate').value,
         assignQty: document.getElementById('logAssignQty') ? document.getElementById('logAssignQty').value : "",
         brand: document.getElementById('logBrand') ? document.getElementById('logBrand').value : "",
-        status: document.getElementById('logStatus') ? document.getElementById('logStatus').value : "Today's MPRO Work Submission:"
+        status: document.getElementById('logStatus') && document.getElementById('logStatus').value ? document.getElementById('logStatus').value : "Work Submitted"
       };
       
       if (!logData.memberName) {
@@ -6152,7 +6090,7 @@
                 
               if (existing) {
                 await supabaseClient.from('assignments').update({
-                  status: logData.status || "Today's MPRO Work Submission:",
+                  status: logData.status || "Work Submitted",
                   mpro_link: logData.mproLink
                 }).eq('task_id', existing.task_id);
               } else {
@@ -6166,7 +6104,7 @@
                   member_name: logData.memberName,
                   quantity: Number(logData.assignQty) || sumQty || 1,
                   completed_qty: sumQty || 0,
-                  status: logData.status || "Today's MPRO Work Submission:",
+                  status: logData.status || "Work Submitted",
                   note: logData.note || ""
                 });
               }
@@ -6178,10 +6116,14 @@
         }
       }
       
+      const submitBtn = document.getElementById('btnSubmitLog');
+      if (submitBtn) submitBtn.disabled = true;
+      
       showLoading(true, isEdit ? "Updating content log..." : "Recording daily content sizes...");
       
       const successCb = async function(resp) {
         await syncToSupabase();
+        if (submitBtn) submitBtn.disabled = false;
         showLoading(false);
         showToast(resp.message, "success");
         cancelLogEdit();
@@ -6189,6 +6131,7 @@
       };
       
       const failureCb = function(err) {
+        if (submitBtn) submitBtn.disabled = false;
         showLoading(false);
         showToast("Operation failed: " + err.message, "error");
       };
@@ -6202,6 +6145,9 @@
         if (logData.mproId) {
           const matched = state.assignments.find(a => String(a.MPROID || '').trim() === logData.mproId);
           if (!matched) {
+            const isSocialPost = Number(logData.socialPost || 0) > 0;
+            const typeTag = isSocialPost ? '[Type: Social Media Post]' : '[Type: Full Content]';
+            const autoNote = logData.note ? (logData.note.includes('[Type:') ? logData.note : `${logData.note} ${typeTag}`) : typeTag;
             google.script.run.assignTask({
               assignDate: logData.assignDate,
               assignedTo: [logData.memberName],
@@ -6211,7 +6157,7 @@
               quantity: logData.assignQty,
               status: logData.status,
               deadline: "",
-              note: logData.note
+              note: autoNote
             });
           }
         }
@@ -6224,13 +6170,13 @@
     function editDailyLog(rowIndex, date, c6, c10, c15, c20, c30, c1m, sp, note, memberName, mproId, mproLink) {
       document.getElementById('editLogRowIndex').value = rowIndex;
       document.getElementById('logDate').value = date;
-      setSelectValueAndSync('qty6s', c6);
-      setSelectValueAndSync('qty10s', c10);
-      setSelectValueAndSync('qty15s', c15);
-      setSelectValueAndSync('qty20s', c20);
-      setSelectValueAndSync('qty30s', c30);
-      setSelectValueAndSync('qty1m', c1m);
-      setSelectValueAndSync('qtySp', sp);
+      setSelectValue('qty6s', c6);
+      setSelectValue('qty10s', c10);
+      setSelectValue('qty15s', c15);
+      setSelectValue('qty20s', c20);
+      setSelectValue('qty30s', c30);
+      setSelectValue('qty1m', c1m);
+      setSelectValue('qtySp', sp);
       document.getElementById('logNote').value = note;
       
       document.getElementById('logMproLink').value = mproLink || "";
@@ -6257,7 +6203,7 @@
       
       // Reset all qty dropdowns to 0
       ['qty6s', 'qty10s', 'qty15s', 'qty20s', 'qty30s', 'qty1m', 'qtySp'].forEach(function(id) {
-        setSelectValueAndSync(id, '0');
+        setSelectValue(id, '0');
       });
       
       document.getElementById('logMproLink').value = "";
@@ -6421,16 +6367,29 @@
     }
     
     function openStatusModal(taskId, currentStatus, mproLink, note, qty, completedQty) {
-      statusModalState.totalQty = Number(qty) || 1;
-      statusModalState.prevCompleted = Number(completedQty) || 0;
+      const activeTask = (state.assignments || []).find(t => String(t.TaskID || '').trim() === String(taskId || '').trim());
+      
+      const realStatus = currentStatus || (activeTask ? activeTask.Status : 'Work Submitted');
+      const realMproLink = mproLink || (activeTask ? activeTask.MPROLink : '');
+      const realNote = note !== undefined ? note : (activeTask ? activeTask.Note : '');
+      const realQty = (qty !== undefined && qty !== null) ? qty : (activeTask ? activeTask.Quantity : 1);
+      const realCompletedQty = (completedQty !== undefined && completedQty !== null) ? completedQty : (activeTask ? activeTask.CompletedQty : 0);
+
+      statusModalState.totalQty = Number(realQty) || 1;
+      statusModalState.prevCompleted = Number(realCompletedQty) || 0;
       
       document.getElementById('statusTaskId').value = taskId;
-      document.getElementById('statusSelect').value = currentStatus;
-      document.getElementById('statusMproLink').value = mproLink || '';
-      document.getElementById('statusNote').value = cleanNoteText(note) || '';
+      document.getElementById('statusSelect').value = realStatus;
+      document.getElementById('statusMproLink').value = realMproLink || '';
+      document.getElementById('statusNote').value = cleanNoteText(realNote) || '';
+      
+      // Set active task Task Category (Type)
+      const typeSelect = document.getElementById('statusTaskType');
+      if (typeSelect && activeTask) {
+        typeSelect.value = getTaskType(activeTask);
+      }
       
       // Set active task Brand Name
-      const activeTask = state.assignments ? state.assignments.find(t => t.TaskID === taskId) : null;
       const brandSelect = document.getElementById('statusBrandSelect');
       if (brandSelect && activeTask) {
         brandSelect.value = activeTask.Group || '';
@@ -6479,7 +6438,15 @@
       const mproLink = document.getElementById('statusMproLink').value;
       const note = document.getElementById('statusNote').value;
       const brand = document.getElementById('statusBrandSelect') ? document.getElementById('statusBrandSelect').value : '';
+      const selectedType = document.getElementById('statusTaskType') ? document.getElementById('statusTaskType').value : 'Full Content';
       
+      let noteWithType = note || '';
+      if (!noteWithType.includes('[Type:')) {
+        noteWithType = noteWithType ? `${noteWithType} [Type: ${selectedType}]` : `[Type: ${selectedType}]`;
+      } else {
+        noteWithType = noteWithType.replace(/\[Type:\s*[^\]]+\]/g, `[Type: ${selectedType}]`);
+      }
+
       const q6s = parseInt(document.getElementById('statusQty6s').value) || 0;
       const q10s = parseInt(document.getElementById('statusQty10s').value) || 0;
       const q15s = parseInt(document.getElementById('statusQty15s').value) || 0;
@@ -6491,9 +6458,12 @@
       const addedToday = q6s + q10s + q15s + q20s + q30s + q1m + qSp;
       const newCompletedQty = statusModalState.prevCompleted + addedToday;
       
-      const task = state.assignments.find(function(a) { return a.TaskID === taskId; });
+      const task = state.assignments.find(function(a) { return String(a.TaskID || '').trim() === String(taskId || '').trim(); });
       const memberName = task ? task.AssignedTo : state.loggedInMember;
       const mproId = task ? task.MPROID : "";
+      
+      const submitBtn = document.getElementById('btnSubmitStatus');
+      if (submitBtn) submitBtn.disabled = true;
       
       if (addedToday > 0) {
         showLoading(true, "Logging daily work and updating task...");
@@ -6508,7 +6478,7 @@
             content_30s: q30s,
             content_1m: q1m,
             social_post: qSp,
-            note: note || "",
+            note: noteWithType,
             mpro_id: mproId,
             mpro_link: mproLink
           };
@@ -6520,7 +6490,7 @@
           await supabaseClient.from('assignments').update({
             completed_qty: newCompletedQty,
             status: status,
-            note: note,
+            note: noteWithType,
             mpro_link: mproLink,
             brands: brand
           }).eq('task_id', taskId);
@@ -6542,17 +6512,20 @@
           
           google.script.run
             .withSuccessHandler(function(resp) {
+              if (submitBtn) submitBtn.disabled = false;
               showLoading(false);
               closeStatusModal();
               showToast(resp.message + " (Work logged!)", "success");
               refreshAllData();
             })
             .withFailureHandler(function(err) {
+              if (submitBtn) submitBtn.disabled = false;
               showLoading(false);
               showToast("Status Update failed: " + err.message, "error");
             })
-            .updateAssignmentStatus(taskId, status, note, mproLink, newCompletedQty, brand);
+            .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand);
         } catch (e) {
+          if (submitBtn) submitBtn.disabled = false;
           showLoading(false);
           showToast("Failed to log daily work: " + e.message, "error");
         }
@@ -6561,7 +6534,7 @@
         try {
           await supabaseClient.from('assignments').update({
             status: status,
-            note: note,
+            note: noteWithType,
             mpro_link: mproLink,
             completed_qty: newCompletedQty,
             brands: brand
@@ -6570,16 +6543,18 @@
 
         google.script.run
           .withSuccessHandler(function(resp) {
+            if (submitBtn) submitBtn.disabled = false;
             showLoading(false);
             closeStatusModal();
             showToast(resp.message, "success");
             refreshAllData();
           })
           .withFailureHandler(function(err) {
+            if (submitBtn) submitBtn.disabled = false;
             showLoading(false);
             showToast("Status Update failed: " + err.message, "error");
           })
-          .updateAssignmentStatus(taskId, status, note, mproLink, newCompletedQty, brand);
+          .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand);
       }
     }
     function deleteAssignment(taskId) {
