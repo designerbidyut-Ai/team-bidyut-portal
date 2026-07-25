@@ -343,6 +343,17 @@
       color: var(--text-muted);
     }
 
+    /* Sub-Panels */
+    .db-sub-panel {
+      display: none;
+      width: 100%;
+    }
+    .db-sub-panel.active {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
     /* Charts and details Layout */
     .dashboard-layout {
       display: grid;
@@ -1203,7 +1214,7 @@
         </div>
 
         <!-- Sub Panel 1: Overview -->
-        <div id="dbPanel_overview" class="db-sub-panel">
+        <div id="dbPanel_overview" class="db-sub-panel active">
           <!-- 1. Top Wide KPI Summary Cards Grid -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 26px;">
             <!-- Card 1: Videos Completed -->
@@ -1422,13 +1433,40 @@
               </div>
             </div>
           </div>
+
+          <!-- Daily Work Submissions History Table -->
+          <div class="card" style="margin-top: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                📝 Daily Work Submissions History
+              </h4>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Member Name</th>
+                    <th>Formats Logged</th>
+                    <th>MPRO Link</th>
+                    <th>Note / Details</th>
+                  </tr>
+                </thead>
+                <tbody id="dailyProgressTableBody">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted);">Syncing daily progress logs...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- TAB 2: LOG DAILY WORK -->
       <section id="logworkTab" class="tab-content">
         <!-- 1. Member Login Card (shown if not logged in) -->
-        <div id="memberLoginCard" class="card" style="max-width: 480px; margin: 40px auto; padding: 30px;">
+        <form id="memberLoginCard" class="card" onsubmit="submitMemberLogin(event)" style="max-width: 480px; margin: 40px auto; padding: 30px;">
           <div class="form-title" style="text-align: center; border-bottom: none; margin-bottom: 24px;">Member Logger Login</div>
           <div class="form-group" style="margin-bottom: 20px;">
             <label for="loginMemberDropdown">Select Your Name</label>
@@ -1438,10 +1476,10 @@
           </div>
           <div class="form-group" style="margin-bottom: 24px;">
             <label for="loginMemberPin">Enter Your PIN</label>
-            <input type="password" id="loginMemberPin" placeholder="Default PIN is 1234" required style="padding: 12px;">
+            <input type="password" id="loginMemberPin" placeholder="Default PIN is 1234" required style="padding: 12px;" onkeydown="if(event.key==='Enter'){ event.preventDefault(); submitMemberLogin(event); }">
           </div>
-          <button class="btn btn-primary" onclick="submitMemberLogin()" style="width: 100%; padding: 12px; font-size: 15px;">Verify & Open Logger</button>
-        </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">Verify & Open Logger</button>
+        </form>
 
         <!-- 2. Member Logger Container (shown when logged in) -->
         <div id="memberLoggerContainer" style="display: none;">
@@ -5105,92 +5143,127 @@
 
     // Draw Chart.js Visualizations
     function renderCharts() {
+      if (!state.members) return;
       const labels = state.members.map(m => m.Name);
       const dataValues = labels.map(name => {
-        const perf = state.memberPerformance[name];
+        const perf = state.memberPerformance ? state.memberPerformance[name] : null;
         if (!perf) return 0;
-        // Map total points for bar chart
         return (perf.c6s * 0.5) + (perf.c10s * 1.0) + (perf.c15s * 1.5) + (perf.c20s * 2.0) + (perf.c30s * 2.5) + (perf.c1m * 3.0) + (perf.sp * 0.5);
       });
       
       // 1. Performance Bar Chart
-      const ctxBar = document.getElementById('performanceChart').getContext('2d');
-      if (performanceChartObj) performanceChartObj.destroy();
-      
-      performanceChartObj = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Total Performance Points',
-            data: dataValues,
-            backgroundColor: 'rgba(16, 185, 129, 0.7)',
-            borderColor: '#10b981',
-            borderWidth: 1,
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            x: {
-              grid: { color: state.theme === 'dark' ? '#233044' : '#e2e8f0' },
-              ticks: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b' }
+      try {
+        const barEl = document.getElementById('performanceChart');
+        if (barEl) {
+          const ctxBar = barEl.getContext('2d');
+          if (performanceChartObj) performanceChartObj.destroy();
+          performanceChartObj = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Total Performance Points',
+                data: dataValues,
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderColor: '#10b981',
+                borderWidth: 1,
+                borderRadius: 6
+              }]
             },
-            y: {
-              grid: { color: state.theme === 'dark' ? '#233044' : '#e2e8f0' },
-              ticks: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b', stepSize: 2 }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                x: {
+                  grid: { color: state.theme === 'dark' ? '#233044' : '#e2e8f0' },
+                  ticks: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b' }
+                },
+                y: {
+                  grid: { color: state.theme === 'dark' ? '#233044' : '#e2e8f0' },
+                  ticks: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b', stepSize: 2 }
+                }
+              }
             }
-          }
+          });
         }
-      });
+      } catch(e) {
+        console.error("Bar chart error:", e);
+      }
       
       // 2. Content Type Breakdown Chart (Doughnut Chart)
-      const ctxPie = document.getElementById('contentBreakdownChart').getContext('2d');
-      if (contentBreakdownChartObj) contentBreakdownChartObj.destroy();
-      
-      contentBreakdownChartObj = new Chart(ctxPie, {
-        type: 'doughnut',
-        data: {
-          labels: ['6s', '10s', '15s', '20s', '30s', '1m', 'Social Post'],
-          datasets: [{
-            data: [
-              state.totals.content6s || 0,
-              state.totals.content10s || 0,
-              state.totals.content15s || 0,
-              state.totals.content20s || 0,
-              state.totals.content30s || 0,
-              state.totals.content1m || 0,
-              state.totals.socialPost || 0
-            ],
-            backgroundColor: [
-              '#ec4899', // Pink
-              '#10b981', // Neon
-              '#f59e0b', // Yellow
-              '#06b6d4', // Cyan
-              '#8b5cf6', // Violet
-              '#3b82f6', // Blue
-              '#6366f1'  // Indigo
-            ],
-            borderWidth: 2,
-            borderColor: state.theme === 'dark' ? '#141b2d' : '#ffffff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'right',
-              labels: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b' }
-            }
+      try {
+        const pieEl = document.getElementById('contentBreakdownChart');
+        if (pieEl) {
+          let totals = state.totals ? Object.assign({}, state.totals) : { content6s: 0, content10s: 0, content15s: 0, content20s: 0, content30s: 0, content1m: 0, socialPost: 0 };
+          let sumTotals = (totals.content6s || 0) + (totals.content10s || 0) + (totals.content15s || 0) + (totals.content20s || 0) + (totals.content30s || 0) + (totals.content1m || 0) + (totals.socialPost || 0);
+
+          if (sumTotals === 0 && state.assignments && Array.isArray(state.assignments)) {
+            totals = { content6s: 0, content10s: 0, content15s: 0, content20s: 0, content30s: 0, content1m: 0, socialPost: 0 };
+            state.assignments.forEach(function(t) {
+              const type = getTaskType(t);
+              const qty = Number(t.Quantity) || 1;
+              if (type === 'Social Media Post') {
+                totals.socialPost += qty;
+              } else {
+                const noteStr = String(t.Note || '') + ' ' + String(t.Status || '');
+                if (/\b(6s|6 sec)\b/i.test(noteStr)) totals.content6s += qty;
+                else if (/\b(10s|10 sec)\b/i.test(noteStr)) totals.content10s += qty;
+                else if (/\b(15s|15 sec)\b/i.test(noteStr)) totals.content15s += qty;
+                else if (/\b(20s|20 sec)\b/i.test(noteStr)) totals.content20s += qty;
+                else if (/\b(30s|30 sec)\b/i.test(noteStr)) totals.content30s += qty;
+                else if (/\b(1m|1 min)\b/i.test(noteStr)) totals.content1m += qty;
+                else totals.content10s += qty;
+              }
+            });
           }
+
+          const ctxPie = pieEl.getContext('2d');
+          if (contentBreakdownChartObj) contentBreakdownChartObj.destroy();
+          contentBreakdownChartObj = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+              labels: ['6s', '10s', '15s', '20s', '30s', '1m', 'Social Post'],
+              datasets: [{
+                data: [
+                  totals.content6s || 0,
+                  totals.content10s || 0,
+                  totals.content15s || 0,
+                  totals.content20s || 0,
+                  totals.content30s || 0,
+                  totals.content1m || 0,
+                  totals.socialPost || 0
+                ],
+                backgroundColor: [
+                  '#ec4899', // Pink
+                  '#10b981', // Neon
+                  '#f59e0b', // Yellow
+                  '#06b6d4', // Cyan
+                  '#8b5cf6', // Violet
+                  '#3b82f6', // Blue
+                  '#6366f1'  // Indigo
+                ],
+                borderWidth: 2,
+                borderColor: state.theme === 'dark' ? '#141b2d' : '#ffffff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'right',
+                  labels: { color: state.theme === 'dark' ? '#8e9bb2' : '#64748b' }
+                }
+              }
+            }
+          });
         }
-      });
+      } catch(e) {
+        console.error("Breakdown chart error:", e);
+      }
     }
 
     // Render Assignments Board
@@ -5834,7 +5907,8 @@
       }
     }
 
-    function submitMemberLogin() {
+    function submitMemberLogin(e) {
+      if (e && e.preventDefault) e.preventDefault();
       const name = document.getElementById('loginMemberDropdown').value;
       const pin = document.getElementById('loginMemberPin').value;
       
@@ -6004,6 +6078,10 @@
     function submitDailyWork(e) {
       e.preventDefault();
       
+      const submitBtn = document.getElementById('btnSubmitLog');
+      if (submitBtn && submitBtn.disabled) return; // Prevent double click
+      if (submitBtn) submitBtn.disabled = true;
+      
       const rowIndex = document.getElementById('editLogRowIndex').value;
       const isEdit = rowIndex !== "";
       
@@ -6036,6 +6114,7 @@
       };
       
       if (!logData.memberName) {
+        if (submitBtn) submitBtn.disabled = false;
         showToast("Please select a member name first", "error");
         return;
       }
@@ -6045,104 +6124,21 @@
         const matched = state.assignments.find(a => String(a.MPROID).trim() === logData.mproId);
         if (!matched) {
           if (!logData.assignDate) {
+            if (submitBtn) submitBtn.disabled = false;
             showToast("Assign Date is required for a new MPRO ID!", "error");
             return;
           }
           if (!logData.assignQty) {
+            if (submitBtn) submitBtn.disabled = false;
             showToast("Total Qty is required for a new MPRO ID!", "error");
             return;
           }
         }
       }
       
-      // Perform Supabase update/insert synchronously in the frontend
-      async function syncToSupabase() {
-        try {
-          if (isEdit) {
-            await supabaseClient.from('daily_logs').update({
-              date: logData.date,
-              member_name: logData.memberName,
-              content_6s: Number(logData.content6s) || 0,
-              content_10s: Number(logData.content10s) || 0,
-              content_15s: Number(logData.content15s) || 0,
-              content_20s: Number(logData.content20s) || 0,
-              content_30s: Number(logData.content30s) || 0,
-              content_1m: Number(logData.content1m) || 0,
-              social_post: Number(logData.socialPost) || 0,
-              note: logData.note || "",
-              mpro_id: logData.mproId || "",
-              mpro_link: logData.mproLink || ""
-            }).eq('id', Number(rowIndex));
-            
-            if (logData.mproId) {
-              await syncAssignmentCompletedQty(logData.mproId);
-            }
-          } else {
-            await supabaseClient.from('daily_logs').insert({
-              date: logData.date,
-              member_name: logData.memberName,
-              content_6s: Number(logData.content6s) || 0,
-              content_10s: Number(logData.content10s) || 0,
-              content_15s: Number(logData.content15s) || 0,
-              content_20s: Number(logData.content20s) || 0,
-              content_30s: Number(logData.content30s) || 0,
-              content_1m: Number(logData.content1m) || 0,
-              social_post: Number(logData.socialPost) || 0,
-              note: logData.note || "",
-              mpro_id: logData.mproId || "",
-              mpro_link: logData.mproLink || ""
-            });
-            
-            if (logData.mproId) {
-              const sumQty = (Number(logData.content6s) || 0) + 
-                             (Number(logData.content10s) || 0) + 
-                             (Number(logData.content15s) || 0) + 
-                             (Number(logData.content20s) || 0) + 
-                             (Number(logData.content30s) || 0) + 
-                             (Number(logData.content1m) || 0) + 
-                             (Number(logData.socialPost) || 0);
-                             
-              const { data: existing } = await supabaseClient
-                .from('assignments')
-                .select('task_id')
-                .eq('mpro_id', logData.mproId)
-                .maybeSingle();
-                
-              if (existing) {
-                await supabaseClient.from('assignments').update({
-                  status: logData.status || "Work Submitted",
-                  mpro_link: logData.mproLink
-                }).eq('task_id', existing.task_id);
-              } else {
-                const generatedTaskId = "T-" + Math.floor(100000 + Math.random() * 900000);
-                await supabaseClient.from('assignments').insert({
-                  task_id: generatedTaskId,
-                  mpro_id: logData.mproId,
-                  mpro_link: logData.mproLink,
-                  assign_date: logData.assignDate,
-                  brands: logData.brand || "",
-                  member_name: logData.memberName,
-                  quantity: Number(logData.assignQty) || sumQty || 1,
-                  completed_qty: sumQty || 0,
-                  status: logData.status || "Work Submitted",
-                  note: logData.note || ""
-                });
-              }
-              await syncAssignmentCompletedQty(logData.mproId);
-            }
-          }
-        } catch (e) {
-          console.error("Supabase sync failed:", e);
-        }
-      }
-      
-      const submitBtn = document.getElementById('btnSubmitLog');
-      if (submitBtn) submitBtn.disabled = true;
-      
       showLoading(true, isEdit ? "Updating content log..." : "Recording daily content sizes...");
       
-      const successCb = async function(resp) {
-        await syncToSupabase();
+      const successCb = function(resp) {
         if (submitBtn) submitBtn.disabled = false;
         showLoading(false);
         showToast(resp.message, "success");
@@ -6762,26 +6758,28 @@
       let targetSubmitted = 0;
       let targetApproved = 0;
       
+      if (!state.assignments || !Array.isArray(state.assignments)) state.assignments = [];
+      if (!state.members || !Array.isArray(state.members)) state.members = [];
+      if (!state.dailyLogs || !Array.isArray(state.dailyLogs)) state.dailyLogs = [];
+      
       // 1. Submitted: Sum of all content items logged in DailyLogs for the selected date
-      if (state.dailyLogs && Array.isArray(state.dailyLogs)) {
-        state.dailyLogs.forEach(function(log) {
-          const logDateYMD = normalizeDateToYMD(log.Date);
-          if (logDateYMD === targetDateYMD) {
-            if (typeFilter === 'Full Content') {
-              const c6 = Number(log.Content6s || 0);
-              const c10 = Number(log.Content10s || 0);
-              const c15 = Number(log.Content15s || 0);
-              const c20 = Number(log.Content20s || 0);
-              const c30 = Number(log.Content30s || 0);
-              const c1m = Number(log.Content1m || 0);
-              targetSubmitted += (c6 + c10 + c15 + c20 + c30 + c1m);
-            } else {
-              const sp = Number(log.SocialPost || 0);
-              targetSubmitted += sp;
-            }
+      state.dailyLogs.forEach(function(log) {
+        const logDateYMD = normalizeDateToYMD(log.Date);
+        if (logDateYMD === targetDateYMD) {
+          if (typeFilter === 'Full Content') {
+            const c6 = Number(log.Content6s || 0);
+            const c10 = Number(log.Content10s || 0);
+            const c15 = Number(log.Content15s || 0);
+            const c20 = Number(log.Content20s || 0);
+            const c30 = Number(log.Content30s || 0);
+            const c1m = Number(log.Content1m || 0);
+            targetSubmitted += (c6 + c10 + c15 + c20 + c30 + c1m);
+          } else {
+            const sp = Number(log.SocialPost || 0);
+            targetSubmitted += sp;
           }
-        });
-      }
+        }
+      });
       
       // 2. Approved: Count from assignments for the selected date
       state.assignments.forEach(function(t) {
@@ -6798,6 +6796,30 @@
       const elApprovedVal = document.getElementById('todayApprovedVal');
       if (elSubmittedVal) elSubmittedVal.innerText = targetSubmitted + " items";
       if (elApprovedVal) elApprovedVal.innerText = targetApproved + " items";
+      
+      // Populate Daily Work Submissions History Table
+      const dailyProgressTbody = document.getElementById('dailyProgressTableBody');
+      if (dailyProgressTbody) {
+        if (state.dailyLogs && state.dailyLogs.length > 0) {
+          const rowsHTML = state.dailyLogs.slice(0, 30).map(function(log) {
+            const formats = getLogDetailsText(log);
+            const mproLink = log.MproLink || (log.MproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + log.MproId) : "#");
+            const mproBadge = log.MproId ? `<a href="${mproLink}" target="_blank" style="color: var(--accent-blue); font-weight: 700; text-decoration: none;">#${log.MproId} ↗</a>` : '-';
+            const cleanNote = cleanNoteText(log.Note || '');
+            
+            return `<tr>
+              <td style="font-weight: 700;">${log.Date || '-'}</td>
+              <td style="font-weight: 700; color: var(--text-main);">${log.MemberName || '-'}</td>
+              <td><span class="status-badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-weight:700; border: 1px solid rgba(16, 185, 129, 0.2);">${formats}</span></td>
+              <td>${mproBadge}</td>
+              <td style="font-size: 11px; color: var(--text-muted);">${cleanNote || '-'}</td>
+            </tr>`;
+          }).join('');
+          dailyProgressTbody.innerHTML = rowsHTML;
+        } else {
+          dailyProgressTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">No daily work submissions found.</td></tr>`;
+        }
+      }
       
       // Compute member workload stats
       const memberStats = {};
@@ -8674,9 +8696,16 @@
 
     // Dashboard Sub-Tabs Toggler
     window.switchDashboardSubTab = function(subTabId) {
-      document.querySelectorAll('.db-sub-panel').forEach(p => p.style.display = 'none');
+      document.querySelectorAll('.db-sub-panel').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+      });
+      
       const targetPanel = document.getElementById('dbPanel_' + subTabId);
-      if (targetPanel) targetPanel.style.display = 'block';
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+        targetPanel.style.display = 'block';
+      }
       
       document.querySelectorAll('.sub-tab-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -8689,6 +8718,19 @@
         activeBtn.classList.add('active');
         activeBtn.style.background = 'var(--primary)';
         activeBtn.style.color = '#fff';
+      }
+
+      if (subTabId === 'progress') {
+        try { updateAssignmentsAnalytics(); } catch(e) { console.error("Error updating analytics:", e); }
+        try { renderCharts(); } catch(e) { console.error("Error rendering charts:", e); }
+        setTimeout(function() {
+          try {
+            if (contentBreakdownChartObj) {
+              contentBreakdownChartObj.resize();
+              contentBreakdownChartObj.update();
+            }
+          } catch(e) {}
+        }, 100);
       }
     };
 
