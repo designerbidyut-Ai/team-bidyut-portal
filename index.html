@@ -1304,6 +1304,14 @@
           <div id="unstartedTasksCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
             <!-- Unstarted task cards will be rendered dynamically here -->
           </div>
+        <!-- Member Workload Breakdown & Top Brands (Dashboard View) -->
+        <div style="margin-top: 35px; margin-bottom: 35px; background: transparent;">
+          <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            📊 Member Workload Breakdown & Top Brands
+          </h4>
+          <div id="dashboardMemberWorkloadGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+            <!-- Member Workload Cards will be populated here -->
+          </div>
         </div>
 
         <!-- Leaderboard Table -->
@@ -2992,6 +3000,8 @@
               
               const mappedAssignments = assignments.map(a => ({
                 TaskID: a.task_id || ("T-" + a.mpro_id),
+                MPROID: a.mpro_id,
+                MPROLink: a.mpro_link || ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + a.mpro_id),
                 AssignDate: a.assign_date,
                 Group: a.brands,
                 MemberName: a.member_name,
@@ -3000,7 +3010,9 @@
                 CompletedQty: a.completed_qty,
                 Status: a.status || "Not Started",
                 SubmitDate: a.submit_date,
-                ApproveDate: a.approve_date
+                ApproveDate: a.approve_date,
+                Deadline: a.deadline || "",
+                Note: a.note || ""
               }));
               
               const taskStats = {
@@ -3056,7 +3068,8 @@
                 SubmitDate: a.submit_date,
                 ApproveDate: a.approve_date,
                 Deadline: a.deadline || "",
-                MPROLink: a.mpro_link || ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + a.mpro_id)
+                MPROLink: a.mpro_link || ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + a.mpro_id),
+                Note: a.note || ""
               }));
               if (this.successHandler) this.successHandler(mapped);
             } catch(e) {
@@ -5218,15 +5231,22 @@
         const rVal = 10;
         const circumference = 2 * Math.PI * rVal;
         const offset = circumference - (percent / 100) * circumference;
-        
+
+        const taskType = getTaskType(task);
+        const isSocialPost = taskType === 'Social Media Post';
+        const rowStyle = isSocialPost ? 'background: rgba(236, 72, 153, 0.05); border-left: 4px solid #ec4899;' : '';
+        const socialBadge = isSocialPost 
+          ? `<span style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #ffffff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 12px; margin-left: 6px; display: inline-flex; align-items: center; gap: 3px; vertical-align: middle; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);">🎨 Social Post</span>` 
+          : '';
+
         tbody.innerHTML += `
-          <tr>
+          <tr style="${rowStyle}">
             <td>${task.AssignDate}</td>
-            <td style="font-family:monospace; font-size:15px; font-weight:800; color: var(--accent-cyan);">${task.MPROID}</td>
+            <td style="font-family:monospace; font-size:15px; font-weight:800; color: ${isSocialPost ? '#ec4899' : 'var(--accent-cyan)'};">${task.MPROID}${socialBadge}</td>
             <td>
               <a href="${task.MPROLink}" target="_blank" class="mpro-link">Open MPRO Link</a>
             </td>
-            <td><span class="status-badge" style="background-color:rgba(0,0,0,0.1); color:var(--text-main); border: 1px solid var(--border-color);">${task.Group}</span></td>
+            <td><span class="status-badge" style="background-color:${isSocialPost ? 'rgba(236, 72, 153, 0.15)' : 'rgba(0,0,0,0.1)'}; color:${isSocialPost ? '#f472b6' : 'var(--text-main)'}; border: 1px solid ${isSocialPost ? 'rgba(236, 72, 153, 0.3)' : 'var(--border-color)'};">${task.Group}</span></td>
             <td>
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="position: relative; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -6787,7 +6807,8 @@
           activeTasks: 0,
           totalQty: 0,
           completedQty: 0,
-          brands: {}
+          brands: {},
+          pendingTasks: []
         };
       });
       
@@ -6798,11 +6819,24 @@
           const mName = m.Name;
           if (assignedToRaw.includes(mName)) {
             const st = t.Status.toLowerCase();
-            const isActive = !st.includes('completed') && !st.includes('approved') && !st.includes('ok') && !st.includes('pass') && !st.includes('submit');
+            const isCompleted = st.includes('completed') || st.includes('approved') || st.includes('ok') || st.includes('pass');
+            const isSubmitted = st.includes('submit');
+            const isActive = !isCompleted && !isSubmitted;
             
             if (isActive) memberStats[mName].activeTasks++;
             memberStats[mName].totalQty += Number(t.Quantity) || 0;
             memberStats[mName].completedQty += Number(t.CompletedQty) || 0;
+            
+            const totalQ = Number(t.Quantity) || 1;
+            const compQ = Number(t.CompletedQty) || 0;
+            if (!isCompleted && !isSubmitted && (totalQ > compQ) && t.AssignDate) {
+              const link = t.MPROLink || (t.MPROID ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + t.MPROID) : "#");
+              memberStats[mName].pendingTasks.push({
+                date: t.AssignDate,
+                mproLink: link,
+                mproId: t.MPROID || ''
+              });
+            }
             
             if (t.Group) {
               memberStats[mName].brands[t.Group] = (memberStats[mName].brands[t.Group] || 0) + 1;
@@ -6824,65 +6858,129 @@
         return a.completedQty - b.completedQty;
       });
       
-      // Populate member workload breakdown grid
+      // Populate member workload breakdown grid (both Task Assignments view and Dashboard view)
       const grid = document.getElementById('memberWorkloadGrid');
-      if (grid) {
-        grid.innerHTML = '';
-        sortedMembers.forEach(function(stats) {
-          const leftQty = Math.max(0, stats.totalQty - stats.completedQty);
-          
-          // Determine top brand and count
-          let topBrand = 'None';
-          let maxCount = 0;
-          for (let b in stats.brands) {
-            if (stats.brands[b] > maxCount) {
-              maxCount = stats.brands[b];
-              topBrand = b;
-            }
+      const dbGrid = document.getElementById('dashboardMemberWorkloadGrid');
+      
+      let cardsHTML = '';
+      sortedMembers.forEach(function(stats) {
+        const leftQty = Math.max(0, stats.totalQty - stats.completedQty);
+        
+        // Determine top brand and count
+        let topBrand = 'None';
+        let maxCount = 0;
+        for (let b in stats.brands) {
+          if (stats.brands[b] > maxCount) {
+            maxCount = stats.brands[b];
+            topBrand = b;
           }
-          
-          const progressPercent = stats.totalQty > 0 ? Math.round((stats.completedQty / stats.totalQty) * 100) : 0;
-          
-          const member = state.members ? state.members.find(function(m) { return m.Name === stats.name; }) : null;
-          const hasAvatar = member && member.Avatar && member.Avatar.trim() !== "";
-          const initials = stats.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+        }
+        
+        // Extract oldest 2 unfinished, unsubmitted assign dates & MPRO links
+        const sortedTasks = (stats.pendingTasks || []).filter(item => item && item.date).sort(function(a, b) {
+          const dA = new Date(a.date).getTime() || 0;
+          const dB = new Date(b.date).getTime() || 0;
+          return dA - dB;
+        });
+        
+        const uniqueTasks = [];
+        const seenDates = new Set();
+        sortedTasks.forEach(function(item) {
+          if (!seenDates.has(item.date)) {
+            seenDates.add(item.date);
+            uniqueTasks.push(item);
+          }
+        });
+        const oldest2 = uniqueTasks.slice(0, 2);
+        
+        let oldestDisplayHTML = '';
+        const todayTime = new Date().setHours(0,0,0,0);
+        
+        if (oldest2.length === 0) {
+          oldestDisplayHTML = `<span class="status-badge" style="font-size: 10px; background: rgba(255,255,255,0.05); color: var(--text-muted); font-weight:700; border: 1px solid var(--border-color);">None</span>`;
+        } else {
+          oldestDisplayHTML = oldest2.map(function(item) {
+            const dStr = item.date;
+            const formattedDate = String(dStr).replace(/\b20(\d{2})\b/g, '$1'); // Convert 2026 -> 26
+            const dTime = new Date(dStr).setHours(0,0,0,0);
+            const diffDays = isNaN(dTime) ? 0 : Math.floor((todayTime - dTime) / (1000 * 60 * 60 * 24));
+            const daysText = diffDays <= 0 ? 'Today' : (diffDays + 'd');
+            
+            let bg = 'rgba(16, 185, 129, 0.15)';
+            let color = '#10b981';
+            let border = 'rgba(16, 185, 129, 0.35)';
+            let icon = '🟢';
+            
+            if (diffDays > 7) {
+              // Very old (> 7 days) -> Red
+              bg = 'rgba(239, 68, 68, 0.18)';
+              color = '#ef4444';
+              border = 'rgba(239, 68, 68, 0.4)';
+              icon = '🔴';
+            } else if (diffDays > 3) {
+              // Moderately old (4 to 7 days) -> Amber
+              bg = 'rgba(245, 158, 11, 0.18)';
+              color = '#f59e0b';
+              border = 'rgba(245, 158, 11, 0.4)';
+              icon = '🔸';
+            }
+            
+            return `<a href="${item.mproLink}" target="_blank" onclick="event.stopPropagation();" class="status-badge" style="font-size: 10px; background: ${bg}; color: ${color}; font-weight:800; border: 1px solid ${border}; padding: 2px 7px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='none';" title="Click to open MPRO #${item.mproId} (Assigned on ${formattedDate}, ${diffDays} days ago)">${icon} ${daysText} ↗</a>`;
+          }).join(' ');
+        }
+        
+        const progressPercent = stats.totalQty > 0 ? Math.round((stats.completedQty / stats.totalQty) * 100) : 0;
+        
+        const member = state.members ? state.members.find(function(m) { return m.Name === stats.name; }) : null;
+        const hasAvatar = member && member.Avatar && member.Avatar.trim() !== "";
+        const initials = stats.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
 
-          grid.innerHTML += `
-            <div style="padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; gap: 10px;">
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <!-- Avatar -->
-                ${hasAvatar 
-                  ? `<img src="${member.Avatar}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color); flex-shrink: 0;">`
-                  : `<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-surface-hover); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 1.5px solid var(--border-color); flex-shrink: 0;">${initials}</div>`
-                }
-                <!-- Info -->
-                <div style="flex-grow: 1; min-width: 0;">
-                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${stats.name}">${stats.name}</div>
-                  <span class="status-badge" style="font-size: 9px; padding: 1px 4px; background: ${stats.activeTasks > 3 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${stats.activeTasks > 3 ? '#ef4444' : '#10b981'}; border: none; font-weight: 800; border-radius: 4px; display: inline-block; margin-top: 2px;">
-                    ${stats.activeTasks} ACTIVE
-                  </span>
-                </div>
-              </div>
-              <div style="font-size: 11px; color: var(--text-muted);">
-                Items Done: <span style="font-weight:700; color:var(--text-main);">${stats.completedQty}/${stats.totalQty}</span> | Left: <span style="font-weight:700; color:var(--accent-pink);">${leftQty}</span>
-              </div>
-              
-              <!-- Progress Bar -->
-              <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
-                <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 3px;"></div>
-              </div>
-              
-              <!-- Top Brand info -->
-              <div style="font-size: 11px; display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                <span style="color: var(--text-muted);">Top Brand:</span>
-                <span class="status-badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-weight:700; border: 1px solid rgba(16, 185, 129, 0.2);">
-                  ${topBrand} ${maxCount > 0 ? '(' + maxCount + ' works)' : ''}
+        cardsHTML += `
+          <div style="padding: 14px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--primary)'; this.style.boxShadow='0 8px 20px rgba(16, 185, 129, 0.15)';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-color)'; this.style.boxShadow='none';">
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <!-- Avatar -->
+              ${hasAvatar 
+                ? `<img src="${member.Avatar}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color); flex-shrink: 0;">`
+                : `<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-surface-hover); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 1.5px solid var(--border-color); flex-shrink: 0;">${initials}</div>`
+              }
+              <!-- Info -->
+              <div style="flex-grow: 1; min-width: 0;">
+                <div style="font-weight: 700; font-size: 13px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${stats.name}">${stats.name}</div>
+                <span class="status-badge" style="font-size: 9px; padding: 1px 4px; background: ${stats.activeTasks > 3 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${stats.activeTasks > 3 ? '#ef4444' : '#10b981'}; border: none; font-weight: 800; border-radius: 4px; display: inline-block; margin-top: 2px;">
+                  ${stats.activeTasks} ACTIVE
                 </span>
               </div>
             </div>
-          `;
-        });
-      }
+            <div style="font-size: 11px; color: var(--text-muted);">
+              Items Done: <span style="font-weight:700; color:var(--text-main);">${stats.completedQty}/${stats.totalQty}</span> | Left: <span style="font-weight:700; color:var(--accent-pink);">${leftQty}</span>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+              <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 3px;"></div>
+            </div>
+            
+            <!-- Top Brand info -->
+            <div style="font-size: 11px; display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+              <span style="color: var(--text-muted);">Top Brand:</span>
+              <span class="status-badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-weight:700; border: 1px solid rgba(16, 185, 129, 0.2);">
+                ${topBrand} ${maxCount > 0 ? '(' + maxCount + ' works)' : ''}
+              </span>
+            </div>
+
+            <!-- Oldest Assign info -->
+            <div style="font-size: 11px; display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+              <span style="color: var(--text-muted);">Oldest Assign:</span>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end;">
+                ${oldestDisplayHTML}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      if (grid) grid.innerHTML = cardsHTML;
+      if (dbGrid) dbGrid.innerHTML = cardsHTML;
     }
     function onLogMproLinkChange(mproLink) {
       mproLink = String(mproLink).trim();
