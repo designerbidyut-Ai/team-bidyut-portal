@@ -1215,6 +1215,31 @@
 
         <!-- Sub Panel 1: Overview -->
         <div id="dbPanel_overview" class="db-sub-panel active">
+          <!-- Monthly Billing Cycle Filter Bar (Default 21st to 20th) -->
+          <div class="card" style="margin-bottom: 24px; padding: 14px 20px; background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(59, 130, 246, 0.03) 100%); border: 1.5px solid var(--border-color); border-radius: 14px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">🗓️</div>
+                <div>
+                  <div style="font-weight: 800; font-size: 14px; color: var(--text-main); font-family: 'Outfit', sans-serif;">Performance & Leaderboard Billing Cycle</div>
+                  <div style="font-size: 11px; color: var(--text-muted); font-weight: 500;">Default monthly cycle runs from <strong>21st of previous month to 20th of current month</strong></div>
+                </div>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <select id="leaderboardCycleSelect" onchange="onLeaderboardCycleChange()" style="padding: 8px 14px; font-weight: 700; font-size: 12px; border-radius: 8px; background: var(--bg-base); border: 1.5px solid var(--border-color); color: var(--text-main); cursor: pointer; outline: none;">
+                  <!-- Dynamically populated options -->
+                </select>
+                
+                <div id="customCycleDateGroup" style="display: none; align-items: center; gap: 6px;">
+                  <input type="date" id="customCycleStart" onchange="onLeaderboardCycleChange()" style="padding: 7px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-base); color: var(--text-main);" />
+                  <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">to</span>
+                  <input type="date" id="customCycleEnd" onchange="onLeaderboardCycleChange()" style="padding: 7px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-base); color: var(--text-main);" />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 1. Top Wide KPI Summary Cards Grid -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 26px;">
             <!-- Card 1: Videos Completed -->
@@ -1392,44 +1417,66 @@
             </div>
 
             <!-- Daily Work Progress Card -->
-            <div class="metric-card" style="padding: 28px; display: flex; flex-direction: column; justify-content: space-between; border: 1.5px solid rgba(16, 185, 129, 0.35); background: var(--bg-surface); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); border-radius: 16px;">
+            <div class="metric-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1.5px solid rgba(16, 185, 129, 0.35); background: var(--bg-surface); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); border-radius: 16px;">
               <div>
                 <!-- Header Row -->
-                <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; border-bottom: 2px solid var(--border-color); padding-bottom: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; border-bottom: 2px solid var(--border-color); padding-bottom: 14px;">
                   <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 20px;">📊</span>
                     <span class="metric-title" style="font-size: 14px; text-transform: uppercase; font-weight: 900; letter-spacing: 1px; color: var(--primary); margin-bottom: 0;">Daily Work Progress</span>
                   </div>
                   <!-- Large, High-Contrast Custom Date Input -->
                   <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="date" id="overviewDateSelector" onchange="updateAssignmentsAnalytics()" onclick="this.showPicker()" style="width: 100%; font-size: 18px; font-weight: 800; padding: 12px 16px; border: 2px solid var(--primary); border-radius: 10px; background: var(--input-bg); color: var(--text-main); font-family: 'Outfit', sans-serif; cursor: pointer; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.06); text-align: center; transition: all 0.2s;">
+                    <input type="date" id="overviewDateSelector" onchange="updateAssignmentsAnalytics()" onclick="this.showPicker()" style="width: 100%; font-size: 16px; font-weight: 800; padding: 10px 14px; border: 2px solid var(--primary); border-radius: 10px; background: var(--input-bg); color: var(--text-main); font-family: 'Outfit', sans-serif; cursor: pointer; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.06); text-align: center; transition: all 0.2s;">
                   </div>
                 </div>
                 
-                <!-- Metrics Layout -->
-                <div style="display: flex; flex-direction: column; gap: 18px;">
-                  <!-- 1. Work Submitted Block -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; background: rgba(245, 158, 11, 0.06); border: 1.5px solid rgba(245, 158, 11, 0.25); border-radius: 12px; box-shadow: var(--shadow-sm);">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                      <div style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: rgba(245, 158, 11, 0.15); border-radius: 50%; font-size: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.08);">📤</div>
-                      <div style="font-size: 15px; font-weight: 800; color: var(--text-main); letter-spacing: 0.2px;">Work Submitted</div>
+                <!-- 4 Big Number KPI Grid -->
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                  <!-- WORK SUBMITTED SECTION -->
+                  <div>
+                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #f59e0b; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                      <span style="display: flex; align-items: center; gap: 6px;"><span>📤</span> Work Submitted</span>
+                      <span id="todaySubmittedTotalVal" style="font-size: 12px; font-weight: 800; color: var(--text-muted);">0 items</span>
                     </div>
-                    <div id="todaySubmittedVal" style="font-size: 30px; font-weight: 900; color: #f59e0b; font-family: 'Outfit', sans-serif;">0 items</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                      <!-- 1. Video Content Submitted -->
+                      <div style="padding: 12px 14px; background: rgba(245, 158, 11, 0.06); border: 1.5px solid rgba(245, 158, 11, 0.25); border-radius: 12px; text-align: center;">
+                        <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">🎬 Video Content</div>
+                        <div id="todaySubmittedVideoVal" style="font-size: 32px; font-weight: 900; color: #f59e0b; font-family: 'Outfit', sans-serif; line-height: 1;">0</div>
+                      </div>
+                      <!-- 2. Social Post Submitted -->
+                      <div style="padding: 12px 14px; background: rgba(245, 158, 11, 0.06); border: 1.5px solid rgba(245, 158, 11, 0.25); border-radius: 12px; text-align: center;">
+                        <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">🎨 Social Post</div>
+                        <div id="todaySubmittedSocialVal" style="font-size: 32px; font-weight: 900; color: #f59e0b; font-family: 'Outfit', sans-serif; line-height: 1;">0</div>
+                      </div>
+                    </div>
                   </div>
                   
-                  <!-- 2. Work Approved Block -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; background: rgba(16, 185, 129, 0.06); border: 1.5px solid rgba(16, 185, 129, 0.25); border-radius: 12px; box-shadow: var(--shadow-sm);">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                      <div style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.15); border-radius: 50%; font-size: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.08);">✅</div>
-                      <div style="font-size: 15px; font-weight: 800; color: var(--text-main); letter-spacing: 0.2px;">Work Approved</div>
+                  <!-- WORK APPROVED SECTION -->
+                  <div>
+                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #10b981; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                      <span style="display: flex; align-items: center; gap: 6px;"><span>✅</span> Work Approved</span>
+                      <span id="todayApprovedTotalVal" style="font-size: 12px; font-weight: 800; color: var(--text-muted);">0 items</span>
                     </div>
-                    <div id="todayApprovedVal" style="font-size: 30px; font-weight: 900; color: #10b981; font-family: 'Outfit', sans-serif;">0 items</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                      <!-- 3. Video Content Approved -->
+                      <div style="padding: 12px 14px; background: rgba(16, 185, 129, 0.06); border: 1.5px solid rgba(16, 185, 129, 0.25); border-radius: 12px; text-align: center;">
+                        <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">🎬 Video Content</div>
+                        <div id="todayApprovedVideoVal" style="font-size: 32px; font-weight: 900; color: #10b981; font-family: 'Outfit', sans-serif; line-height: 1;">0</div>
+                      </div>
+                      <!-- 4. Social Post Approved -->
+                      <div style="padding: 12px 14px; background: rgba(16, 185, 129, 0.06); border: 1.5px solid rgba(16, 185, 129, 0.25); border-radius: 12px; text-align: center;">
+                        <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">🎨 Social Post</div>
+                        <div id="todayApprovedSocialVal" style="font-size: 32px; font-weight: 900; color: #10b981; font-family: 'Outfit', sans-serif; line-height: 1;">0</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               
               <!-- Footer text -->
-              <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 24px; font-style: italic; border-top: 1px solid var(--border-color); padding-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;">
+              <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 18px; font-style: italic; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;">
                 <span>⚡</span> Real-time Performance Tracking
               </div>
             </div>
@@ -2803,9 +2850,14 @@
         <label for="statusNote">Progress Note / Feedback</label>
         <textarea id="statusNote" rows="3" placeholder="Add comment, screenshot links, or updates..."></textarea>
       </div>
-      <div style="display:flex; justify-content: flex-end; gap: 12px;">
-        <button class="btn btn-outline" onclick="closeStatusModal()">Cancel</button>
-        <button class="btn btn-primary" id="btnSubmitStatus" onclick="submitStatusUpdate()">Save Status</button>
+      <div style="display:flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px;">
+        <button type="button" class="btn btn-outline" onclick="handleModalDeleteTask()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); font-weight: 700;">
+          🗑️ Delete Task
+        </button>
+        <div style="display: flex; gap: 12px;">
+          <button type="button" class="btn btn-outline" onclick="closeStatusModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnSubmitStatus" onclick="submitStatusUpdate()">Save Status</button>
+        </div>
       </div>
     </div>
   </div>
@@ -5055,16 +5107,214 @@
       // Initialize/Sync the custom searchable selector with member avatars
       initMemberSearchableSelect('assignMemberDropdownSelect');
     }
+    // Helper to calculate filtered performance for members for a given date range [startDateStr, endDateStr]
+    function getFilteredPerformance(startDateStr, endDateStr) {
+      const perfMap = {};
+      (state.members || []).forEach(m => {
+        perfMap[m.Name] = { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0, total: 0 };
+      });
+
+      (state.dailyLogs || []).forEach(log => {
+        const logDateYMD = normalizeDateToYMD(log.Date || log.date);
+        if (!logDateYMD) return;
+        if (startDateStr && logDateYMD < startDateStr) return;
+        if (endDateStr && logDateYMD > endDateStr) return;
+
+        const mName = log.MemberName || log.member_name;
+        if (mName && perfMap[mName]) {
+          const c6 = Number(log.Content6s || log.content_6s || 0);
+          const c10 = Number(log.Content10s || log.content_10s || 0);
+          const c15 = Number(log.Content15s || log.content_15s || 0);
+          const c20 = Number(log.Content20s || log.content_20s || 0);
+          const c30 = Number(log.Content30s || log.content_30s || 0);
+          const c1m = Number(log.Content1m || log.content_1m || 0);
+          const sp = Number(log.SocialPost || log.social_post || 0);
+          const rowTotal = c6 + c10 + c15 + c20 + c30 + c1m + sp;
+
+          perfMap[mName].c6s += c6;
+          perfMap[mName].c10s += c10;
+          perfMap[mName].c15s += c15;
+          perfMap[mName].c20s += c20;
+          perfMap[mName].c30s += c30;
+          perfMap[mName].c1m += c1m;
+          perfMap[mName].sp += sp;
+          perfMap[mName].total += rowTotal;
+        }
+      });
+
+      return perfMap;
+    }
+
+    // Populate billing cycle & full calendar month dropdown options
+    function populateCycleDropdown() {
+      const sel = document.getElementById('leaderboardCycleSelect');
+      if (!sel || sel.dataset.populated === 'true') return;
+
+      const now = new Date();
+      const currentDay = now.getDate();
+      const currentMonth = now.getMonth(); // 0-11
+      const currentYear = now.getFullYear();
+
+      // Active billing cycle reference month: if day >= 21, starts 21st of currentMonth; else 21st of prevMonth
+      let refMonth = currentDay >= 21 ? currentMonth : currentMonth - 1;
+      let refYear = currentYear;
+      if (refMonth < 0) {
+        refMonth = 11;
+        refYear -= 1;
+      }
+
+      const monthsList = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+      // Helper for 21st to 20th Billing Cycles
+      const buildCycleOption = function(valKey, mIdx, yNum, labelPrefix) {
+        const startM = mIdx;
+        const startY = yNum;
+        let endM = mIdx + 1;
+        let endY = yNum;
+        if (endM > 11) {
+          endM = 0;
+          endY += 1;
+        }
+
+        const sDateStr = `${startY}-${String(startM + 1).padStart(2, '0')}-21`;
+        const eDateStr = `${endY}-${String(endM + 1).padStart(2, '0')}-20`;
+        const label = `${labelPrefix} (21 ${monthsList[startM]} – 20 ${monthsList[endM]} ${endY})`;
+        return `<option value="${valKey}" data-start="${sDateStr}" data-end="${eDateStr}">${label}</option>`;
+      };
+
+      // Helper for 1st to last day Full Calendar Months
+      const buildFullMonthOption = function(valKey, mIdx, yNum, labelPrefix) {
+        const lastDay = new Date(yNum, mIdx + 1, 0).getDate();
+        const sDateStr = `${yNum}-${String(mIdx + 1).padStart(2, '0')}-01`;
+        const eDateStr = `${yNum}-${String(mIdx + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        const label = `${labelPrefix} (01 ${monthsList[mIdx]} – ${lastDay} ${monthsList[mIdx]} ${yNum})`;
+        return `<option value="${valKey}" data-start="${sDateStr}" data-end="${eDateStr}">${label}</option>`;
+      };
+
+      let html = "";
+      
+      // --- BILLING CYCLES (21st - 20th) ---
+      html += `<optgroup label="⚡ Billing Cycles (21st - 20th)">`;
+      html += buildCycleOption("CURRENT_CYCLE", refMonth, refYear, "✨ Current Cycle");
+      
+      for (let i = 1; i <= 4; i++) {
+        let pastM = refMonth - i;
+        let pastY = refYear;
+        while (pastM < 0) {
+          pastM += 12;
+          pastY -= 1;
+        }
+        html += buildCycleOption(`PAST_CYCLE_${i}`, pastM, pastY, `📅 Cycle`);
+      }
+      html += `</optgroup>`;
+
+      // --- FULL CALENDAR MONTHS (1st - 30/31st) ---
+      html += `<optgroup label="🗓️ Full Calendar Months (1st - End)">`;
+      html += buildFullMonthOption("CURRENT_FULL_MONTH", currentMonth, currentYear, "🗓️ Full Current Month");
+      
+      for (let i = 1; i <= 4; i++) {
+        let pastM = currentMonth - i;
+        let pastY = currentYear;
+        while (pastM < 0) {
+          pastM += 12;
+          pastY -= 1;
+        }
+        html += buildFullMonthOption(`FULL_MONTH_${i}`, pastM, pastY, `🗓️ Full Month`);
+      }
+      html += `</optgroup>`;
+
+      // --- OTHER ---
+      html += `<optgroup label="🌐 Custom & Other">`;
+      html += `<option value="ALL_TIME" data-start="" data-end="">🌐 All Time (Complete History)</option>`;
+      html += `<option value="CUSTOM" data-start="" data-end="">✏️ Custom Date Range...</option>`;
+      html += `</optgroup>`;
+
+      sel.innerHTML = html;
+      sel.value = "CURRENT_CYCLE";
+      sel.dataset.populated = 'true';
+
+      const firstOpt = sel.querySelector('option[value="CURRENT_CYCLE"]');
+      if (firstOpt) {
+        state.cycleStartDate = firstOpt.getAttribute('data-start') || "";
+        state.cycleEndDate = firstOpt.getAttribute('data-end') || "";
+      }
+    }
+
+    // Handler when user changes Cycle Dropdown
+    function onLeaderboardCycleChange() {
+      const sel = document.getElementById('leaderboardCycleSelect');
+      const customGroup = document.getElementById('customCycleDateGroup');
+      if (!sel) return;
+
+      let startDateStr = "";
+      let endDateStr = "";
+
+      if (sel.value === 'CUSTOM') {
+        if (customGroup) customGroup.style.display = 'inline-flex';
+        startDateStr = document.getElementById('customCycleStart') ? document.getElementById('customCycleStart').value : "";
+        endDateStr = document.getElementById('customCycleEnd') ? document.getElementById('customCycleEnd').value : "";
+      } else {
+        if (customGroup) customGroup.style.display = 'none';
+        const opt = sel.options[sel.selectedIndex];
+        if (opt) {
+          startDateStr = opt.getAttribute('data-start') || "";
+          endDateStr = opt.getAttribute('data-end') || "";
+        }
+      }
+
+      state.cycleStartDate = startDateStr;
+      state.cycleEndDate = endDateStr;
+
+      renderLeaderboard();
+    }
+
+    function updateOverviewMetricCards(startDateStr, endDateStr) {
+      let totalMotion = 0;
+      let totalStatic = 0;
+
+      (state.dailyLogs || []).forEach(log => {
+        const logDateYMD = normalizeDateToYMD(log.Date || log.date);
+        if (!logDateYMD) return;
+        if (startDateStr && logDateYMD < startDateStr) return;
+        if (endDateStr && logDateYMD > endDateStr) return;
+
+        const c6 = Number(log.Content6s || log.content_6s || 0);
+        const c10 = Number(log.Content10s || log.content_10s || 0);
+        const c15 = Number(log.Content15s || log.content_15s || 0);
+        const c20 = Number(log.Content20s || log.content_20s || 0);
+        const c30 = Number(log.Content30s || log.content_30s || 0);
+        const c1m = Number(log.Content1m || log.content_1m || 0);
+        const sp = Number(log.SocialPost || log.social_post || 0);
+
+        totalMotion += (c6 + c10 + c15 + c20 + c30 + c1m);
+        totalStatic += sp;
+      });
+
+      const elMotion = document.getElementById('metricTotalMotion');
+      const elStatic = document.getElementById('metricTotalStatic');
+      if (elMotion) elMotion.innerText = totalMotion;
+      if (elStatic) elStatic.innerText = totalStatic;
+    }
+
     function renderLeaderboard() {
       const tbody = document.getElementById('leaderboardTableBody');
       if ((!state.members || state.members.length === 0)) {
         tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--text-muted);">No members details loaded.</td></tr>`;
         return;
       }
+
+      populateCycleDropdown();
+
+      const startDateStr = state.cycleStartDate !== undefined ? state.cycleStartDate : "";
+      const endDateStr = state.cycleEndDate !== undefined ? state.cycleEndDate : "";
+
+      updateOverviewMetricCards(startDateStr, endDateStr);
+
+      const filteredPerf = (startDateStr || endDateStr) ? getFilteredPerformance(startDateStr, endDateStr) : (state.memberPerformance || {});
       
       // Calculate performance and points for each member
       const leaderboard = state.members.map(member => {
-        const perf = state.memberPerformance[member.Name] || { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0 };
+        const perf = filteredPerf[member.Name] || { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0 };
         
         // Weighting formula: 6s=0.5, 10s=1, 15s=1.5, 20s=2, 30s=2.5, 1m=3, static=0.5
         const points = (perf.c6s * 1.0) + 
@@ -6753,6 +7003,16 @@
     function closeStatusModal() {
       document.getElementById('taskStatusModal').classList.remove('active');
     }
+
+    function handleModalDeleteTask() {
+      const taskId = document.getElementById('statusTaskId') ? document.getElementById('statusTaskId').value : '';
+      if (!taskId) {
+        showToast("No Task ID found for deletion", "error");
+        return;
+      }
+      closeStatusModal();
+      deleteAssignment(taskId);
+    }
     
     async function submitStatusUpdate() {
       const taskId = document.getElementById('statusTaskId').value;
@@ -7026,8 +7286,10 @@
       const targetDate = dateSelector ? dateSelector.value : new Date().toISOString().split('T')[0];
       const targetDateYMD = normalizeDateToYMD(targetDate);
       
-      let targetSubmitted = 0;
-      let targetApproved = 0;
+      let submittedVideo = 0;
+      let submittedSocial = 0;
+      let approvedVideo = 0;
+      let approvedSocial = 0;
       
       if (!state.assignments || !Array.isArray(state.assignments)) state.assignments = [];
       if (!state.members || !Array.isArray(state.members)) state.members = [];
@@ -7035,38 +7297,57 @@
       
       // 1. Submitted: Sum of all content items logged in DailyLogs for the selected date
       state.dailyLogs.forEach(function(log) {
-        const logDateYMD = normalizeDateToYMD(log.Date);
+        const logDateYMD = normalizeDateToYMD(log.Date || log.date);
         if (logDateYMD === targetDateYMD) {
-          if (typeFilter === 'Full Content') {
-            const c6 = Number(log.Content6s || 0);
-            const c10 = Number(log.Content10s || 0);
-            const c15 = Number(log.Content15s || 0);
-            const c20 = Number(log.Content20s || 0);
-            const c30 = Number(log.Content30s || 0);
-            const c1m = Number(log.Content1m || 0);
-            targetSubmitted += (c6 + c10 + c15 + c20 + c30 + c1m);
-          } else {
-            const sp = Number(log.SocialPost || 0);
-            targetSubmitted += sp;
-          }
+          const c6 = Number(log.Content6s || log.content_6s || 0);
+          const c10 = Number(log.Content10s || log.content_10s || 0);
+          const c15 = Number(log.Content15s || log.content_15s || 0);
+          const c20 = Number(log.Content20s || log.content_20s || 0);
+          const c30 = Number(log.Content30s || log.content_30s || 0);
+          const c1m = Number(log.Content1m || log.content_1m || 0);
+          const sp = Number(log.SocialPost || log.social_post || 0);
+
+          submittedVideo += (c6 + c10 + c15 + c20 + c30 + c1m);
+          submittedSocial += sp;
         }
       });
       
       // 2. Approved: Count from assignments for the selected date
       state.assignments.forEach(function(t) {
-        if (getTaskType(t) !== typeFilter) return;
         const assignDateYMD = normalizeDateToYMD(t.AssignDate);
         const isApproved = t.Status.toLowerCase().includes("approved") || t.Status.toLowerCase().includes("completed") || t.Status.toLowerCase().includes("pass") || t.Status.toLowerCase().includes("ok");
         const approveDateYMD = t.ApproveDate ? normalizeDateToYMD(t.ApproveDate) : (isApproved ? assignDateYMD : "");
         if (approveDateYMD === targetDateYMD) {
-          targetApproved += Number(t.Quantity) || 0;
+          const taskType = getTaskType(t);
+          const qty = Number(t.Quantity) || 0;
+          if (taskType === 'Full Content') {
+            approvedVideo += qty;
+          } else if (taskType === 'Social Media Post') {
+            approvedSocial += qty;
+          } else {
+            approvedVideo += qty;
+          }
         }
       });
       
-      const elSubmittedVal = document.getElementById('todaySubmittedVal');
-      const elApprovedVal = document.getElementById('todayApprovedVal');
-      if (elSubmittedVal) elSubmittedVal.innerText = targetSubmitted + " items";
-      if (elApprovedVal) elApprovedVal.innerText = targetApproved + " items";
+      const totalSubmitted = submittedVideo + submittedSocial;
+      const totalApproved = approvedVideo + approvedSocial;
+
+      const elSubmittedTotal = document.getElementById('todaySubmittedTotalVal') || document.getElementById('todaySubmittedVal');
+      const elSubmittedVideo = document.getElementById('todaySubmittedVideoVal');
+      const elSubmittedSocial = document.getElementById('todaySubmittedSocialVal');
+
+      const elApprovedTotal = document.getElementById('todayApprovedTotalVal') || document.getElementById('todayApprovedVal');
+      const elApprovedVideo = document.getElementById('todayApprovedVideoVal');
+      const elApprovedSocial = document.getElementById('todayApprovedSocialVal');
+
+      if (elSubmittedTotal) elSubmittedTotal.innerText = totalSubmitted + " items";
+      if (elSubmittedVideo) elSubmittedVideo.innerText = submittedVideo;
+      if (elSubmittedSocial) elSubmittedSocial.innerText = submittedSocial;
+
+      if (elApprovedTotal) elApprovedTotal.innerText = totalApproved + " items";
+      if (elApprovedVideo) elApprovedVideo.innerText = approvedVideo;
+      if (elApprovedSocial) elApprovedSocial.innerText = approvedSocial;
       
       // Populate Daily Work Submissions History Table
       const dailyProgressTbody = document.getElementById('dailyProgressTableBody');
@@ -9199,8 +9480,11 @@
     }
     
     function openEditAccountModal(id) {
-      const acc = state.accounts ? state.accounts.find(x => String(x.id) === String(id)) : null;
-      if (!acc) return;
+      const acc = state.accounts ? state.accounts.find(x => String(x.RowIndex || x.id) === String(id)) : null;
+      if (!acc) {
+        showToast("Account credentials not found for editing", "error");
+        return;
+      }
       
       document.getElementById('editAccId').value = id;
       document.getElementById('addAccountModalTitle').innerText = "Edit Shared Credentials";
