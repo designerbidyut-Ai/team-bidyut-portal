@@ -3072,6 +3072,44 @@
       alert("Unhandled Promise Rejection:\n" + msg);
     };
 
+    // Global helper to normalize any date string to yyyy-MM-dd
+    function normalizeDateToYMD(dateVal) {
+      if (!dateVal) return "";
+      const strVal = String(dateVal).trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(strVal)) return strVal;
+      
+      try {
+        const d = new Date(strVal);
+        if (!isNaN(d.getTime())) {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${y}-${m}-${day}`;
+        }
+      } catch(e) {}
+      
+      const parts = strVal.split(/[-/]/);
+      if (parts.length === 3) {
+        let dPart = parts[0].trim();
+        let mPart = parts[1].trim();
+        let yPart = parts[2].trim();
+        if (yPart.length === 2) yPart = "20" + yPart;
+        
+        let monthVal = "";
+        const monthsList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        const idx = monthsList.indexOf(mPart.toLowerCase());
+        if (idx !== -1) {
+          monthVal = String(idx + 1).padStart(2, '0');
+        } else if (!isNaN(Number(mPart))) {
+          monthVal = mPart.padStart(2, '0');
+        }
+        if (yPart && monthVal && dPart) {
+          return `${yPart}-${monthVal.padStart(2, '0')}-${dPart.padStart(2, '0')}`;
+        }
+      }
+      return strVal;
+    }
+
     // ----------------------------------------------------
     // SUPABASE CONFIGURATION & COMPATIBILITY ADAPTER
     // ----------------------------------------------------
@@ -6976,44 +7014,6 @@
       if (elPending) elPending.innerText = pendingItems;
       if (elRate) elRate.innerText = completionRate + '%';
       
-      // Helper to normalize any date string to yyyy-MM-dd
-      const normalizeDateToYMD = function(dateVal) {
-        if (!dateVal) return "";
-        const strVal = String(dateVal).trim();
-        if (/^\d{4}-\d{2}-\d{2}$/.test(strVal)) return strVal;
-        
-        try {
-          const d = new Date(strVal);
-          if (!isNaN(d.getTime())) {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
-          }
-        } catch(e) {}
-        
-        const parts = strVal.split(/[-/]/);
-        if (parts.length === 3) {
-          let dPart = parts[0].trim();
-          let mPart = parts[1].trim();
-          let yPart = parts[2].trim();
-          if (yPart.length === 2) yPart = "20" + yPart;
-          
-          let monthVal = "";
-          const monthsList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-          const idx = monthsList.indexOf(mPart.toLowerCase());
-          if (idx !== -1) {
-            monthVal = String(idx + 1).padStart(2, '0');
-          } else if (!isNaN(Number(mPart))) {
-            monthVal = mPart.padStart(2, '0');
-          }
-          if (yPart && monthVal && dPart) {
-            return `${yPart}-${monthVal.padStart(2, '0')}-${dPart.padStart(2, '0')}`;
-          }
-        }
-        return strVal;
-      };
-
       // Calculate Date-wise Work Summary Overview metrics
       const dateSelector = document.getElementById('overviewDateSelector');
       if (dateSelector && !dateSelector.value) {
