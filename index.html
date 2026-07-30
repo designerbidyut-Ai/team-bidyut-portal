@@ -50,6 +50,30 @@
       --status-error: #ef4444;
     }
 
+    /* CC Light Sweep & Star Chik Chik Animations */
+    @keyframes ccLightSweepAnim {
+      0% { left: -70%; opacity: 0; }
+      20% { opacity: 0.95; }
+      50% { left: 140%; opacity: 0.95; }
+      51% { opacity: 0; }
+      100% { left: 140%; opacity: 0; }
+    }
+
+    @keyframes starChikChikGlow {
+      0% {
+        transform: scale(0.92) rotate(-3deg);
+        filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.7));
+      }
+      50% {
+        transform: scale(1.18) rotate(5deg);
+        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 1)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.9));
+      }
+      100% {
+        transform: scale(0.95) rotate(-2deg);
+        filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8));
+      }
+    }
+
     [data-theme="light"] {
       /* Light Theme */
       --bg-base: #f8fafc;
@@ -1099,7 +1123,7 @@
         <div class="logo-box">?</div>
         <div class="logo-text">
           <h2>Team Bidyut</h2>
-          <span>Content Tracker Portal v18</span>
+          <span>Content Tracker Portal v20</span>
         </div>
       </div>
       
@@ -1144,6 +1168,12 @@
           <a class="nav-item" onclick="switchTab('report', this)">
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Report
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="switchTab('credit', this)">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            AI Credit
           </a>
         </li>
       </ul>
@@ -1671,7 +1701,7 @@
                     <label for="logCreativeLink" style="font-size: 14px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px;">
                       🎨 MPRO Creative Work Link
                     </label>
-                    <input type="text" id="logCreativeLink" placeholder="http://mpro.prangroup.com:4000/CreativeWorks/Edit/42394" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 14px; padding: 12px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
+                    <input type="text" id="logCreativeLink" placeholder="http://mpro.prangroup.com:4000/CreativeWorks/Edit/42394" oninput="handleLogCreativeLinkInput(this)" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 14px; padding: 12px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
                   </div>
                 </div>
                 <div class="form-grid" style="margin-top: 15px; display: none;" id="logAssignDateGroup">
@@ -2024,7 +2054,8 @@
                     <tr>
                       <th>Date</th>
                       <th id="colHeaderMember" style="display:none;">Member</th>
-                      <th>MPRO Link</th>
+                      <th>Creative Brief</th>
+                      <th>Creative Work</th>
                       <th>6s</th>
                       <th>10s</th>
                       <th>15s</th>
@@ -2073,8 +2104,8 @@
                   <thead>
                     <tr>
                       <th>Assign Date</th>
-                      <th>MPRO ID</th>
-                      <th>MPRO Details</th>
+                      <th>Creative Brief</th>
+                      <th>Creative Work</th>
                       <th>Brands</th>
                       <th>Quantity</th>
                       <th>Status</th>
@@ -2260,8 +2291,8 @@
               <thead>
                 <tr>
                   <th>Assign Date</th>
-                  <th>MPRO ID</th>
-                  <th>MPRO Details</th>
+                  <th>Creative Brief</th>
+                  <th>Creative Work</th>
                   <th>Brands</th>
                   <th>Quantity</th>
                   <th>Status</th>
@@ -2634,11 +2665,294 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- TAB 8: AI CREDIT & COST ANALYZER -->
+      <section id="creditTab" class="tab-content">
+        
+        <!-- Header Banner & Action Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(99, 102, 241, 0.05) 100%); border: 1.5px solid var(--border-color); border-radius: 16px; padding: 18px 24px; box-shadow: var(--shadow-sm); margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);">
+              💳
+            </div>
+            <div style="text-align: left;">
+              <h3 class="font-outfit" style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text-main); line-height: 1.2;">AI Credit & Content Delivery Cost Manager</h3>
+              <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-muted);">Track Magnific & Higgsfield AI credits, per-video consumption, and total AI expenditure in BDT</p>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button onclick="openExchangeRateModal()" class="btn btn-outline" style="padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+              💱 Rates: 1 INR = <span id="rateInrBdtDisp">1.42</span> BDT | 1 USD = <span id="rateUsdBdtDisp">122</span> BDT
+            </button>
+            <button onclick="openAddCreditModal()" class="btn btn-primary" style="padding: 8px 16px; font-size: 12px; font-weight: 800; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: #fff; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); display: inline-flex; align-items: center; gap: 6px;">
+              ➕ Add Credit Package
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Top KPI Summary Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 26px;">
+          
+          <!-- Card 1: Magnific AI Credit -->
+          <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 14px; border: 1.5px solid rgba(168, 85, 247, 0.3); display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #a855f7;"></span> Magnific AI Credit
+              </div>
+              <span style="font-size: 10px; font-weight: 800; background: rgba(168, 85, 247, 0.15); color: #a855f7; padding: 2px 8px; border-radius: 6px;">27-07-2026</span>
+            </div>
+            <div>
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <div id="creditMagRem" style="font-size: 32px; font-weight: 900; color: var(--text-main); font-family: 'Outfit', sans-serif; line-height: 1;">4.00M</div>
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">/ <span id="creditMagInit">4.00M</span></span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
+                Cost: <strong style="color: #a855f7;">₹175,000 INR</strong> (৳<span id="creditMagBdt">248,500</span> BDT)
+              </div>
+            </div>
+            <!-- Progress Bar -->
+            <div style="margin-top: 4px;">
+              <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">
+                <span>Available Balance</span>
+                <span id="creditMagPercent">100%</span>
+              </div>
+              <div style="width: 100%; height: 7px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
+                <div id="creditMagBar" style="width: 100%; height: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); border-radius: 10px; transition: width 0.4s;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Higgsfield AI Credit -->
+          <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 14px; border: 1.5px solid rgba(59, 130, 246, 0.3); display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></span> Higgsfield AI Credit
+              </div>
+              <span style="font-size: 10px; font-weight: 800; background: rgba(59, 130, 246, 0.15); color: #3b82f6; padding: 2px 8px; border-radius: 6px;">Active Plan</span>
+            </div>
+            <div>
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <div id="creditHigRem" style="font-size: 32px; font-weight: 900; color: var(--text-main); font-family: 'Outfit', sans-serif; line-height: 1;">9,000</div>
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">/ <span id="creditHigInit">9,000</span></span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
+                Cost: <strong style="color: #3b82f6;">$149 USD</strong> (৳<span id="creditHigBdt">18,178</span> BDT)
+              </div>
+            </div>
+            <!-- Progress Bar -->
+            <div style="margin-top: 4px;">
+              <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">
+                <span>Available Balance</span>
+                <span id="creditHigPercent">100%</span>
+              </div>
+              <div style="width: 100%; height: 7px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
+                <div id="creditHigBar" style="width: 100%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 10px; transition: width 0.4s;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Total Deliveries & AI Expenditure -->
+          <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 14px; border: 1.5px solid rgba(16, 185, 129, 0.3); display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span> Deliveries & AI Investment
+            </div>
+            <div>
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <div id="creditTotalDeliveries" style="font-size: 32px; font-weight: 900; color: #10b981; font-family: 'Outfit', sans-serif; line-height: 1;">0</div>
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">Videos / Items Delivered</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
+                Total AI Cost: <strong style="color: #10b981;">৳<span id="creditTotalAiCostBdt">266,678</span> BDT</strong>
+              </div>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 11px; font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; margin-top: 2px;">
+              <span>Avg Cost / Delivered Item:</span>
+              <strong id="creditAvgCostPerContent" style="color: #10b981;">৳0 BDT</strong>
+            </div>
+          </div>
+
+          <!-- Card 4: Overall Combined Credit Balance -->
+          <div class="stat-mini-card" style="padding: 20px; background: var(--bg-card); border-radius: 14px; border: 1.5px solid rgba(245, 158, 11, 0.3); display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></span> Combined Credit Status
+            </div>
+            <div>
+              <div id="creditCombinedStatus" style="font-size: 24px; font-weight: 900; color: #f59e0b; font-family: 'Outfit', sans-serif; line-height: 1.2;">100% Healthy</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
+                Total Packages Active: <strong style="color: var(--text-main);" id="creditPackageCount">2 Packages</strong>
+              </div>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); font-size: 11px; font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; margin-top: 2px;">
+              <span>Total AI Capital:</span>
+              <strong style="color: #f59e0b;">৳<span id="creditTotalCapitalBdt">266,678</span> BDT</strong>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Format-Wise AI Credit & Cost Breakdown Matrix -->
+        <div class="card" style="margin-bottom: 26px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border-color); padding-bottom: 14px; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h4 class="font-outfit" style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                📊 Format-Wise AI Credit Usage & Cost Breakdown
+              </h4>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 3px 0 0 0;">Per-video credit consumption and exact AI expense by video duration / format</p>
+            </div>
+            <button onclick="toggleCreditRatesSettings()" class="btn btn-outline btn-sm" style="font-size: 11px; font-weight: 700; border-radius: 6px;">
+              ⚙️ Customize Credit / Video Rates
+            </button>
+          </div>
+
+          <!-- Format Matrix Table -->
+          <div class="table-container" style="border: 1px solid var(--border-color); border-radius: 10px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+              <thead>
+                <tr style="background: var(--bg-base);">
+                  <th style="padding: 12px 14px; text-align: left;">Video Format</th>
+                  <th style="padding: 12px 14px; text-align: center;">Total Delivered</th>
+                  <th style="padding: 12px 14px; text-align: center;">Magnific Credit / Content</th>
+                  <th style="padding: 12px 14px; text-align: center;">Higgsfield Credit / Content</th>
+                  <th style="padding: 12px 14px; text-align: right;">AI Cost / Content (BDT)</th>
+                  <th style="padding: 12px 14px; text-align: right;">Total Format Expense (BDT)</th>
+                </tr>
+              </thead>
+              <tbody id="creditFormatBreakdownTbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Two Column Grid: Logged Credit Packages & Delivered MPRO Credit Logs -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+          
+          <!-- Purchased Credit Packages List -->
+          <div class="card" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+              <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 6px;">
+                📦 Purchased Credit Subscriptions
+              </h4>
+              <button onclick="openAddCreditModal()" class="btn btn-outline btn-xs" style="font-size: 11px; font-weight: 700; border-radius: 6px;">
+                + Add Package
+              </button>
+            </div>
+            <div id="creditPackagesListContainer" style="display: flex; flex-direction: column; gap: 12px; max-height: 480px; overflow-y: auto;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- MPRO Content Delivery Credit & Cost Log -->
+          <div class="card" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+              <h4 class="font-outfit" style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 6px;">
+                🎬 Delivered Content Credit Log
+              </h4>
+              <input type="text" id="creditLogSearch" oninput="renderCreditDeliveryLogs()" placeholder="Search MPRO or Designer..." style="padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-base); color: var(--text-main); outline: none; width: 160px;">
+            </div>
+            <div class="table-container" style="max-height: 440px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                  <tr style="background: var(--bg-base); position: sticky; top: 0; z-index: 5;">
+                    <th style="padding: 8px 10px; text-align: left;">Date</th>
+                    <th style="padding: 8px 10px; text-align: center;">MPRO ID</th>
+                    <th style="padding: 8px 10px; text-align: left;">Designer</th>
+                    <th style="padding: 8px 10px; text-align: center;">Format</th>
+                    <th style="padding: 8px 10px; text-align: right;">Est. AI Cost (BDT)</th>
+                  </tr>
+                </thead>
+                <tbody id="creditDeliveryLogsTbody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
 
     </main>
   </div>
 
   <!-- MODALS -->
+
+  <!-- 0. Add Credit Package Modal -->
+  <div id="addCreditModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
+    <div class="modal-card" style="max-width: 460px; padding: 24px; border-radius: 16px; background: var(--bg-surface); border: 1.5px solid var(--border-color); box-shadow: var(--shadow-lg);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <h3 class="font-outfit" style="font-size: 18px; font-weight: 800; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+          💳 Add AI Credit Package
+        </h3>
+        <button class="icon-btn" onclick="closeAddCreditModal()" style="font-size: 18px; cursor: pointer; border: none; background: none; color: var(--text-muted);">&times;</button>
+      </div>
+      <form onsubmit="submitAddCreditPackage(event)">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">AI Tool / Service Name *</label>
+          <input type="text" id="creditToolNameInput" placeholder="e.g. Magnific AI, Higgsfield AI, Midjourney" required style="width: 100%; padding: 10px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: 700;">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Total Credits *</label>
+            <input type="number" id="creditInitialQtyInput" placeholder="e.g. 4000000 or 9000" required style="width: 100%; padding: 10px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: 700;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Purchase Date</label>
+            <input type="date" id="creditPurchaseDateInput" style="width: 100%; padding: 9px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: 600;">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Price / Cost</label>
+            <input type="number" step="0.01" id="creditPriceInput" placeholder="e.g. 175000 or 149" style="width: 100%; padding: 10px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: 700;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Currency</label>
+            <select id="creditCurrencySelect" style="width: 100%; padding: 10px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: 700;">
+              <option value="INR" selected>INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="BDT">BDT (৳)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Note / Description</label>
+          <input type="text" id="creditNoteInput" placeholder="e.g. Annual Subscription / Office Card" style="width: 100%; padding: 10px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main);">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="btn btn-outline" onclick="closeAddCreditModal()" style="padding: 10px 16px; font-weight: 700; border-radius: 8px;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-weight: 800; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: #fff;">Save Package</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Exchange Rates Configuration Modal -->
+  <div id="exchangeRateModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
+    <div class="modal-card" style="max-width: 400px; padding: 24px; border-radius: 16px; background: var(--bg-surface); border: 1.5px solid var(--border-color); box-shadow: var(--shadow-lg);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <h3 class="font-outfit" style="font-size: 18px; font-weight: 800; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+          💱 Currency Exchange Rates
+        </h3>
+        <button class="icon-btn" onclick="closeExchangeRateModal()" style="font-size: 18px; cursor: pointer; border: none; background: none; color: var(--text-muted);">&times;</button>
+      </div>
+      <form onsubmit="submitExchangeRates(event)">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">1 INR to BDT Rate (৳)</label>
+          <input type="number" step="0.01" id="inputInrToBdt" required style="width: 100%; padding: 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: 800;">
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">1 USD to BDT Rate (৳)</label>
+          <input type="number" step="0.01" id="inputUsdToBdt" required style="width: 100%; padding: 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-weight: 800;">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="btn btn-outline" onclick="closeExchangeRateModal()" style="padding: 10px 16px; font-weight: 700; border-radius: 8px;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-weight: 800; border-radius: 8px; background: var(--primary); border: none; color: #fff;">Save Rates</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Member Login Modal (For Profile & General Access) -->
   <div id="memberLoginModal" class="modal-overlay">
@@ -2913,6 +3227,93 @@
     </div>
   </div>
 
+  <!-- 1. Podium Details Popup Modal (Top Performers Podium) -->
+  <div id="podiumDetailsModal" class="modal-overlay" onclick="if(event.target === this) closePodiumDetailsModal();">
+    <div class="modal-card" style="max-width: 920px; width: 95vw; max-height: 90vh; overflow-y: auto; padding: 28px; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-lg);">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1.5px solid var(--border-color);">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div id="podiumModalAvatarContainer"></div>
+          <div>
+            <div id="podiumModalName" style="font-size: 22px; font-weight: 900; color: var(--text-main); font-family: 'Outfit', sans-serif;">Member Name</div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap;">
+              <span id="podiumModalRoleBadge" class="status-badge" style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 20px;">Role</span>
+              <span id="podiumModalActiveBadge" class="status-badge" style="font-size: 11px; background: rgba(59, 130, 246, 0.15); color: #3b82f6; font-weight: 800; border: 1px solid rgba(59, 130, 246, 0.3); padding: 3px 10px; border-radius: 20px;">0 Active Tasks</span>
+            </div>
+          </div>
+        </div>
+        <button onclick="closePodiumDetailsModal()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: var(--text-muted); width: 34px; height: 34px; border-radius: 50%; font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'; this.style.color='#ef4444';" onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='var(--text-muted)';">&times;</button>
+      </div>
+
+      <!-- KPI Stat Grid (4 Cards) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
+        <div style="padding: 16px; background: rgba(16, 185, 129, 0.06); border: 1.5px solid rgba(16, 185, 129, 0.25); border-radius: 14px; text-align: center;">
+          <span style="font-size: 10px; font-weight: 800; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px;">Active Tasks</span>
+          <div id="podiumStatActive" style="font-size: 28px; font-weight: 900; color: var(--text-main); font-family: 'Outfit', sans-serif; margin-top: 4px;">0</div>
+        </div>
+        <div style="padding: 16px; background: rgba(59, 130, 246, 0.06); border: 1.5px solid rgba(59, 130, 246, 0.25); border-radius: 14px; text-align: center;">
+          <span style="font-size: 10px; font-weight: 800; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.5px;">Items Done</span>
+          <div id="podiumStatDone" style="font-size: 28px; font-weight: 900; color: var(--text-main); font-family: 'Outfit', sans-serif; margin-top: 4px;">0/0</div>
+        </div>
+        <div style="padding: 16px; background: rgba(245, 158, 11, 0.06); border: 1.5px solid rgba(245, 158, 11, 0.25); border-radius: 14px; text-align: center;">
+          <span style="font-size: 10px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px;">Pending Left</span>
+          <div id="podiumStatPending" style="font-size: 28px; font-weight: 900; color: var(--text-main); font-family: 'Outfit', sans-serif; margin-top: 4px;">0</div>
+        </div>
+        <div style="padding: 16px; background: rgba(168, 85, 247, 0.06); border: 1.5px solid rgba(168, 85, 247, 0.25); border-radius: 14px; text-align: center;">
+          <span style="font-size: 10px; font-weight: 800; color: #a855f7; text-transform: uppercase; letter-spacing: 0.5px;">Total Points</span>
+          <div id="podiumStatPoints" style="font-size: 28px; font-weight: 900; color: var(--text-main); font-family: 'Outfit', sans-serif; margin-top: 4px;">0 pts</div>
+        </div>
+      </div>
+
+      <!-- Rank & Format Points Breakdown Box -->
+      <div id="podiumRankBreakdownCard" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(16, 185, 129, 0.08)); border: 1.5px solid rgba(234, 179, 8, 0.3); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="podiumRankBadge" style="font-size: 14px; font-weight: 900; background: #eab308; color: #000; padding: 4px 14px; border-radius: 20px; font-family: 'Outfit', sans-serif; box-shadow: 0 2px 8px rgba(234,179,8,0.4);">
+              🏆 RANK #1
+            </span>
+            <div>
+              <div style="font-size: 14px; font-weight: 800; color: var(--text-main); font-family: 'Outfit', sans-serif;">Best Performer Rank & Work Analysis</div>
+              <div id="podiumRankCycleLabel" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Current Monthly Billing Cycle</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Total Score</span>
+            <div id="podiumRankTotalPts" style="font-size: 22px; font-weight: 900; color: var(--primary); font-family: 'Outfit', sans-serif;">0.00 pts</div>
+          </div>
+        </div>
+
+        <!-- Explanation Paragraph -->
+        <div id="podiumRankReasonText" style="font-size: 12px; line-height: 1.5; color: var(--text-main); background: rgba(0,0,0,0.15); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; border-left: 3px solid #eab308; font-weight: 600;">
+          <!-- Dynamically populated reason text -->
+        </div>
+
+        <!-- Video Seconds & Static Format Counts Grid -->
+        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">🎬 Content Formats & Work Output Breakdown</div>
+        <div id="podiumFormatGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px;">
+          <!-- 6s, 10s, 15s, 20s, 30s, 1m, Social Post cards -->
+        </div>
+      </div>
+
+      <!-- Top Brands Breakdown -->
+      <div style="margin-bottom: 24px; background: var(--bg-base); padding: 18px; border-radius: 14px; border: 1px solid var(--border-color);">
+        <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">🏷️ Associated Brands & Work Distribution</div>
+        <div id="podiumModalBrandsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+      </div>
+
+      <!-- Oldest Assign Single Line Row inside Modal -->
+      <div id="podiumOldestAssignRow" style="margin-bottom: 0; background: rgba(239, 68, 68, 0.04); border: 1.5px solid rgba(239, 68, 68, 0.2); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <span style="font-size: 10.5px; font-weight: 900; color: #ef4444; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 6px;">
+            ⏳ OLDEST ASSIGN (SINGLE LINE):
+          </span>
+          <div id="podiumOldestAssignBadges" style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;"></div>
+        </div>
+        <span id="podiumOldestAssignCountLabel" style="font-size: 11px; font-weight: 800; color: var(--accent-pink);">0 Pending Due Tasks</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Member Details & Workload Popup Modal -->
   <div id="memberDetailsModal" class="modal-overlay" onclick="if(event.target === this) closeMemberDetailsModal();">
     <div class="modal-card" style="max-width: 920px; width: 95vw; max-height: 90vh; overflow-y: auto; padding: 28px; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-lg);">
@@ -2984,7 +3385,8 @@
             <thead>
               <tr>
                 <th>Assign Date</th>
-                <th>MPRO ID & Link</th>
+                <th>Creative Brief</th>
+                <th>Creative Work</th>
                 <th>Brand</th>
                 <th>Task Type</th>
                 <th>Qty</th>
@@ -3227,7 +3629,8 @@
             <thead>
               <tr>
                 <th>Assign Date</th>
-                <th>MPRO ID & Link</th>
+                <th>Creative Brief</th>
+                <th>Creative Work</th>
                 <th>Brand</th>
                 <th>Task Type</th>
                 <th>Quantity</th>
@@ -4992,16 +5395,20 @@
         accounts: { h1: "Shared Credentials", p: "Shared premium logins and website access" },
         prompts: { h1: "Design Prompts", p: "High-quality prompts for creative AI tools" },
         report: { h1: "Team Productivity Report", p: "Detailed reports for team workloads" },
+        credit: { h1: "AI Credit & Cost Analyzer", p: "Track AI credits, per-video consumption, and total AI expenditure in BDT" },
         formatbreakdown: { h1: "Format Breakdown", p: "Visual analysis of video formats and lengths" },
         dailyprogress: { h1: "Daily Progress Tracker", p: "Real-time summary of submitted and approved work" }
       };
       
-      document.getElementById('pageHeading').innerText = headings[tabId].h1;
-      document.getElementById('pageSubheading').innerText = headings[tabId].p;
+      const targetHead = headings[tabId] || { h1: "Section View", p: "Team Bidyut Content Tracker" };
+      document.getElementById('pageHeading').innerText = targetHead.h1;
+      document.getElementById('pageSubheading').innerText = targetHead.p;
       
       if (tabId === 'report') {
         const filterVal = document.getElementById('reportMemberFilter') ? document.getElementById('reportMemberFilter').value : 'ALL';
         generateDesignerReport(filterVal);
+      } else if (tabId === 'credit') {
+        renderCreditTab();
       }
     }
 
@@ -5102,6 +5509,11 @@
               });
             }
             metricTotalPending.innerText = pendingSum;
+          }
+
+          // Immediately render personal infographics for logged-in member
+          if (typeof renderMemberInfographics === 'function') {
+            try { renderMemberInfographics(); } catch(e) {}
           }
           
           // Now fetch Funds ledger
@@ -5373,14 +5785,11 @@
       html += `</optgroup>`;
 
       sel.innerHTML = html;
-      sel.value = "CURRENT_CYCLE";
+      sel.value = "ALL_TIME";
       sel.dataset.populated = 'true';
 
-      const firstOpt = sel.querySelector('option[value="CURRENT_CYCLE"]');
-      if (firstOpt) {
-        state.cycleStartDate = firstOpt.getAttribute('data-start') || "";
-        state.cycleEndDate = firstOpt.getAttribute('data-end') || "";
-      }
+      state.cycleStartDate = "";
+      state.cycleEndDate = "";
     }
 
     // Handler when user changes Cycle Dropdown
@@ -5461,6 +5870,40 @@
       if (elPending) elPending.innerText = pendingQtyCount;
     }
 
+    function calculateLeaderboard(filteredPerf) {
+      const fPerf = filteredPerf || ((state.cycleStartDate || state.cycleEndDate) ? getFilteredPerformance(state.cycleStartDate, state.cycleEndDate) : (state.memberPerformance || {}));
+      if (!state.members) return [];
+
+      const list = state.members.map(function(member) {
+        const perf = fPerf[member.Name] || { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0 };
+        const points = (perf.c6s * 0.8) + 
+                       (perf.c10s * 1.0) + 
+                       (perf.c15s * 1.5) + 
+                       (perf.c20s * 1.7) + 
+                       (perf.c30s * 2.0) + 
+                       (perf.c1m * 3.0) + 
+                       (perf.sp * 0.5);
+        const totalMotion = perf.c6s + perf.c10s + perf.c15s + perf.c20s + perf.c30s + perf.c1m;
+
+        return {
+          name: member.Name,
+          avatar: member.Avatar || "",
+          c6s: perf.c6s,
+          c10s: perf.c10s,
+          c15s: perf.c15s,
+          c20s: perf.c20s,
+          c30s: perf.c30s,
+          c1m: perf.c1m,
+          totalMotion: totalMotion,
+          sp: perf.sp,
+          points: points
+        };
+      });
+
+      list.sort(function(a, b) { return b.points - a.points; });
+      return list;
+    }
+
     function renderLeaderboard() {
       populateCycleDropdown();
 
@@ -5482,10 +5925,10 @@
       const leaderboard = state.members.map(member => {
         const perf = filteredPerf[member.Name] || { c6s: 0, c10s: 0, c15s: 0, c20s: 0, c30s: 0, c1m: 0, sp: 0 };
         
-        // Weighting formula: 6s=0.5, 10s=1, 15s=1.5, 20s=2, 30s=2.5, 1m=3, static=0.5
-        const points = (perf.c6s * 1.0) + 
+        // Weighting formula: 6s=0.8, 10s=1.0, 15s=1.5, 20s=1.7, 30s=2.0, 1m=3.0, static=0.5
+        const points = (perf.c6s * 0.8) + 
                        (perf.c10s * 1.0) + 
-                       (perf.c15s * 1.7) + 
+                       (perf.c15s * 1.5) + 
                        (perf.c20s * 1.7) + 
                        (perf.c30s * 2.0) + 
                        (perf.c1m * 3.0) + 
@@ -5726,6 +6169,38 @@
       `;
     }
 
+    // Map of Best Designer Award Wins (FIFA World Cup style stars)
+    const BEST_DESIGNER_STARS = {
+      'Emon Kumer': 1,
+      'Md.Maruf Hossain': 1,
+      'Md. Maruf Hossain': 1,
+      'Md. Sabbir Ahmed': 1,
+      'Md.A.Malek': 1,
+      'Md. A. Malek': 1,
+      'Arman Hossain': 1
+    };
+
+    function getStarBadgeHtml(memberName, options = {}) {
+      if (!memberName) return '';
+      const cleanName = memberName.trim();
+      const count = BEST_DESIGNER_STARS[cleanName] || BEST_DESIGNER_STARS[cleanName.replace(/\s+/g, '')] || 0;
+      if (count <= 0) return '';
+
+      const topOffset = options.top || '-12px';
+      const fontSize = options.size || '11px';
+      const stars = '⭐'.repeat(count);
+      const titleText = `${cleanName} has won Best Designer of the Month (${count} time${count > 1 ? 's' : ''})`;
+
+      return `
+        <div class="best-designer-stars-badge" style="position: absolute; top: ${topOffset}; left: 50%; transform: translateX(-50%); z-index: 10; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 1px 5px; border-radius: 20px; background: rgba(255, 215, 0, 0.15); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255, 215, 0, 0.5); box-shadow: 0 0 12px rgba(245, 158, 11, 0.5), inset 0 0 6px rgba(255, 255, 255, 0.6); overflow: hidden; line-height: 1;" title="${titleText}">
+          <!-- CC Light Sweep Flare Bar -->
+          <div class="cc-light-sweep" style="position: absolute; top: -50%; left: -60%; width: 40%; height: 200%; background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.95) 50%, transparent 100%); transform: rotate(25deg); animation: ccLightSweepAnim 2.4s infinite cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; opacity: 0.9;"></div>
+          <!-- Sparkling Star Icons -->
+          <span class="star-sparkle-text" style="font-size: ${fontSize}; font-weight: 900; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.9)); animation: starChikChikGlow 1.6s infinite ease-in-out alternate; letter-spacing: 1px; display: inline-block;">${stars}</span>
+        </div>
+      `;
+    }
+
     // Helper to render small circular rank avatars with dynamic responsive scale
     function renderMiniRankAvatar(member, rankNum, scale) {
       if (!member || member.name === "-") return '';
@@ -5740,7 +6215,8 @@
       
       return `
         <div class="podium-item-wrapper" style="position: relative; width: ${avatarSize}; height: ${avatarSize}; transition: transform 0.2s; flex-shrink: 0; align-self: flex-end;" onmouseover="this.style.transform='scale(1.2)';" onmouseout="this.style.transform='none';">
-          <div style="width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--border-color); overflow: hidden; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); cursor: pointer;" onclick="event.stopPropagation(); if('${member.avatar}') openImagePreviewModal('${member.avatar}', '${member.name}', 'Rank #${rankNum}');">
+          ${getStarBadgeHtml(member.name, { top: 'calc(-12px * ' + scale + ')', size: 'calc(11px * ' + scale + ')' })}
+          <div style="width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--border-color); overflow: hidden; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); cursor: pointer;" onclick="event.stopPropagation(); openPodiumDetailsModal('${member.name.replace(/'/g, "\\'")}', ${rankNum});" title="Click to view Rank #${rankNum} breakdown for ${member.name}">
             ${hasAvatar 
               ? `<img src="${member.avatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
               : ''
@@ -5748,7 +6224,7 @@
             <span style="font-weight: 700; font-size: ${fontSize}; color: var(--text-main); display: ${hasAvatar ? 'none' : 'flex'};">${initials}</span>
           </div>
           <!-- Rank Badge at bottom right of avatar -->
-          <div style="position: absolute; bottom: -2.5px; right: -2.5px; width: ${badgeSize}; height: ${badgeSize}; border-radius: 50%; background: var(--bg-surface); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: ${badgeFontSize}; font-weight: 900; border: 1.5px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.15); font-family: 'Outfit', sans-serif; z-index: 2;">
+          <div style="position: absolute; bottom: -2.5px; right: -2.5px; width: ${badgeSize}; height: ${badgeSize}; border-radius: 50%; background: var(--bg-surface); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: ${badgeFontSize}; font-weight: 900; border: 1.5px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.15); font-family: 'Outfit', sans-serif; z-index: 2; cursor: pointer;" onclick="event.stopPropagation(); openPodiumDetailsModal('${member.name.replace(/'/g, "\\'")}', ${rankNum});">
             ${rankNum}
           </div>
           ${buildHoverTooltipHTML(member.name, member.points)}
@@ -5771,10 +6247,13 @@
       const avatarSize = rank === 1 ? 'clamp(45px, 5.5vw, 72px)' : 'clamp(38px, 4.5vw, 60px)';
       const initialsFontSize = rank === 1 ? 'clamp(14px, 1.6vw, 22px)' : 'clamp(11px, 1.3vw, 18px)';
       const badgeSize = rank === 1 ? 'clamp(18px, 2vw, 26px)' : 'clamp(15px, 1.8vw, 22px)';
-      const badgeFontSize = rank === 1 ? 'clamp(8px, 0.9vw, 12px)' : 'clamp(7px, 0.8vw, 10px)';
+      const badgeFontSize = rank === 1 ? 'clamp(8px, 0.9vw, 10px)' : 'clamp(7px, 0.8vw, 10px)';
+      const starTop = rank === 1 ? '-15px' : '-13px';
+      const starSize = rank === 1 ? '14px' : '12px';
       
       container.innerHTML = `
-        <div style="width: ${avatarSize}; height: ${avatarSize}; border-radius: 50%; border: 3px solid ${imageBorderColor}; overflow: hidden; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative; flex-shrink: 0; cursor: pointer;" onclick="event.stopPropagation(); if('${member.avatar}') openImagePreviewModal('${member.avatar}', '${member.name}', 'Rank #${rank} Performance Leader');">
+        ${getStarBadgeHtml(member.name, { top: starTop, size: starSize })}
+        <div style="width: ${avatarSize}; height: ${avatarSize}; border-radius: 50%; border: 3px solid ${imageBorderColor}; overflow: hidden; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative; flex-shrink: 0; cursor: pointer;" onclick="event.stopPropagation(); openPodiumDetailsModal('${member.name.replace(/'/g, "\\'")}', ${rank});" title="Click to view Rank #${rank} performance breakdown for ${member.name}">
           ${hasAvatar 
             ? `<img src="${member.avatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
             : ''
@@ -5782,7 +6261,7 @@
           <span style="font-weight: 800; font-size: ${initialsFontSize}; color: var(--text-main); display: ${hasAvatar ? 'none' : 'flex'};">${initials}</span>
         </div>
         <!-- Small rank badge attached to avatar bottom-right -->
-        <div style="position: absolute; bottom: -5px; right: -5px; width: ${badgeSize}; height: ${badgeSize}; border-radius: 50%; background: ${badgeColor}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: ${badgeFontSize}; border: 2px solid var(--bg-surface); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5; line-height: 1; flex-shrink: 0;">
+        <div style="position: absolute; bottom: -5px; right: -5px; width: ${badgeSize}; height: ${badgeSize}; border-radius: 50%; background: ${badgeColor}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: ${badgeFontSize}; border: 2px solid var(--bg-surface); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5; line-height: 1; flex-shrink: 0; cursor: pointer;" onclick="event.stopPropagation(); openPodiumDetailsModal('${member.name.replace(/'/g, "\\'")}', ${rank});">
           ${rank}
         </div>
         ${buildHoverTooltipHTML(member.name, member.points)}
@@ -5853,7 +6332,7 @@
       const dataValues = labels.map(name => {
         const perf = state.memberPerformance ? state.memberPerformance[name] : null;
         if (!perf) return 0;
-        return (perf.c6s * 0.5) + (perf.c10s * 1.0) + (perf.c15s * 1.5) + (perf.c20s * 2.0) + (perf.c30s * 2.5) + (perf.c1m * 3.0) + (perf.sp * 0.5);
+        return (perf.c6s * 0.8) + (perf.c10s * 1.0) + (perf.c15s * 1.5) + (perf.c20s * 1.7) + (perf.c30s * 2.0) + (perf.c1m * 3.0) + (perf.sp * 0.5);
       });
       
       // 1. Performance Bar Chart
@@ -6024,9 +6503,22 @@
         tbody.innerHTML += `
           <tr style="${rowStyle}">
             <td>${task.AssignDate}</td>
-            <td style="font-family:monospace; font-size:15px; font-weight:800; color: ${isSocialPost ? '#ec4899' : 'var(--accent-cyan)'};">${task.MPROID}${socialBadge}</td>
             <td>
-              <a href="${task.MPROLink}" target="_blank" class="mpro-link">Open MPRO Link</a>
+              ${(function() {
+                const briefLink = task.MPROLink || (task.MPROID ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + task.MPROID) : "#");
+                return `<a href="${briefLink}" target="_blank" style="font-family:monospace; font-size:15px; font-weight:800; color: ${isSocialPost ? '#ec4899' : 'var(--accent-cyan)'}; text-decoration: none;" title="Click to open Creative Brief #${task.MPROID || ''}">#${task.MPROID || ''}${socialBadge} ↗</a>`;
+              })()}
+            </td>
+            <td>
+              ${(function() {
+                const creativeMatch = (task.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+                let rawLink = task.CreativeLink || task.creative_link || task.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
+                if (!rawLink) return `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
+                const processed = window.processCreativeWorkInput(rawLink);
+                const finalLink = processed.link || rawLink;
+                const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+                return `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 5px 12px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+              })()}
             </td>
             <td><span class="status-badge" style="background-color:${isSocialPost ? 'rgba(236, 72, 153, 0.15)' : 'rgba(0,0,0,0.1)'}; color:${isSocialPost ? '#f472b6' : 'var(--text-main)'}; border: 1px solid ${isSocialPost ? 'rgba(236, 72, 153, 0.3)' : 'var(--border-color)'};">${task.Group}</span></td>
             <td>
@@ -6111,7 +6603,10 @@
 
     function cleanNoteText(note) {
       if (!note) return '';
-      return String(note).replace(/\[Type:\s*[^\]]+\]/g, '').trim();
+      return String(note)
+        .replace(/\[Creative Link:\s*https?:\/\/[^\]]+\]/gi, '')
+        .replace(/\[Type:\s*[^\]]+\]/g, '')
+        .trim();
     }
 
     function switchAssignmentTypeFilter(type) {
@@ -6628,6 +7123,11 @@
       if (typeof renderAccountsGrid === 'function' && document.getElementById('accountsContainer')) {
         renderAccountsGrid();
       }
+
+      // Immediately render personal infographics for logged in member
+      if (typeof renderMemberInfographics === 'function') {
+        try { renderMemberInfographics(); } catch(e) {}
+      }
     }
 
     function submitMemberLogin(e) {
@@ -6653,6 +7153,9 @@
             
             document.getElementById('loginMemberPin').value = ''; // clear password input
             checkMemberLoginStatus();
+            if (typeof renderMemberInfographics === 'function') {
+              try { renderMemberInfographics(); } catch(e) {}
+            }
             showToast("Logged in as " + name, "success");
           } else {
             showToast("Invalid PIN. Default PIN is 1234.", "error");
@@ -6711,6 +7214,9 @@
             
             closeMemberLoginModal();
             checkMemberLoginStatus();
+            if (typeof renderMemberInfographics === 'function') {
+              try { renderMemberInfographics(); } catch(e) {}
+            }
             showToast("Logged in as " + name, "success");
             
             // Open profile directly
@@ -6761,7 +7267,7 @@
       }
       
       if ((!state.myLogs || state.myLogs.length === 0)) {
-        const colSpanCount = isAdmin ? 12 : 11;
+        const colSpanCount = isAdmin ? 13 : 12;
         tbody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align: center; color: var(--text-muted);">No logs recorded. Select Work Date and log your quantities above!</td></tr>`;
         return;
       }
@@ -6769,15 +7275,44 @@
       tbody.innerHTML = '';
       state.myLogs.forEach(log => {
         const memberColHTML = isAdmin ? `<td style="color: var(--accent-cyan); font-weight:600;">${log.MemberName}</td>` : '';
-        const mproHTML = log.MproLink 
-          ? `<td><a href="${log.MproLink}" target="_blank" class="mpro-link" style="font-size:13px; font-weight:700; color:var(--accent-cyan);">Open MPRO Link</a></td>`
+        const mproId = log.MproId || log.mpro_id || (function() {
+          const m = String(log.MproLink || '').match(/\/(\d+)(?:\D|$)/);
+          return m ? m[1] : '';
+        })();
+        const mproBriefLink = log.MproLink || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
+        const mproHTML = (mproBriefLink && mproBriefLink !== '#')
+          ? `<td><a href="${mproBriefLink}" target="_blank" style="font-family:monospace; font-size:13px; font-weight:800; color:var(--accent-cyan); text-decoration:none;" title="Click to open Creative Brief #${mproId || ''}">#${mproId || 'Brief'} ↗</a></td>`
           : `<td style="color:var(--text-muted); font-family:monospace;">-</td>`;
+        
+        const creativeMatch = (log.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+        let rawCreativeLink = log.CreativeLink || log.creative_link || log.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : "");
+        
+        // If not directly on log, search state.assignments for matching MproId
+        if (!rawCreativeLink && mproId && state.assignments) {
+          const matchedTask = state.assignments.find(function(t) {
+            const tId = String(t.MPROID || t.mpro_id || '').trim();
+            return tId && tId === String(mproId).trim();
+          });
+          if (matchedTask) {
+            const taskMatch = (matchedTask.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+            rawCreativeLink = matchedTask.CreativeLink || matchedTask.creative_link || matchedTask.CreativeWorkLink || (taskMatch ? taskMatch[1] : "");
+          }
+        }
+
+        let creativeHTML = `<td style="color:var(--text-muted); font-family:monospace;">-</td>`;
+        if (rawCreativeLink) {
+          const processed = window.processCreativeWorkInput(rawCreativeLink);
+          const finalCreativeLink = processed.link || rawCreativeLink;
+          const displayLabel = processed.id ? `🎨 #${processed.id} ↗` : `🎨 Open Work ↗`;
+          creativeHTML = `<td><a href="${finalCreativeLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${processed.id ? '#' + processed.id : ''}">${displayLabel}</a></td>`;
+        }
         
         tbody.innerHTML += `
           <tr>
             <td style="font-weight:600;">${log.Date}</td>
             ${memberColHTML}
             ${mproHTML}
+            ${creativeHTML}
             <td>${log.Content6s || 0}</td>
             <td>${log.Content10s || 0}</td>
             <td>${log.Content15s || 0}</td>
@@ -6788,7 +7323,7 @@
             <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${log.Note || ''}">${log.Note || '-'}</td>
             <td>
               <div style="display:flex; gap:6px;">
-                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;" onclick="editDailyLog(${log.RowIndex}, '${log.Date}', ${log.Content6s || 0}, ${log.Content10s || 0}, ${log.Content15s || 0}, ${log.Content20s || 0}, ${log.Content30s || 0}, ${log.Content1m || 0}, ${log.SocialPost || 0}, \`${(log.Note || '').replace(/`/g, '\\`').replace(/\\$/g, '\\$')}\`, '${log.MemberName}', '${log.MproId || ''}', '${log.MproLink || ''}')">&#x270F;&#xFE0F; Edit</button>
+                <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;" onclick="editDailyLog(${log.RowIndex}, '${log.Date}', ${log.Content6s || 0}, ${log.Content10s || 0}, ${log.Content15s || 0}, ${log.Content20s || 0}, ${log.Content30s || 0}, ${log.Content1m || 0}, ${log.SocialPost || 0}, \`${(log.Note || '').replace(/`/g, '\\`').replace(/\\$/g, '\\$')}\`, '${log.MemberName}', '${log.MproId || ''}', '${log.MproLink || ''}', \`${(rawCreativeLink || '').replace(/`/g, '\\`').replace(/\\$/g, '\\$')}\`)">&#x270F;&#xFE0F; Edit</button>
                 <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; color:var(--status-error); border-color:rgba(239,68,68,0.2);" onclick="deleteDailyLog(${log.RowIndex}, '${log.MemberName}')">🗑️ Del</button>
               </div>
             </td>
@@ -6814,9 +7349,6 @@
       
       const rawCreativeLink = document.getElementById('logCreativeLink') ? document.getElementById('logCreativeLink').value.trim() : "";
       let userNote = document.getElementById('logNote').value.trim();
-      if (rawCreativeLink && !userNote.includes(rawCreativeLink)) {
-        userNote = userNote ? `${userNote}\n[Creative Link: ${rawCreativeLink}]` : `[Creative Link: ${rawCreativeLink}]`;
-      }
 
       const logData = {
         date: document.getElementById('logDate').value,
@@ -6916,7 +7448,7 @@
           .logDailyWork(logData);
       }
     }
-    function editDailyLog(rowIndex, date, c6, c10, c15, c20, c30, c1m, sp, note, memberName, mproId, mproLink) {
+    function editDailyLog(rowIndex, date, c6, c10, c15, c20, c30, c1m, sp, note, memberName, mproId, mproLink, creativeLink) {
       document.getElementById('editLogRowIndex').value = rowIndex;
       document.getElementById('logDate').value = date;
       setSelectValue('qty6s', c6);
@@ -6930,6 +7462,10 @@
       
       document.getElementById('logMproLink').value = mproLink || "";
       onLogMproLinkChange(mproLink || "");
+      
+      if (document.getElementById('logCreativeLink')) {
+        document.getElementById('logCreativeLink').value = creativeLink || "";
+      }
       
       const isAdmin = state.userRole === 'ADMIN';
       if (isAdmin) {
@@ -7205,9 +7741,6 @@
       const mproLink = document.getElementById('statusMproLink').value;
       const statusCreativeLink = document.getElementById('statusCreativeLink') ? document.getElementById('statusCreativeLink').value.trim() : "";
       let note = document.getElementById('statusNote').value.trim();
-      if (statusCreativeLink && !note.includes(statusCreativeLink)) {
-        note = note ? `${note}\n[Creative Link: ${statusCreativeLink}]` : `[Creative Link: ${statusCreativeLink}]`;
-      }
       const brand = document.getElementById('statusBrandSelect') ? document.getElementById('statusBrandSelect').value : '';
       const selectedType = document.getElementById('statusTaskType') ? document.getElementById('statusTaskType').value : 'Full Content';
       const newTotalQty = parseInt(document.getElementById('statusTotalQty') ? document.getElementById('statusTotalQty').value : 0) || statusModalState.totalQty || 1;
@@ -8133,12 +8666,39 @@
       } else {
         tbody.innerHTML = tasks.map(function(t) {
           const mproId = t.MPROID || t.MproId || t.MPROId || t.mpro_id || t.TaskID || '';
-          const mproLink = t.MPROLink || t.MproLink || t.mpro_link || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
+          const mproBriefLink = t.MPROLink || t.MproLink || t.mpro_link || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
           let mproBadge = '-';
           if (mproId) {
-            mproBadge = `<a href="${mproLink}" target="_blank" style="color: var(--primary); font-weight: 800; text-decoration: none; padding: 4px 10px; background: rgba(16, 185, 129, 0.12); border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 4px;" title="Open MPRO #${mproId}">#${mproId} 🔗</a>`;
-          } else if (mproLink && mproLink !== '#') {
-            mproBadge = `<a href="${mproLink}" target="_blank" style="color: var(--primary); font-weight: 800; text-decoration: none; padding: 4px 10px; background: rgba(16, 185, 129, 0.12); border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 4px;" title="Open MPRO Link">Open Link 🔗</a>`;
+            mproBadge = `<a href="${mproBriefLink}" target="_blank" style="font-family:monospace; font-size:14px; font-weight:800; color: var(--accent-cyan); text-decoration: none;" title="Open Creative Brief #${mproId || ''}">#${mproId || 'Brief'} ↗</a>`;
+          }
+
+          // Creative Work Pink Button ONLY if task is SUBMITTED or APPROVED
+          const stLower = (t.Status || '').toLowerCase();
+          const isSubmittedOrApproved = stLower.includes('submit') || stLower.includes('approved') || stLower.includes('completed') || stLower.includes('ok') || stLower.includes('pass');
+          let creativeWorkBadge = `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
+          
+          if (isSubmittedOrApproved) {
+            const creativeMatch = (t.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+            let rawCreativeLink = t.CreativeLink || t.creative_link || t.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
+            
+            // Fallback: check matching daily log if link not directly on assignment
+            if (!rawCreativeLink && mproId && state.dailyLogs) {
+              const matchedLog = state.dailyLogs.find(function(l) {
+                const lId = String(l.MproId || l.mpro_id || l.MproID || l.MPROID || '').trim();
+                return lId && lId === String(mproId).trim();
+              });
+              if (matchedLog) {
+                const logMatch = (matchedLog.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+                rawCreativeLink = matchedLog.CreativeLink || matchedLog.creative_link || matchedLog.CreativeWorkLink || (logMatch ? logMatch[1] : '');
+              }
+            }
+
+            if (rawCreativeLink) {
+              const processed = window.processCreativeWorkInput(rawCreativeLink);
+              const finalLink = processed.link || rawCreativeLink;
+              const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+              creativeWorkBadge = `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+            }
           }
           const assignDateYMD = normalizeDateToYMD(t.AssignDate || '');
           const taskType = t.TaskType || getTaskType(t) || 'Full Content';
@@ -8156,6 +8716,7 @@
             <tr>
               <td style="font-weight: 700; font-size: 12px;">${assignDateYMD}</td>
               <td>${mproBadge}</td>
+              <td>${creativeWorkBadge}</td>
               <td style="font-weight: 700;">${brandName}</td>
               <td><span style="font-size: 11px; padding: 3px 8px; background: rgba(255,255,255,0.06); border-radius: 4px; font-weight: 700;">${taskType}</span></td>
               <td style="font-weight: 800; text-align: center;">${t.Quantity || 1}</td>
@@ -8235,7 +8796,7 @@
       // Points calculation
       const filteredPerf = getFilteredPerformance(state.cycleStartDate, state.cycleEndDate);
       const perf = filteredPerf[memberName] || { c6s:0, c10s:0, c15s:0, c20s:0, c30s:0, c1m:0, sp:0 };
-      const pts = (perf.c6s * 1.0) + (perf.c10s * 1.0) + (perf.c15s * 1.7) + (perf.c20s * 1.7) + (perf.c30s * 2.0) + (perf.c1m * 3.0) + (perf.sp * 0.5);
+      const pts = (perf.c6s * 0.8) + (perf.c10s * 1.0) + (perf.c15s * 1.5) + (perf.c20s * 1.7) + (perf.c30s * 2.0) + (perf.c1m * 3.0) + (perf.sp * 0.5);
 
       const activeBadge = document.getElementById('memberModalActiveBadge');
       if (activeBadge) activeBadge.innerText = `${activeCount} Active Tasks`;
@@ -8420,8 +8981,36 @@
 
       tbody.innerHTML = filtered.map(function(t) {
         const mproId = t.MPROID || t.MproId || t.MPROId || t.mpro_id || t.TaskID || '';
-        const mproLink = t.MPROLink || t.MproLink || t.mpro_link || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
-        const mproBadge = mproId ? `<a href="${mproLink}" target="_blank" style="color: var(--primary); font-weight: 800; text-decoration: none; padding: 3px 8px; background: rgba(16, 185, 129, 0.12); border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3);" title="Open MPRO #${mproId}">#${mproId} 🔗</a>` : '-';
+        // Creative Work Pink Button ONLY if task is SUBMITTED or APPROVED
+        const stLower = (t.Status || '').toLowerCase();
+        const isSubmittedOrApproved = stLower.includes('submit') || stLower.includes('approved') || stLower.includes('completed') || stLower.includes('ok') || stLower.includes('pass');
+        let creativeWorkBadge = `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
+        
+        if (isSubmittedOrApproved) {
+          const creativeMatch = (t.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+          let rawCreativeLink = t.CreativeLink || t.creative_link || t.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
+          
+          if (!rawCreativeLink && mproId && state.dailyLogs) {
+            const matchedLog = state.dailyLogs.find(function(l) {
+              const lId = String(l.MproId || l.mpro_id || l.MproID || l.MPROID || '').trim();
+              return lId && lId === String(mproId).trim();
+            });
+            if (matchedLog) {
+              const logMatch = (matchedLog.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+              rawCreativeLink = matchedLog.CreativeLink || matchedLog.creative_link || matchedLog.CreativeWorkLink || (logMatch ? logMatch[1] : '');
+            }
+          }
+
+          if (rawCreativeLink) {
+            const processed = window.processCreativeWorkInput(rawCreativeLink);
+            const finalLink = processed.link || rawCreativeLink;
+            const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+            creativeWorkBadge = `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 3px 9px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+          }
+        }
+
+        const briefLink = t.MPROLink || t.MproLink || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
+        const briefBadge = (briefLink && briefLink !== '#') ? `<a href="${briefLink}" target="_blank" style="font-family:monospace; font-size:13px; font-weight:800; color: var(--accent-cyan); text-decoration: none;" title="Open Creative Brief #${mproId || ''}">#${mproId || 'Brief'} ↗</a>` : '-';
         const brandName = t.Brand || t.brands || t.Brands || t.Group || '-';
         const taskType = t.TaskType || getTaskType(t) || 'Full Content';
         const taskIdVal = t.TaskID || t.TaskId || t.id || '';
@@ -8436,7 +9025,8 @@
         return `
           <tr>
             <td style="font-weight: 700; font-size: 12px;">${normalizeDateToYMD(t.AssignDate || '')}</td>
-            <td>${mproBadge}</td>
+            <td>${briefBadge}</td>
+            <td>${creativeWorkBadge}</td>
             <td style="font-weight: 700;">${brandName}</td>
             <td><span style="font-size: 11px; padding: 2px 7px; background: rgba(255,255,255,0.06); border-radius: 4px; font-weight: 700;">${taskType}</span></td>
             <td style="font-weight: 800; text-align: center;">${t.Quantity || 1}</td>
@@ -8464,22 +9054,18 @@
     window.processCreativeWorkInput = function(rawVal) {
       if (!rawVal) return { id: "", link: "" };
       let str = String(rawVal).trim();
-      if (/^\d+$/.test(str)) {
-        return { id: str, link: CREATIVE_WORKS_BASE_URL + str };
-      }
       const match = str.match(/\/(\d+)\/?$/) || str.match(/\/(\d+)(?:\D|$)/) || str.match(/(\d+)/);
       const id = match ? match[1] : "";
-      let link = str;
-      if (id && !str.startsWith("http://") && !str.startsWith("https://")) {
-        link = CREATIVE_WORKS_BASE_URL + id;
-      }
-      return { id, link };
+      if (!id) return { id: "", link: str };
+      return { id: id, link: CREATIVE_WORKS_BASE_URL + id };
     };
 
     window.handleLogCreativeLinkInput = function(el) {
-      if (!el) return;
-      const res = window.processCreativeWorkInput(el.value);
-      if (res.link && el.value.trim() !== res.link) {
+      if (!el) el = document.getElementById('logCreativeLink');
+      if (!el || !el.value) return;
+      const rawVal = el.value.trim();
+      const res = window.processCreativeWorkInput(rawVal);
+      if (res.link && (rawVal !== res.link)) {
         el.value = res.link;
       }
     };
@@ -10472,9 +11058,22 @@
         return `
           <tr style="${rowStyle}">
             <td>${task.AssignDate}</td>
-            <td style="font-family:monospace; font-size:15px; font-weight:800; color: ${isSocialPost ? '#ec4899' : 'var(--accent-cyan)'};">${task.MPROID}${socialBadge}</td>
             <td>
-              <a href="${task.MPROLink || '#'}" target="_blank" class="mpro-link">Open MPRO Link</a>
+              ${(function() {
+                const briefLink = task.MPROLink || (task.MPROID ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + task.MPROID) : "#");
+                return `<a href="${briefLink}" target="_blank" style="font-family:monospace; font-size:15px; font-weight:800; color: ${isSocialPost ? '#ec4899' : 'var(--accent-cyan)'}; text-decoration: none;" title="Click to open Creative Brief #${task.MPROID || ''}">#${task.MPROID || ''}${socialBadge} ↗</a>`;
+              })()}
+            </td>
+            <td>
+              ${(function() {
+                const creativeMatch = (task.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+                let rawLink = task.CreativeLink || task.creative_link || task.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
+                if (!rawLink) return `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
+                const processed = window.processCreativeWorkInput(rawLink);
+                const finalLink = processed.link || rawLink;
+                const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+                return `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 5px 12px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+              })()}
             </td>
             <td><span class="status-badge" style="background-color:${isSocialPost ? 'rgba(236, 72, 153, 0.15)' : 'rgba(0,0,0,0.1)'}; color:${isSocialPost ? '#f472b6' : 'var(--text-main)'}; border: 1px solid ${isSocialPost ? 'rgba(236, 72, 153, 0.3)' : 'var(--border-color)'};">${task.Group || '-'}</span></td>
             <td>
@@ -11032,6 +11631,683 @@
       `);
       printWindow.document.close();
     };
+
+    // ----------------------------------------------------
+    // 1. PODIUM POPUP MODAL (Top Performers Podium)
+    // ----------------------------------------------------
+    window.openPodiumDetailsModal = function(memberName, rankOverride) {
+      if (!memberName) return;
+      const modal = document.getElementById('podiumDetailsModal');
+      if (!modal) return;
+
+      const member = (state.members || []).find(function(m) { return m.Name === memberName; });
+      const memberTasks = (state.assignments || []).filter(function(t) { return t.AssignedTo === memberName; });
+
+      // Header Info
+      const nameEl = document.getElementById('podiumModalName');
+      if (nameEl) nameEl.innerText = memberName;
+
+      const roleBadge = document.getElementById('podiumModalRoleBadge');
+      if (roleBadge) roleBadge.innerText = (member && member.Role) ? member.Role : 'Team Member';
+
+      const avatarContainer = document.getElementById('podiumModalAvatarContainer');
+      if (avatarContainer) {
+        if (member && member.Avatar && member.Avatar.trim() !== '') {
+          avatarContainer.innerHTML = `<img src="${member.Avatar}" onclick="openImagePreviewModal('${member.Avatar}', '${memberName}', '${member.Role || 'Team Member'}');" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.25);" title="Click to expand photo">`;
+        } else {
+          const initials = memberName.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+          avatarContainer.innerHTML = `<div style="width: 54px; height: 54px; border-radius: 50%; background: var(--bg-surface-hover); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; border: 2px solid var(--primary); font-family: 'Outfit', sans-serif;">${initials}</div>`;
+        }
+      }
+
+      // Stats Calculation
+      let totalQty = 0;
+      let completedQty = 0;
+      let activeCount = 0;
+      const brandCounts = {};
+
+      memberTasks.forEach(function(t) {
+        const qty = Number(t.Quantity) || 1;
+        const comp = Number(t.CompletedQty) || 0;
+        totalQty += qty;
+        completedQty += comp;
+
+        const st = (t.Status || '').toLowerCase();
+        const isApproved = st.includes('approved') || st.includes('completed') || st.includes('ok') || st.includes('pass');
+        if (!isApproved) activeCount++;
+
+        const b = (t.Brands || t.Group || '').trim();
+        if (b && b !== '-' && b.toLowerCase() !== 'no brand') {
+          brandCounts[b] = (brandCounts[b] || 0) + 1;
+        }
+      });
+
+      const leftQty = Math.max(0, totalQty - completedQty);
+
+      // Performance points & format breakdown
+      const filteredPerf = getFilteredPerformance(state.cycleStartDate, state.cycleEndDate);
+      const leaderboard = calculateLeaderboard(filteredPerf);
+      const foundRankIdx = leaderboard.findIndex(function(m) { return m.name === memberName; });
+      const actualRank = foundRankIdx !== -1 ? (foundRankIdx + 1) : null;
+      const rankNum = rankOverride || actualRank;
+
+      const perf = filteredPerf[memberName] || { c6s:0, c10s:0, c15s:0, c20s:0, c30s:0, c1m:0, sp:0 };
+      const c6s = Number(perf.c6s) || 0;
+      const c10s = Number(perf.c10s) || 0;
+      const c15s = Number(perf.c15s) || 0;
+      const c20s = Number(perf.c20s) || 0;
+      const c30s = Number(perf.c30s) || 0;
+      const c1m = Number(perf.c1m) || 0;
+      const sp = Number(perf.sp) || 0;
+
+      const pts6s = c6s * 0.8;
+      const pts10s = c10s * 1.0;
+      const pts15s = c15s * 1.5;
+      const pts20s = c20s * 1.7;
+      const pts30s = c30s * 2.0;
+      const pts1m = c1m * 3.0;
+      const ptsSp = sp * 0.5;
+
+      const totalPts = pts6s + pts10s + pts15s + pts20s + pts30s + pts1m + ptsSp;
+      const totalMotion = c6s + c10s + c15s + c20s + c30s + c1m;
+
+      const activeBadge = document.getElementById('podiumModalActiveBadge');
+      if (activeBadge) activeBadge.innerText = `${activeCount} Active Tasks`;
+
+      const elActive = document.getElementById('podiumStatActive');
+      const elDone = document.getElementById('podiumStatDone');
+      const elPending = document.getElementById('podiumStatPending');
+      const elPoints = document.getElementById('podiumStatPoints');
+
+      if (elActive) elActive.innerText = activeCount;
+      if (elDone) elDone.innerText = `${completedQty}/${totalQty}`;
+      if (elPending) elPending.innerText = leftQty;
+      if (elPoints) elPoints.innerText = `${totalPts.toFixed(1)} pts`;
+
+      // Update Rank Badge & Total Score
+      const rankBadge = document.getElementById('podiumRankBadge');
+      if (rankBadge) {
+        if (rankNum) {
+          let bg = '#3b82f6';
+          let txt = '#ffffff';
+          if (rankNum === 1) { bg = '#eab308'; txt = '#000000'; }
+          else if (rankNum === 2) { bg = '#94a3b8'; txt = '#000000'; }
+          else if (rankNum === 3) { bg = '#ca8a04'; txt = '#ffffff'; }
+          rankBadge.style.background = bg;
+          rankBadge.style.color = txt;
+          rankBadge.innerText = `🏆 RANK #${rankNum}`;
+        } else {
+          rankBadge.style.background = 'rgba(255,255,255,0.1)';
+          rankBadge.style.color = 'var(--text-muted)';
+          rankBadge.innerText = `📊 TEAM MEMBER`;
+        }
+      }
+
+      const rankPtsEl = document.getElementById('podiumRankTotalPts');
+      if (rankPtsEl) rankPtsEl.innerText = `${totalPts.toFixed(2)} pts`;
+
+      // Build Rank Reason Text
+      const reasonEl = document.getElementById('podiumRankReasonText');
+      if (reasonEl) {
+        if (rankNum === 1) {
+          reasonEl.innerHTML = `🥇 <b>Rank #1 Leader Reasons:</b> ${memberName} achieved <b>Rank #1 Top Performer</b> with <b>${totalPts.toFixed(2)} total points</b>! Produced <b>${totalMotion} motion videos</b> and <b>${sp} static graphics</b> in this cycle.`;
+        } else if (rankNum === 2) {
+          reasonEl.innerHTML = `🥈 <b>Rank #2 Performer Reasons:</b> ${memberName} secured <b>Rank #2</b> with <b>${totalPts.toFixed(2)} total points</b>! Completed <b>${totalMotion} motion videos</b> and <b>${sp} static graphics</b>.`;
+        } else if (rankNum === 3) {
+          reasonEl.innerHTML = `🥉 <b>Rank #3 Performer Reasons:</b> ${memberName} achieved <b>Rank #3 Podium finish</b> with <b>${totalPts.toFixed(2)} total points</b>! Completed <b>${totalMotion} motion videos</b> and <b>${sp} static graphics</b>.`;
+        } else if (rankNum) {
+          reasonEl.innerHTML = `📊 <b>Rank #${rankNum} Analysis:</b> ${memberName} is currently at <b>Rank #${rankNum}</b> with <b>${totalPts.toFixed(2)} points</b> from <b>${totalMotion} motion videos</b> and <b>${sp} static graphics</b>.`;
+        } else {
+          reasonEl.innerHTML = `📊 ${memberName} has <b>${totalPts.toFixed(2)} points</b> in the current billing cycle.`;
+        }
+      }
+
+      // Render Video Seconds / Format breakdown cards
+      const formatGrid = document.getElementById('podiumFormatGrid');
+      if (formatGrid) {
+        formatGrid.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 10px; text-align: center;">
+            <div style="font-size: 9px; font-weight: 800; color: #10b981; text-transform: uppercase;">⚡ 6s Video</div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main); margin-top: 2px;">${c6s}</div>
+            <div style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">(0.8 pt = ${pts6s.toFixed(1)} pts)</div>
+          </div>
+          <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 10px; text-align: center;">
+            <div style="font-size: 9px; font-weight: 800; color: #3b82f6; text-transform: uppercase;">🎬 10s Video</div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main); margin-top: 2px;">${c10s}</div>
+            <div style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">(1.0 pt = ${pts10s.toFixed(1)} pts)</div>
+          </div>
+          <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 10px; padding: 10px; text-align: center;">
+            <div style="font-size: 9px; font-weight: 800; color: #a855f7; text-transform: uppercase;">🎥 15s Video</div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main); margin-top: 2px;">${c15s}</div>
+            <div style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">(1.5 pts = ${pts15s.toFixed(1)} pts)</div>
+          </div>
+          <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 10px; text-align: center;">
+            <div style="font-size: 9px; font-weight: 800; color: #f59e0b; text-transform: uppercase;">📹 20s Video</div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main); margin-top: 2px;">${c20s}</div>
+            <div style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">(1.7 pts = ${pts20s.toFixed(1)} pts)</div>
+          </div>
+          <div style="background: rgba(236, 72, 153, 0.08); border: 1px solid rgba(236, 72, 153, 0.25); border-radius: 10px; padding: 10px; text-align: center;">
+            <div style="font-size: 9px; font-weight: 800; color: #ec4899; text-transform: uppercase;">📼 30s Video</div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main); margin-top: 2px;">${c30s}</div>
+            <div style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">(2.0 pts = ${pts30s.toFixed(1)} pts)</div>
+          </div>
+          <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 10px; padding: 10px; text-align: center;">
+            <div style="font-size: 9px; font-weight: 800; color: #06b6d4; text-transform: uppercase;">🎞️ 1m Video</div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main); margin-top: 2px;">${c1m}</div>
+            <div style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">(3.0 pts = ${pts1m.toFixed(1)} pts)</div>
+          </div>
+          <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 10px; text-align: center;">
+            <div style="font-size: 9px; font-weight: 800; color: #6366f1; text-transform: uppercase;">🎨 Social Post</div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main); margin-top: 2px;">${sp}</div>
+            <div style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">(0.5 pt = ${ptsSp.toFixed(1)} pts)</div>
+          </div>
+        `;
+      }
+
+      // Brands Badges
+      const brandsContainer = document.getElementById('podiumModalBrandsContainer');
+      if (brandsContainer) {
+        const sortedBrands = Object.keys(brandCounts).sort(function(a, b) { return brandCounts[b] - brandCounts[a]; });
+        if (sortedBrands.length === 0) {
+          brandsContainer.innerHTML = `<span style="font-size: 11px; color: var(--text-muted);">No brand assignments yet.</span>`;
+        } else {
+          brandsContainer.innerHTML = sortedBrands.map(function(b) {
+            return `<span class="status-badge" style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 12px; border-radius: 20px;">${b} (${brandCounts[b]} Tasks)</span>`;
+          }).join(' ');
+        }
+      }
+
+      // Oldest Pending Badges
+      const oldestBadgesContainer = document.getElementById('podiumOldestAssignBadges');
+      const oldestCountLabel = document.getElementById('podiumOldestAssignCountLabel');
+
+      const pendingTasks = memberTasks.filter(function(t) {
+        const st = (t.Status || '').toLowerCase();
+        return !st.includes('approved') && !st.includes('completed') && !st.includes('ok') && !st.includes('pass');
+      }).sort(function(a, b) {
+        const dA = new Date(a.AssignDate || a.date).getTime() || 0;
+        const dB = new Date(b.AssignDate || b.date).getTime() || 0;
+        return dA - dB;
+      });
+
+      if (oldestCountLabel) oldestCountLabel.innerText = `${pendingTasks.length} Pending Due Tasks`;
+
+      if (oldestBadgesContainer) {
+        if (pendingTasks.length === 0) {
+          oldestBadgesContainer.innerHTML = `<span class="status-badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.12); color: #10b981; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">All Clear 🎉 No Pending Tasks</span>`;
+        } else {
+          const todayTime = new Date().setHours(0,0,0,0);
+          const oldest6 = pendingTasks.slice(0, 6);
+
+          oldestBadgesContainer.innerHTML = oldest6.map(function(t) {
+            const mproId = t.MPROID || t.MproId || t.MPROId || t.mpro_id || t.TaskID || '';
+            const mproLink = t.MPROLink || t.MproLink || t.mpro_link || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
+            const dStr = t.AssignDate || t.date;
+            const dTime = new Date(dStr).setHours(0,0,0,0);
+            const diffDays = isNaN(dTime) ? 0 : Math.floor((todayTime - dTime) / (1000 * 60 * 60 * 24));
+            const daysText = diffDays <= 0 ? 'Today' : (diffDays + 'D');
+
+            let bg = 'rgba(16, 185, 129, 0.15)';
+            let color = '#10b981';
+            let border = 'rgba(16, 185, 129, 0.35)';
+            let icon = '🟢';
+
+            if (diffDays > 7) {
+              bg = 'rgba(239, 68, 68, 0.18)';
+              color = '#ef4444';
+              border = 'rgba(239, 68, 68, 0.4)';
+              icon = '🔴';
+            } else if (diffDays > 3) {
+              bg = 'rgba(245, 158, 11, 0.18)';
+              color = '#f59e0b';
+              border = 'rgba(245, 158, 11, 0.4)';
+              icon = '🔸';
+            }
+
+            const mproLabel = mproId ? `#${mproId}` : 'MPRO';
+            return `<a href="${mproLink}" target="_blank" class="status-badge" style="font-size: 11px; background: ${bg}; color: ${color}; font-weight:800; border: 1px solid ${border}; padding: 3px 9px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.15s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);" onmouseover="this.style.transform='scale(1.08)';" onmouseout="this.style.transform='none';" title="Click to open MPRO #${mproId} (${daysText} ago)">${icon} ${mproLabel} (${daysText}) ↗</a>`;
+          }).join(' ');
+        }
+      }
+
+      modal.classList.add('active');
+    };
+
+    window.closePodiumDetailsModal = function() {
+      const modal = document.getElementById('podiumDetailsModal');
+      if (modal) modal.classList.remove('active');
+    };
+
+    // ----------------------------------------------------
+    // AI CREDIT & COST ANALYZER LOGIC
+    // ----------------------------------------------------
+    function initAiCreditsState() {
+      const defaultState = {
+        rates: { inrToBdt: 1.42, usdToBdt: 122.0 },
+        packages: [
+          { id: 'pkg_mag_1', tool: 'Magnific AI Credit', initialCredits: 4000000, date: '2026-07-27', price: 175000, currency: 'INR', note: 'Office Subscription' },
+          { id: 'pkg_hig_1', tool: 'Higgsfield AI Credit', initialCredits: 9000, date: '2026-07-27', price: 149, currency: 'USD', note: 'Monthly Plan' }
+        ],
+        formatRates: {
+          '6s': { magnific: 1000, higgsfield: 15 },
+          '10s': { magnific: 1500, higgsfield: 20 },
+          '15s': { magnific: 2000, higgsfield: 25 },
+          '20s': { magnific: 2500, higgsfield: 30 },
+          '30s': { magnific: 3500, higgsfield: 45 },
+          '1m': { magnific: 5000, higgsfield: 60 },
+          'sp': { magnific: 500, higgsfield: 0 }
+        }
+      };
+
+      if (!state.aiCredits) {
+        const saved = localStorage.getItem('sct_ai_credits');
+        if (saved) {
+          try {
+            state.aiCredits = JSON.parse(saved);
+            if (!state.aiCredits.rates) state.aiCredits.rates = defaultState.rates;
+            if (!state.aiCredits.packages || state.aiCredits.packages.length === 0) state.aiCredits.packages = defaultState.packages;
+            if (!state.aiCredits.formatRates) state.aiCredits.formatRates = defaultState.formatRates;
+          } catch(e) {
+            state.aiCredits = defaultState;
+          }
+        } else {
+          state.aiCredits = defaultState;
+        }
+      }
+    }
+
+    function saveAiCreditsState() {
+      if (state.aiCredits) {
+        localStorage.setItem('sct_ai_credits', JSON.stringify(state.aiCredits));
+      }
+    }
+
+    window.openAddCreditModal = function() {
+      const modal = document.getElementById('addCreditModal');
+      if (modal) {
+        document.getElementById('creditToolNameInput').value = '';
+        document.getElementById('creditInitialQtyInput').value = '';
+        document.getElementById('creditPriceInput').value = '';
+        document.getElementById('creditNoteInput').value = '';
+        document.getElementById('creditPurchaseDateInput').value = new Date().toISOString().split('T')[0];
+        modal.style.display = 'flex';
+      }
+    };
+
+    window.closeAddCreditModal = function() {
+      const modal = document.getElementById('addCreditModal');
+      if (modal) modal.style.display = 'none';
+    };
+
+    window.submitAddCreditPackage = function(e) {
+      e.preventDefault();
+      if (!state.aiCredits) initAiCreditsState();
+      
+      const tool = document.getElementById('creditToolNameInput').value.trim();
+      const initialCredits = Number(document.getElementById('creditInitialQtyInput').value) || 0;
+      const date = document.getElementById('creditPurchaseDateInput').value;
+      const price = Number(document.getElementById('creditPriceInput').value) || 0;
+      const currency = document.getElementById('creditCurrencySelect').value;
+      const note = document.getElementById('creditNoteInput').value.trim();
+
+      if (!tool || initialCredits <= 0) {
+        if (typeof showToast === 'function') showToast("Please enter a valid AI Tool name and initial credits", "warning");
+        return;
+      }
+
+      const newPkg = {
+        id: 'pkg_' + Date.now(),
+        tool: tool,
+        initialCredits: initialCredits,
+        date: date || new Date().toISOString().split('T')[0],
+        price: price,
+        currency: currency,
+        note: note
+      };
+
+      state.aiCredits.packages.push(newPkg);
+      saveAiCreditsState();
+      closeAddCreditModal();
+      renderCreditTab();
+      if (typeof showToast === 'function') showToast("New AI Credit package saved successfully!", "success");
+    };
+
+    window.deleteCreditPackage = function(id) {
+      if (!confirm("Are you sure you want to delete this credit package?")) return;
+      if (!state.aiCredits || !state.aiCredits.packages) return;
+      
+      state.aiCredits.packages = state.aiCredits.packages.filter(p => p.id !== id);
+      saveAiCreditsState();
+      renderCreditTab();
+      if (typeof showToast === 'function') showToast("Credit package removed", "info");
+    };
+
+    window.openExchangeRateModal = function() {
+      if (!state.aiCredits) initAiCreditsState();
+      const modal = document.getElementById('exchangeRateModal');
+      if (modal) {
+        document.getElementById('inputInrToBdt').value = state.aiCredits.rates.inrToBdt || 1.42;
+        document.getElementById('inputUsdToBdt').value = state.aiCredits.rates.usdToBdt || 122.0;
+        modal.style.display = 'flex';
+      }
+    };
+
+    window.closeExchangeRateModal = function() {
+      const modal = document.getElementById('exchangeRateModal');
+      if (modal) modal.style.display = 'none';
+    };
+
+    window.submitExchangeRates = function(e) {
+      e.preventDefault();
+      if (!state.aiCredits) initAiCreditsState();
+      
+      const inrRate = Number(document.getElementById('inputInrToBdt').value) || 1.42;
+      const usdRate = Number(document.getElementById('inputUsdToBdt').value) || 122.0;
+
+      state.aiCredits.rates.inrToBdt = inrRate;
+      state.aiCredits.rates.usdToBdt = usdRate;
+
+      saveAiCreditsState();
+      closeExchangeRateModal();
+      renderCreditTab();
+      if (typeof showToast === 'function') showToast("Exchange rates updated!", "success");
+    };
+
+    function renderCreditTab() {
+      if (!state.aiCredits) initAiCreditsState();
+      
+      const rates = state.aiCredits.rates || { inrToBdt: 1.42, usdToBdt: 122.0 };
+      const inrRate = rates.inrToBdt || 1.42;
+      const usdRate = rates.usdToBdt || 122.0;
+
+      // Update rate displays in banner
+      const rateInrDisp = document.getElementById('rateInrBdtDisp');
+      const rateUsdDisp = document.getElementById('rateUsdBdtDisp');
+      if (rateInrDisp) rateInrDisp.innerText = inrRate;
+      if (rateUsdDisp) rateUsdDisp.innerText = usdRate;
+
+      // 1. Calculate Initial Package Capital & Credit Totals
+      let magInit = 0, magPriceInr = 0, magCostBdt = 0;
+      let higInit = 0, higPriceUsd = 0, higCostBdt = 0;
+      let totalCapitalBdt = 0;
+
+      (state.aiCredits.packages || []).forEach(pkg => {
+        let pkgBdtCost = 0;
+        if (pkg.currency === 'INR') pkgBdtCost = pkg.price * inrRate;
+        else if (pkg.currency === 'USD') pkgBdtCost = pkg.price * usdRate;
+        else pkgBdtCost = pkg.price;
+
+        totalCapitalBdt += pkgBdtCost;
+
+        const toolName = pkg.tool.toLowerCase();
+        if (toolName.includes('magnific')) {
+          magInit += Number(pkg.initialCredits) || 0;
+          if (pkg.currency === 'INR') magPriceInr += Number(pkg.price) || 0;
+          magCostBdt += pkgBdtCost;
+        } else if (toolName.includes('higgsfield')) {
+          higInit += Number(pkg.initialCredits) || 0;
+          if (pkg.currency === 'USD') higPriceUsd += Number(pkg.price) || 0;
+          higCostBdt += pkgBdtCost;
+        }
+      });
+
+      // Unit Cost per credit in BDT
+      const costPerMagCreditBdt = magInit > 0 ? magCostBdt / magInit : 0;
+      const costPerHigCreditBdt = higInit > 0 ? higCostBdt / higInit : 0;
+
+      // 2. Count delivered items & format breakdown
+      const formatCounts = { '6s': 0, '10s': 0, '15s': 0, '20s': 0, '30s': 0, '1m': 0, 'sp': 0 };
+      let totalDeliveries = 0;
+
+      const assignments = state.assignments || [];
+      assignments.forEach(a => {
+        const st = (a.Status || '').toLowerCase();
+        const isDelivered = st.includes('completed') || st.includes('approved') || st.includes('ok') || st.includes('pass') || st.includes('submit');
+        if (isDelivered) {
+          const qty = Number(a.CompletedQty || a.Quantity) || 1;
+          totalDeliveries += qty;
+
+          const type = typeof getTaskType === 'function' ? getTaskType(a).toLowerCase() : String(a.Format || a.TaskType || '').toLowerCase();
+          if (type.includes('6s')) formatCounts['6s'] += qty;
+          else if (type.includes('10s')) formatCounts['10s'] += qty;
+          else if (type.includes('15s')) formatCounts['15s'] += qty;
+          else if (type.includes('20s')) formatCounts['20s'] += qty;
+          else if (type.includes('30s')) formatCounts['30s'] += qty;
+          else if (type.includes('1m') || type.includes('60s')) formatCounts['1m'] += qty;
+          else if (type.includes('post') || type.includes('social') || type.includes('static')) formatCounts['sp'] += qty;
+          else formatCounts['15s'] += qty; // Default
+        }
+      });
+
+      // 3. Calculate total credits consumed
+      const fRates = state.aiCredits.formatRates || {};
+      let totalMagUsed = 0;
+      let totalHigUsed = 0;
+      let totalAiCostBdt = 0;
+
+      const formatBreakdownRows = [];
+      const formatsList = [
+        { key: '6s', label: '⚡ 6s Video' },
+        { key: '10s', label: '🎬 10s Video' },
+        { key: '15s', label: '🎥 15s Video' },
+        { key: '20s', label: '📽️ 20s Video' },
+        { key: '30s', label: '🎞️ 30s Video' },
+        { key: '1m', label: '📹 1m Video' },
+        { key: 'sp', label: '📱 Social Post' }
+      ];
+
+      formatsList.forEach(fmt => {
+        const count = formatCounts[fmt.key] || 0;
+        const magRate = (fRates[fmt.key] ? fRates[fmt.key].magnific : 2000);
+        const higRate = (fRates[fmt.key] ? fRates[fmt.key].higgsfield : 25);
+
+        const totalMagFmt = count * magRate;
+        const totalHigFmt = count * higRate;
+        totalMagUsed += totalMagFmt;
+        totalHigUsed += totalHigFmt;
+
+        const itemCostBdt = (magRate * costPerMagCreditBdt) + (higRate * costPerHigCreditBdt);
+        const fmtTotalCostBdt = count * itemCostBdt;
+        totalAiCostBdt += fmtTotalCostBdt;
+
+        formatBreakdownRows.push(`
+          <tr>
+            <td style="padding: 10px 14px; font-weight: 700; color: var(--text-main);">${fmt.label}</td>
+            <td style="padding: 10px 14px; text-align: center; font-weight: 800; color: var(--primary);">${count}</td>
+            <td style="padding: 10px 14px; text-align: center; font-size: 11px;">
+              <strong>${magRate.toLocaleString()}</strong> <span style="color:var(--text-muted);">(Total: ${totalMagFmt.toLocaleString()})</span>
+            </td>
+            <td style="padding: 10px 14px; text-align: center; font-size: 11px;">
+              <strong>${higRate.toLocaleString()}</strong> <span style="color:var(--text-muted);">(Total: ${totalHigFmt.toLocaleString()})</span>
+            </td>
+            <td style="padding: 10px 14px; text-align: right; font-weight: 700; color: var(--text-main);">
+              ৳${Math.round(itemCostBdt).toLocaleString()} BDT
+            </td>
+            <td style="padding: 10px 14px; text-align: right; font-weight: 800; color: #10b981;">
+              ৳${Math.round(fmtTotalCostBdt).toLocaleString()} BDT
+            </td>
+          </tr>
+        `);
+      });
+
+      // Render format breakdown table
+      const formatTbody = document.getElementById('creditFormatBreakdownTbody');
+      if (formatTbody) formatTbody.innerHTML = formatBreakdownRows.join('');
+
+      // 4. Update KPI Cards
+      const magRem = Math.max(0, magInit - totalMagUsed);
+      const higRem = Math.max(0, higInit - totalHigUsed);
+
+      const magPct = magInit > 0 ? Math.max(0, Math.round((magRem / magInit) * 100)) : 100;
+      const higPct = higInit > 0 ? Math.max(0, Math.round((higRem / higInit) * 100)) : 100;
+
+      // Magnific Card UI
+      const elMagRem = document.getElementById('creditMagRem');
+      const elMagInit = document.getElementById('creditMagInit');
+      const elMagBdt = document.getElementById('creditMagBdt');
+      const elMagPct = document.getElementById('creditMagPercent');
+      const elMagBar = document.getElementById('creditMagBar');
+      if (elMagRem) elMagRem.innerText = (magRem / 1000000).toFixed(2) + 'M';
+      if (elMagInit) elMagInit.innerText = (magInit / 1000000).toFixed(2) + 'M';
+      if (elMagBdt) elMagBdt.innerText = Math.round(magCostBdt).toLocaleString();
+      if (elMagPct) elMagPct.innerText = magPct + '%';
+      if (elMagBar) elMagBar.style.width = magPct + '%';
+
+      // Higgsfield Card UI
+      const elHigRem = document.getElementById('creditHigRem');
+      const elHigInit = document.getElementById('creditHigInit');
+      const elHigBdt = document.getElementById('creditHigBdt');
+      const elHigPct = document.getElementById('creditHigPercent');
+      const elHigBar = document.getElementById('creditHigBar');
+      if (elHigRem) elHigRem.innerText = higRem.toLocaleString();
+      if (elHigInit) elHigInit.innerText = higInit.toLocaleString();
+      if (elHigBdt) elHigBdt.innerText = Math.round(higCostBdt).toLocaleString();
+      if (elHigPct) elHigPct.innerText = higPct + '%';
+      if (elHigBar) elHigBar.style.width = higPct + '%';
+
+      // Total Deliveries & Expenditure
+      const elTotDel = document.getElementById('creditTotalDeliveries');
+      const elTotCostBdt = document.getElementById('creditTotalAiCostBdt');
+      const elAvgCost = document.getElementById('creditAvgCostPerContent');
+      if (elTotDel) elTotDel.innerText = totalDeliveries;
+      if (elTotCostBdt) elTotCostBdt.innerText = Math.round(totalAiCostBdt).toLocaleString();
+
+      const avgCostPerContent = totalDeliveries > 0 ? Math.round(totalAiCostBdt / totalDeliveries) : 0;
+      if (elAvgCost) elAvgCost.innerText = '৳' + avgCostPerContent.toLocaleString() + ' BDT';
+
+      // Combined Status
+      const elCombStat = document.getElementById('creditCombinedStatus');
+      const elPkgCount = document.getElementById('creditPackageCount');
+      const elTotCapBdt = document.getElementById('creditTotalCapitalBdt');
+      if (elCombStat) elCombStat.innerText = Math.min(magPct, higPct) + '% Healthy';
+      if (elPkgCount) elPkgCount.innerText = (state.aiCredits.packages || []).length + ' Packages';
+      if (elTotCapBdt) elTotCapBdt.innerText = Math.round(totalCapitalBdt).toLocaleString();
+
+      // 5. Render Credit Subscriptions / Packages List
+      const packagesContainer = document.getElementById('creditPackagesListContainer');
+      if (packagesContainer) {
+        const pkgs = state.aiCredits.packages || [];
+        if (pkgs.length === 0) {
+          packagesContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;">No credit packages logged yet.</div>`;
+        } else {
+          packagesContainer.innerHTML = pkgs.map(p => {
+            let bdtVal = p.price;
+            if (p.currency === 'INR') bdtVal = p.price * inrRate;
+            else if (p.currency === 'USD') bdtVal = p.price * usdRate;
+
+            return `
+              <div style="background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <div>
+                  <div style="font-weight: 800; font-size: 13px; color: var(--text-main); font-family: 'Outfit', sans-serif;">${p.tool}</div>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                    Init Credits: <strong>${Number(p.initialCredits).toLocaleString()}</strong> | Date: ${p.date || '-'}
+                  </div>
+                  ${p.note ? `<div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;"><em>${p.note}</em></div>` : ''}
+                </div>
+                <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                  <div style="font-weight: 900; font-size: 13px; color: var(--primary);">
+                    ${p.currency === 'INR' ? '₹' : (p.currency === 'USD' ? '$' : '৳')}${Number(p.price).toLocaleString()} ${p.currency}
+                  </div>
+                  <div style="font-size: 10px; font-weight: 700; color: var(--text-muted);">
+                    ≈ ৳${Math.round(bdtVal).toLocaleString()} BDT
+                  </div>
+                  <button onclick="deleteCreditPackage('${p.id}')" style="background: none; border: none; font-size: 11px; color: #ef4444; cursor: pointer; padding: 0;" title="Delete Package">🗑️ Delete</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 6. Render Delivered Content Credit Log Table
+      renderCreditDeliveryLogs();
+    }
+
+    window.renderCreditDeliveryLogs = function() {
+      const tbody = document.getElementById('creditDeliveryLogsTbody');
+      const searchInput = document.getElementById('creditLogSearch');
+      if (!tbody) return;
+
+      const searchVal = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      if (!state.aiCredits) initAiCreditsState();
+
+      const rates = state.aiCredits.rates || { inrToBdt: 1.42, usdToBdt: 122.0 };
+      const inrRate = rates.inrToBdt || 1.42;
+      const usdRate = rates.usdToBdt || 122.0;
+
+      let magInit = 0, magCostBdt = 0;
+      let higInit = 0, higCostBdt = 0;
+      (state.aiCredits.packages || []).forEach(pkg => {
+        let bdt = pkg.price;
+        if (pkg.currency === 'INR') bdt = pkg.price * inrRate;
+        else if (pkg.currency === 'USD') bdt = pkg.price * usdRate;
+        if (pkg.tool.toLowerCase().includes('magnific')) { magInit += pkg.initialCredits; magCostBdt += bdt; }
+        else if (pkg.tool.toLowerCase().includes('higgsfield')) { higInit += pkg.initialCredits; higCostBdt += bdt; }
+      });
+
+      const costPerMagBdt = magInit > 0 ? magCostBdt / magInit : 0;
+      const costPerHigBdt = higInit > 0 ? higCostBdt / higInit : 0;
+
+      const deliveredList = (state.assignments || []).filter(a => {
+        const st = (a.Status || '').toLowerCase();
+        return st.includes('completed') || st.includes('approved') || st.includes('ok') || st.includes('pass') || st.includes('submit');
+      });
+
+      const filtered = deliveredList.filter(a => {
+        if (!searchVal) return true;
+        const name = String(a.MemberName || a.AssignedTo || '').toLowerCase();
+        const mpro = String(a.MPROID || a.MproId || '').toLowerCase();
+        const group = String(a.Group || '').toLowerCase();
+        return name.includes(searchVal) || mpro.includes(searchVal) || group.includes(searchVal);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 14px;">No delivered content items found</td></tr>`;
+        return;
+      }
+
+      const fRates = state.aiCredits.formatRates || {};
+
+      tbody.innerHTML = filtered.map(a => {
+        const dateStr = a.ApproveDate || a.SubmitDate || a.AssignDate || '-';
+        const mproId = a.MPROID || a.MproId || a.TaskID || 'N/A';
+        const designer = a.AssignedTo || a.MemberName || 'Unassigned';
+        const format = typeof getTaskType === 'function' ? getTaskType(a) : String(a.Format || a.TaskType || '15s');
+
+        let fmtKey = '15s';
+        const typeLow = format.toLowerCase();
+        if (typeLow.includes('6s')) fmtKey = '6s';
+        else if (typeLow.includes('10s')) fmtKey = '10s';
+        else if (typeLow.includes('15s')) fmtKey = '15s';
+        else if (typeLow.includes('20s')) fmtKey = '20s';
+        else if (typeLow.includes('30s')) fmtKey = '30s';
+        else if (typeLow.includes('1m') || typeLow.includes('60s')) fmtKey = '1m';
+        else if (typeLow.includes('post') || typeLow.includes('social')) fmtKey = 'sp';
+
+        const magRate = (fRates[fmtKey] ? fRates[fmtKey].magnific : 2000);
+        const higRate = (fRates[fmtKey] ? fRates[fmtKey].higgsfield : 25);
+        const qty = Number(a.CompletedQty || a.Quantity) || 1;
+
+        const estItemCostBdt = Math.round(((magRate * costPerMagBdt) + (higRate * costPerHigBdt)) * qty);
+
+        return `
+          <tr>
+            <td style="padding: 8px 10px; color: var(--text-muted); font-size: 10px;">${dateStr}</td>
+            <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: var(--accent-cyan); font-family: monospace;">#${mproId}</td>
+            <td style="padding: 8px 10px; font-weight: 700; color: var(--text-main);">${designer}</td>
+            <td style="padding: 8px 10px; text-align: center;"><span class="status-badge" style="font-size: 10px; padding: 2px 6px; background: rgba(255,255,255,0.03); color: var(--text-main);">${format}</span></td>
+            <td style="padding: 8px 10px; text-align: right; font-weight: 800; color: #10b981;">৳${estItemCostBdt.toLocaleString()} BDT</td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    window.toggleCreditRatesSettings = function() {
+      if (typeof showToast === 'function') showToast("Default AI credit rates applied (Magnific: 1k-5k/video, Higgsfield: 15-60/video)", "info");
+    };
+
+    // Auto initialize AI Credits state on load
+    initAiCreditsState();
 
 </script>
 </body>
