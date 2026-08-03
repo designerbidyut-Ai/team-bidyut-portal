@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -2097,7 +2097,7 @@ textarea.form-control {
         <div class="logo-box">⚡</div>
         <div class="logo-text">
           <h2>Team Bidyut</h2>
-          <span style="color: var(--text-muted); font-weight: 700; font-size: 11px;">Content Tracker <span style="background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 4px; font-weight: 900; font-family: 'Outfit', sans-serif;">v22.8</span></span>
+          <span style="color: var(--text-muted); font-weight: 700; font-size: 11px;">Content Tracker <span style="background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 4px; font-weight: 900; font-family: 'Outfit', sans-serif;">v22.9</span></span>
         </div>
       </div>
       
@@ -2678,7 +2678,7 @@ textarea.form-control {
                     <label for="logCreativeLink" style="font-size: 14px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px;">
                       🎨 MPRO Creative Work Link
                     </label>
-                    <input type="text" id="logCreativeLink" placeholder="http://mpro.prangroup.com:4000/CreativeWorks/Edit/42394" oninput="handleLogCreativeLinkInput(this)" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 14px; padding: 12px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
+                    <input type="text" id="logCreativeLink" placeholder="e.g. 411175 or http://mpro.prangroup.com:4000/CreativeWorks/Edit/411175" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 14px; padding: 12px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
                   </div>
                 </div>
                 <div class="form-grid" style="margin-top: 15px; display: none;" id="logAssignDateGroup">
@@ -4338,7 +4338,7 @@ textarea.form-control {
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
         <div class="form-group">
           <label for="statusCreativeLink" style="font-size: 11px; font-weight: 700; color: var(--primary);">🎨 MPRO Creative Work Link</label>
-          <input type="text" id="statusCreativeLink" placeholder="http://mpro.prangroup.com:4000/CreativeWorks/Edit/42394" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 12px; padding: 8px 10px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
+          <input type="text" id="statusCreativeLink" placeholder="e.g. 411175 or http://mpro.prangroup.com:4000/CreativeWorks/Edit/411175" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 12px; padding: 8px 10px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
         </div>
         <div class="form-group">
           <label for="statusNote" style="font-size: 11px; font-weight: 700;">Progress Note / Feedback</label>
@@ -5280,21 +5280,25 @@ textarea.form-control {
                 Avatar: avatarMap[m.name] || ""
               }));
               
-              const mappedLogs = logs.map(l => ({
-                RowIndex: l.id,
-                Date: l.date,
-                MemberName: l.member_name,
-                Content6s: l.content_6s,
-                Content10s: l.content_10s,
-                Content15s: l.content_15s,
-                Content20s: l.content_20s,
-                Content30s: l.content_30s,
-                Content1m: l.content_1m,
-                SocialPost: l.social_post,
-                Note: l.note,
-                MproId: l.mpro_id,
-                MproLink: l.mpro_link
-              }));
+              const mappedLogs = logs.map(l => {
+                const creativeMatch = (l.note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+                return {
+                  RowIndex: l.id,
+                  Date: l.date,
+                  MemberName: l.member_name,
+                  Content6s: l.content_6s,
+                  Content10s: l.content_10s,
+                  Content15s: l.content_15s,
+                  Content20s: l.content_20s,
+                  Content30s: l.content_30s,
+                  Content1m: l.content_1m,
+                  SocialPost: l.social_post,
+                  Note: l.note,
+                  MproId: l.mpro_id,
+                  MproLink: l.mpro_link,
+                  CreativeLink: l.creative_link || l.creative_work_link || (creativeMatch ? creativeMatch[1] : '')
+                };
+              });
               
               // Totals aggregation
               let totals = { content6s: 0, content10s: 0, content15s: 0, content20s: 0, content30s: 0, content1m: 0, socialPost: 0, grandTotal: 0 };
@@ -5335,22 +5339,26 @@ textarea.form-control {
                 }
               });
               
-              const mappedAssignments = assignments.map(a => ({
-                TaskID: a.task_id || ("T-" + a.mpro_id),
-                MPROID: a.mpro_id,
-                MPROLink: a.mpro_link || ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + a.mpro_id),
-                AssignDate: a.assign_date,
-                Group: a.brands,
-                MemberName: a.member_name,
-                AssignedTo: a.member_name,
-                Quantity: a.quantity,
-                CompletedQty: a.completed_qty,
-                Status: a.status || "Not Started",
-                SubmitDate: a.submit_date,
-                ApproveDate: a.approve_date,
-                Deadline: a.deadline || "",
-                Note: a.note || ""
-              }));
+              const mappedAssignments = assignments.map(a => {
+                const creativeMatch = (a.note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+                return {
+                  TaskID: a.task_id || ("T-" + a.mpro_id),
+                  MPROID: a.mpro_id,
+                  MPROLink: a.mpro_link || ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + a.mpro_id),
+                  AssignDate: a.assign_date,
+                  Group: a.brands,
+                  MemberName: a.member_name,
+                  AssignedTo: a.member_name,
+                  Quantity: a.quantity,
+                  CompletedQty: a.completed_qty,
+                  Status: a.status || "Not Started",
+                  SubmitDate: a.submit_date,
+                  ApproveDate: a.approve_date,
+                  Deadline: a.deadline || "",
+                  Note: a.note || "",
+                  CreativeLink: a.creative_link || a.creative_work_link || (creativeMatch ? creativeMatch[1] : "")
+                };
+              });
               
               const taskStats = {
                 total: mappedAssignments.length,
@@ -9000,26 +9008,14 @@ textarea.form-control {
           ? `<td style="padding: 8px 6px;"><a href="${mproBriefLink}" target="_blank" style="font-family:monospace; font-size:12px; font-weight:800; color:var(--accent-cyan); text-decoration:none;" title="Click to open Creative Brief #${mproId || ''}">#${mproId || 'Brief'} ↗</a></td>`
           : `<td style="color:var(--text-muted); font-family:monospace; padding: 8px 6px;">-</td>`;
         
-        const creativeMatch = (log.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-        let rawCreativeLink = log.CreativeLink || log.creative_link || log.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : "");
-        
-        if (!rawCreativeLink && mproId && state.assignments) {
-          const matchedTask = state.assignments.find(function(t) {
-            const tId = String(t.MPROID || t.mpro_id || '').trim();
-            return tId && tId === String(mproId).trim();
-          });
-          if (matchedTask) {
-            const taskMatch = (matchedTask.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-            rawCreativeLink = matchedTask.CreativeLink || matchedTask.creative_link || matchedTask.CreativeWorkLink || (taskMatch ? taskMatch[1] : "");
-          }
-        }
+        const rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(log) : (log.CreativeLink || log.creative_link || "");
 
         let creativeHTML = `<td style="color:var(--text-muted); font-family:monospace; padding: 8px 6px;">-</td>`;
         if (rawCreativeLink) {
           const processed = window.processCreativeWorkInput(rawCreativeLink);
           const finalCreativeLink = processed.link || rawCreativeLink;
           const displayLabel = processed.id ? `🎨 #${processed.id}` : `🎨 Work`;
-          creativeHTML = `<td style="padding: 8px 6px;"><a href="${finalCreativeLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 3px 6px; border-radius: 4px; font-size: 10px; display: inline-flex; align-items: center; gap: 2px;" title="Open Creative Work">${displayLabel} ↗</a></td>`;
+          creativeHTML = `<td style="padding: 8px 6px;"><a href="${finalCreativeLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 3px 6px; border-radius: 4px; font-size: 10px; display: inline-flex; align-items: center; gap: 2px;" title="Open Creative Work ${processed.id ? '#' + processed.id : ''}">${displayLabel} ↗</a></td>`;
         }
         
         // Note Column with Expandable See More Option
@@ -9079,6 +9075,15 @@ textarea.form-control {
       
       const rawCreativeLink = document.getElementById('logCreativeLink') ? document.getElementById('logCreativeLink').value.trim() : "";
       let userNote = document.getElementById('logNote').value.trim();
+      
+      let finalCreativeLink = "";
+      if (rawCreativeLink) {
+        const processed = (typeof window.processCreativeWorkInput === 'function') ? window.processCreativeWorkInput(rawCreativeLink) : { id: "", link: rawCreativeLink };
+        finalCreativeLink = processed.link || rawCreativeLink;
+        // Clean previous tag if present, then append clean tag
+        userNote = userNote.replace(/\[Creative Link:\s*[^\]]+\]/gi, '').trim();
+        userNote = userNote ? `${userNote} [Creative Link: ${finalCreativeLink}]` : `[Creative Link: ${finalCreativeLink}]`;
+      }
 
       const logData = {
         date: document.getElementById('logDate').value,
@@ -9092,7 +9097,7 @@ textarea.form-control {
         content1m: document.getElementById('qty1m').value,
         socialPost: document.getElementById('qtySp').value,
         note: userNote,
-        creativeLink: rawCreativeLink,
+        creativeLink: finalCreativeLink,
         mproLink: document.getElementById('logMproLink').value,
         mproId: (function() {
           const link = String(document.getElementById('logMproLink').value || "").trim();
@@ -9188,13 +9193,16 @@ textarea.form-control {
       setSelectValue('qty30s', c30);
       setSelectValue('qty1m', c1m);
       setSelectValue('qtySp', sp);
-      document.getElementById('logNote').value = note;
+      const creativeMatch = (note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
+      const cleanNoteText = (note || '').replace(/\[Creative Link:[^\]]+\]/gi, '').trim();
+      document.getElementById('logNote').value = cleanNoteText;
       
       document.getElementById('logMproLink').value = mproLink || "";
       onLogMproLinkChange(mproLink || "");
       
+      const finalCreativeVal = creativeLink || (creativeMatch ? creativeMatch[1] : "");
       if (document.getElementById('logCreativeLink')) {
-        document.getElementById('logCreativeLink').value = creativeLink || "";
+        document.getElementById('logCreativeLink').value = finalCreativeVal || "";
       }
       
       const isAdmin = state.userRole === 'ADMIN';
@@ -9690,6 +9698,13 @@ textarea.form-control {
       const newTotalQty = parseInt(document.getElementById('statusTotalQty') ? document.getElementById('statusTotalQty').value : 0) || statusModalState.totalQty || 1;
       
       let noteWithType = note || '';
+      let finalStatusCreativeLink = "";
+      if (statusCreativeLink) {
+        const processed = (typeof window.processCreativeWorkInput === 'function') ? window.processCreativeWorkInput(statusCreativeLink) : { id: "", link: statusCreativeLink };
+        finalStatusCreativeLink = processed.link || statusCreativeLink;
+        noteWithType = noteWithType.replace(/\[Creative Link:\s*[^\]]+\]/gi, '').trim();
+        noteWithType = noteWithType ? `${noteWithType} [Creative Link: ${finalStatusCreativeLink}]` : `[Creative Link: ${finalStatusCreativeLink}]`;
+      }
       if (!noteWithType.includes('[Type:')) {
         noteWithType = noteWithType ? `${noteWithType} [Type: ${selectedType}]` : `[Type: ${selectedType}]`;
       } else {
@@ -9729,7 +9744,8 @@ textarea.form-control {
             social_post: qSp,
             note: noteWithType,
             mpro_id: mproId,
-            mpro_link: mproLink
+            mpro_link: mproLink,
+            creative_link: finalStatusCreativeLink
           };
           
           const { error: logErr } = await supabaseClient.from('daily_logs').insert(dailyLogData);
@@ -9742,6 +9758,7 @@ textarea.form-control {
             status: status,
             note: noteWithType,
             mpro_link: mproLink,
+            creative_link: finalStatusCreativeLink,
             brands: brand
           }).eq('task_id', taskId);
           
@@ -9757,6 +9774,7 @@ textarea.form-control {
             content1m: dailyLogData.content_1m,
             socialPost: dailyLogData.social_post,
             note: dailyLogData.note,
+            creativeLink: finalStatusCreativeLink,
             pin: "1234"
           });
           
@@ -9773,7 +9791,7 @@ textarea.form-control {
               showLoading(false);
               showToast("Status Update failed: " + err.message, "error");
             })
-            .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand, newTotalQty);
+            .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand, finalStatusCreativeLink);
         } catch (e) {
           if (submitBtn) submitBtn.disabled = false;
           showLoading(false);
@@ -9787,6 +9805,7 @@ textarea.form-control {
             status: status,
             note: noteWithType,
             mpro_link: mproLink,
+            creative_link: finalStatusCreativeLink,
             completed_qty: newCompletedQty,
             brands: brand
           }).eq('task_id', taskId);
@@ -9805,7 +9824,7 @@ textarea.form-control {
             showLoading(false);
             showToast("Status Update failed: " + err.message, "error");
           })
-          .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand, newTotalQty);
+          .updateAssignmentStatus(taskId, status, noteWithType, mproLink, newCompletedQty, brand, finalStatusCreativeLink);
       }
     }
     function deleteAssignment(taskId) {
@@ -10625,20 +10644,7 @@ textarea.form-control {
           let creativeWorkBadge = `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
           
           if (isSubmittedOrApproved) {
-            const creativeMatch = (t.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-            let rawCreativeLink = t.CreativeLink || t.creative_link || t.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
-            
-            // Fallback: check matching daily log if link not directly on assignment
-            if (!rawCreativeLink && mproId && state.dailyLogs) {
-              const matchedLog = state.dailyLogs.find(function(l) {
-                const lId = String(l.MproId || l.mpro_id || l.MproID || l.MPROID || '').trim();
-                return lId && lId === String(mproId).trim();
-              });
-              if (matchedLog) {
-                const logMatch = (matchedLog.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-                rawCreativeLink = matchedLog.CreativeLink || matchedLog.creative_link || matchedLog.CreativeWorkLink || (logMatch ? logMatch[1] : '');
-              }
-            }
+            let rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
 
             if (rawCreativeLink) {
               const processed = window.processCreativeWorkInput(rawCreativeLink);
@@ -10934,19 +10940,7 @@ textarea.form-control {
         let creativeWorkBadge = `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
         
         if (isSubmittedOrApproved) {
-          const creativeMatch = (t.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-          let rawCreativeLink = t.CreativeLink || t.creative_link || t.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
-          
-          if (!rawCreativeLink && mproId && state.dailyLogs) {
-            const matchedLog = state.dailyLogs.find(function(l) {
-              const lId = String(l.MproId || l.mpro_id || l.MproID || l.MPROID || '').trim();
-              return lId && lId === String(mproId).trim();
-            });
-            if (matchedLog) {
-              const logMatch = (matchedLog.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-              rawCreativeLink = matchedLog.CreativeLink || matchedLog.creative_link || matchedLog.CreativeWorkLink || (logMatch ? logMatch[1] : '');
-            }
-          }
+          let rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
 
           if (rawCreativeLink) {
             const processed = window.processCreativeWorkInput(rawCreativeLink);
@@ -11001,10 +10995,94 @@ textarea.form-control {
     window.processCreativeWorkInput = function(rawVal) {
       if (!rawVal) return { id: "", link: "" };
       let str = String(rawVal).trim();
-      const match = str.match(/\/(\d+)\/?$/) || str.match(/\/(\d+)(?:\D|$)/) || str.match(/(\d+)/);
+      if (str.startsWith('#')) str = str.substring(1).trim();
+      
+      // If user inputs pure digits (e.g. "411175")
+      if (/^\d+$/.test(str)) {
+        return {
+          id: str,
+          link: CREATIVE_WORKS_BASE_URL + str
+        };
+      }
+      
+      const match = str.match(/CreativeWorks\/Edit\/(\d+)/i) || str.match(/\/(\d+)\/?$/) || str.match(/\/(\d+)(?:\D|$)/) || str.match(/(\d+)/);
       const id = match ? match[1] : "";
-      if (!id) return { id: "", link: str };
-      return { id: id, link: CREATIVE_WORKS_BASE_URL + id };
+      
+      let link = str;
+      if (id && (!str.startsWith("http://") && !str.startsWith("https://"))) {
+        link = CREATIVE_WORKS_BASE_URL + id;
+      }
+      return { id: id, link: link };
+    };
+
+    // Smart Multi-Pattern Creative Link Extractor
+    window.extractCreativeWorkLink = function(logOrTask) {
+      if (!logOrTask) return "";
+      
+      // 1. Direct Properties
+      let link = logOrTask.CreativeLink || logOrTask.creative_link || logOrTask.CreativeWorkLink || "";
+      if (link) return link;
+      
+      // 2. Helper to parse text/notes
+      function extractFromNote(str) {
+        if (!str) return "";
+        let m = str.match(/\[Creative Link:\s*([^\]]+)\]/i);
+        if (m) return m[1].trim();
+        
+        m = str.match(/(https?:\/\/[^\s"'<>]*(?:CreativeWorks)[^\s"'<>]*)/i);
+        if (m) return m[1].trim();
+        
+        m = str.match(/(?:creative\s*work\s*link|creative\s*link|work\s*link|creative\s*work|creative|link|work)[:=\s]+#?(\d{5,})/i);
+        if (m) return m[1].trim();
+        
+        m = str.match(/CreativeWorks\/Edit\/(\d+)/i);
+        if (m) return CREATIVE_WORKS_BASE_URL + m[1];
+        
+        m = str.match(/#(\d{5,})/);
+        if (m) return m[1].trim();
+
+        return "";
+      }
+      
+      const noteTxt = logOrTask.Note || logOrTask.note || "";
+      link = extractFromNote(noteTxt);
+      if (link) return link;
+      
+      const mproL = logOrTask.MproLink || logOrTask.MPROLink || logOrTask.mpro_link || "";
+      if (mproL && mproL.includes('CreativeWorks')) {
+        return mproL;
+      }
+      
+      // 3. Cross-reference using MPRO ID
+      const mproId = String(logOrTask.MproId || logOrTask.mpro_id || logOrTask.MPROID || logOrTask.MproID || logOrTask.MPROId || '').trim();
+      if (mproId && window.state) {
+        if (window.state.assignments && Array.isArray(window.state.assignments)) {
+          const t = window.state.assignments.find(a => String(a.MPROID || a.mpro_id || a.MproId || '').trim() === mproId);
+          if (t && t !== logOrTask) {
+            link = t.CreativeLink || t.creative_link || t.CreativeWorkLink || extractFromNote(t.Note || "") || "";
+            if (!link && t.MPROLink && t.MPROLink.includes('CreativeWorks')) link = t.MPROLink;
+            if (link) return link;
+          }
+        }
+        if (window.state.dailyLogs && Array.isArray(window.state.dailyLogs)) {
+          const l = window.state.dailyLogs.find(dl => String(dl.MproId || dl.mpro_id || dl.MproID || '').trim() === mproId);
+          if (l && l !== logOrTask) {
+            link = l.CreativeLink || l.creative_link || l.CreativeWorkLink || extractFromNote(l.Note || "") || "";
+            if (!link && l.MproLink && l.MproLink.includes('CreativeWorks')) link = l.MproLink;
+            if (link) return link;
+          }
+        }
+        if (window.state.myLogs && Array.isArray(window.state.myLogs)) {
+          const l = window.state.myLogs.find(dl => String(dl.MproId || dl.mpro_id || dl.MproID || '').trim() === mproId);
+          if (l && l !== logOrTask) {
+            link = l.CreativeLink || l.creative_link || l.CreativeWorkLink || extractFromNote(l.Note || "") || "";
+            if (!link && l.MproLink && l.MproLink.includes('CreativeWorks')) link = l.MproLink;
+            if (link) return link;
+          }
+        }
+      }
+      
+      return "";
     };
 
     window.handleLogCreativeLinkInput = function(el) {
@@ -11012,7 +11090,7 @@ textarea.form-control {
       if (!el || !el.value) return;
       const rawVal = el.value.trim();
       const res = window.processCreativeWorkInput(rawVal);
-      if (res.link && (rawVal !== res.link)) {
+      if (res.link && (rawVal !== res.link) && (/^\d+$/.test(rawVal) || rawVal.startsWith('#') || !rawVal.startsWith('http'))) {
         el.value = res.link;
       }
     };
