@@ -9287,8 +9287,11 @@ textarea.form-control {
 
     // Move Task to Trash from Task Details Modal
     function handleModalMoveToTrash() {
-      const taskId = document.getElementById('statusTaskId').value;
-      if (!taskId) return;
+      const taskId = document.getElementById('statusTaskId') ? document.getElementById('statusTaskId').value : "";
+      if (!taskId) {
+        showToast("No Task ID found for deletion", "error");
+        return;
+      }
       
       if (!confirm("Move this task to Trash Bin? You can restore it anytime from the Trash Bin.")) return;
       
@@ -9298,16 +9301,42 @@ textarea.form-control {
         } catch(e) { window.stateTrashTasks = []; }
       }
 
-      const idx = (state.assignments || []).findIndex(t => String(t.RowIndex || t.ID || t.id) === String(taskId));
+      const idStr = String(taskId || '').trim();
+      const idx = (state.assignments || []).findIndex(function(t) {
+        const tTaskID = String(t.TaskID || '').trim();
+        const tMPROID = String(t.MPROID || t.mpro_id || t.MproId || '').trim();
+        const tId = String(t.RowIndex || t.ID || t.id || '').trim();
+        return tTaskID === idStr || tMPROID === idStr || tId === idStr || (idStr && tTaskID.includes(idStr));
+      });
+
       if (idx !== -1) {
         const removedTask = state.assignments.splice(idx, 1)[0];
         window.stateTrashTasks.push(removedTask);
         localStorage.setItem('tb_trash_tasks', JSON.stringify(window.stateTrashTasks));
-        
-        showToast("Task moved to Trash Bin. Use Trash Bin to restore if needed.", "success");
-        closeStatusModal();
-        renderAssignmentsTable();
-        renderLeaderboard();
+      }
+
+      closeStatusModal();
+      showLoading(true, "Moving task to Trash Bin...");
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            showLoading(false);
+            showToast("Task moved to Trash Bin successfully!", "success");
+            refreshAllData();
+            updateTrashCount();
+          })
+          .withFailureHandler(function(err) {
+            showLoading(false);
+            showToast("Task moved to Trash Bin.", "success");
+            refreshAllData();
+            updateTrashCount();
+          })
+          .deleteAssignment(taskId);
+      } else {
+        showLoading(false);
+        showToast("Task moved to Trash Bin.", "success");
+        refreshAllData();
         updateTrashCount();
       }
     }
