@@ -2180,11 +2180,6 @@ textarea.form-control {
     </aside>
     <!-- Main Content Area -->
     <main class="main-content">
-      <!-- Local Simulation Preview Banner -->
-      <div id="localPreviewBanner" style="display:none; background: linear-gradient(90deg, #f59e0b, #ec4899); color: white; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 13px; text-align: center; box-shadow: var(--shadow-sm);">
-        ?? LOCAL PREVIEW MODE: You are viewing the page locally with simulation data. To connect live, deploy this HTML in Google Apps Script.
-      </div>
-      
       <!-- Top Header Bar -->
       <header class="top-bar">
         <button id="sidebarToggleBtn" onclick="toggleSidebar()" style="display: none; background: none; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; padding: 4px; margin-right: 12px; align-items: center; justify-content: center;" title="Open Sidebar">
@@ -6238,10 +6233,6 @@ textarea.form-control {
     });
 
 // --- state.js ---
-      document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById('localPreviewBanner').style.display = 'block';
-      });
-
       // Initialize mock database in sessionStorage
       if (!sessionStorage.getItem('mock_db_initialized')) {
         const initialMembers = [
