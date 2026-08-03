@@ -1889,6 +1889,39 @@ body {
   outline: none;
 }
 
+/* Global Placeholder Opacity & Muted Styling */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: var(--text-muted, #94a3b8) !important;
+  opacity: 0.45 !important;
+  font-weight: 400 !important;
+}
+
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder,
+select::-webkit-input-placeholder {
+  color: var(--text-muted, #94a3b8) !important;
+  opacity: 0.45 !important;
+  font-weight: 400 !important;
+}
+
+input::-moz-placeholder,
+textarea::-moz-placeholder,
+select::-moz-placeholder {
+  color: var(--text-muted, #94a3b8) !important;
+  opacity: 0.45 !important;
+  font-weight: 400 !important;
+}
+
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder,
+select:-ms-input-placeholder {
+  color: var(--text-muted, #94a3b8) !important;
+  opacity: 0.45 !important;
+  font-weight: 400 !important;
+}
+
 textarea.form-control {
   height: auto;
   min-height: 90px;
@@ -2676,7 +2709,7 @@ textarea.form-control {
                 <div class="form-grid" style="margin-top: 15px;">
                   <div class="form-group full-width">
                     <label for="logCreativeLink" style="font-size: 14px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px;">
-                      🎨 MPRO Creative Work Link
+                      🎨 MPRO Creative Work Link <span style="color: #ef4444; font-weight: 900;">*</span>
                     </label>
                     <input type="text" id="logCreativeLink" placeholder="e.g. 411175 or http://mpro.prangroup.com:4000/CreativeWorks/Edit/411175" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 14px; padding: 12px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
                   </div>
@@ -4337,7 +4370,7 @@ textarea.form-control {
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
         <div class="form-group">
-          <label for="statusCreativeLink" style="font-size: 11px; font-weight: 700; color: var(--primary);">🎨 MPRO Creative Work Link</label>
+          <label for="statusCreativeLink" style="font-size: 11px; font-weight: 700; color: var(--primary);">🎨 MPRO Creative Work Link <span style="color: #ef4444; font-weight: 900;">*</span></label>
           <input type="text" id="statusCreativeLink" placeholder="e.g. 411175 or http://mpro.prangroup.com:4000/CreativeWorks/Edit/411175" onchange="handleLogCreativeLinkInput(this)" onblur="handleLogCreativeLinkInput(this)" style="font-size: 12px; padding: 8px 10px; background: var(--input-bg); border: 1.5px solid var(--primary); border-radius: 8px; color: var(--text-main); font-family: 'Outfit', sans-serif;">
         </div>
         <div class="form-group">
@@ -8065,8 +8098,7 @@ textarea.form-control {
             </td>
             <td>
               ${(function() {
-                const creativeMatch = (task.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-                let rawLink = task.CreativeLink || task.creative_link || task.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
+                let rawLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(task) : (task.CreativeLink || task.creative_link || '');
                 if (!rawLink) return `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
                 const processed = window.processCreativeWorkInput(rawLink);
                 const finalLink = processed.link || rawLink;
@@ -9074,6 +9106,13 @@ textarea.form-control {
       const targetPin = isAdmin ? '1234' : state.loggedInPin;
       
       const rawCreativeLink = document.getElementById('logCreativeLink') ? document.getElementById('logCreativeLink').value.trim() : "";
+      if (!rawCreativeLink) {
+        if (submitBtn) submitBtn.disabled = false;
+        showToast("MPRO Creative Work Link or ID is required to submit work!", "error");
+        if (document.getElementById('logCreativeLink')) document.getElementById('logCreativeLink').focus();
+        return;
+      }
+
       let userNote = document.getElementById('logNote').value.trim();
       
       let finalCreativeLink = "";
@@ -9159,7 +9198,10 @@ textarea.form-control {
           .updateDailyLog(Number(rowIndex), logData, targetMemberName, targetPin);
       } else {
         if (logData.mproId) {
-          const matched = state.assignments.find(a => String(a.MPROID || '').trim() === logData.mproId);
+          const matched = (state.assignments && Array.isArray(state.assignments)) ? state.assignments.find(function(a) {
+            const mId = String(a.MPROID || a.mpro_id || a.MproId || '').trim();
+            return mId && mId === String(logData.mproId).trim();
+          }) : null;
           if (!matched) {
             const isSocialPost = Number(logData.socialPost || 0) > 0;
             const typeTag = isSocialPost ? '[Type: Social Media Post]' : '[Type: Full Content]';
@@ -9726,9 +9768,13 @@ textarea.form-control {
       const memberName = task ? task.AssignedTo : state.loggedInMember;
       const mproId = task ? task.MPROID : "";
       
-      const submitBtn = document.getElementById('btnSubmitStatus');
-      if (submitBtn) submitBtn.disabled = true;
-      
+      if (addedToday > 0 && !statusCreativeLink) {
+        if (submitBtn) submitBtn.disabled = false;
+        showToast("MPRO Creative Work Link or ID is required when logging work!", "error");
+        if (document.getElementById('statusCreativeLink')) document.getElementById('statusCreativeLink').focus();
+        return;
+      }
+
       if (addedToday > 0) {
         showLoading(true, "Logging daily work and updating task...");
         try {
@@ -10603,6 +10649,8 @@ textarea.form-control {
         });
       }
 
+      tasks = window.deduplicateAssignments(tasks);
+
       if (titleEl) titleEl.innerHTML = `${filterTitle} <span style="font-size: 13px; color: var(--text-muted); font-weight: normal;">(${tasks.length} items found for ${loggedMember || 'Member'})</span>`;
 
       // Sort tasks: Pending -> Oldest first; Completed/Submitted -> Newest first!
@@ -10638,20 +10686,14 @@ textarea.form-control {
             mproBadge = `<a href="${mproBriefLink}" target="_blank" style="font-family:monospace; font-size:14px; font-weight:800; color: var(--accent-cyan); text-decoration: none;" title="Open Creative Brief #${mproId || ''}">#${mproId || 'Brief'} ↗</a>`;
           }
 
-          // Creative Work Pink Button ONLY if task is SUBMITTED or APPROVED
-          const stLower = (t.Status || '').toLowerCase();
-          const isSubmittedOrApproved = stLower.includes('submit') || stLower.includes('approved') || stLower.includes('completed') || stLower.includes('ok') || stLower.includes('pass');
+          let rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
           let creativeWorkBadge = `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
           
-          if (isSubmittedOrApproved) {
-            let rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
-
-            if (rawCreativeLink) {
-              const processed = window.processCreativeWorkInput(rawCreativeLink);
-              const finalLink = processed.link || rawCreativeLink;
-              const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
-              creativeWorkBadge = `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
-            }
+          if (rawCreativeLink) {
+            const processed = window.processCreativeWorkInput(rawCreativeLink);
+            const finalLink = processed.link || rawCreativeLink;
+            const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+            creativeWorkBadge = `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
           }
           const assignDateYMD = normalizeDateToYMD(t.AssignDate || '');
           const taskType = t.TaskType || getTaskType(t) || 'Full Content';
@@ -10934,20 +10976,14 @@ textarea.form-control {
 
       tbody.innerHTML = filtered.map(function(t) {
         const mproId = t.MPROID || t.MproId || t.MPROId || t.mpro_id || t.TaskID || '';
-        // Creative Work Pink Button ONLY if task is SUBMITTED or APPROVED
-        const stLower = (t.Status || '').toLowerCase();
-        const isSubmittedOrApproved = stLower.includes('submit') || stLower.includes('approved') || stLower.includes('completed') || stLower.includes('ok') || stLower.includes('pass');
+        let rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
         let creativeWorkBadge = `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
         
-        if (isSubmittedOrApproved) {
-          let rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
-
-          if (rawCreativeLink) {
-            const processed = window.processCreativeWorkInput(rawCreativeLink);
-            const finalLink = processed.link || rawCreativeLink;
-            const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
-            creativeWorkBadge = `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 3px 9px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
-          }
+        if (rawCreativeLink) {
+          const processed = window.processCreativeWorkInput(rawCreativeLink);
+          const finalLink = processed.link || rawCreativeLink;
+          const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+          creativeWorkBadge = `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 3px 9px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
         }
 
         const briefLink = t.MPROLink || t.MproLink || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
@@ -11018,12 +11054,17 @@ textarea.form-control {
     // Smart Multi-Pattern Creative Link Extractor
     window.extractCreativeWorkLink = function(logOrTask) {
       if (!logOrTask) return "";
+
+      function getMproId(obj) {
+        if (!obj) return "";
+        let id = String(obj.MproId || obj.mpro_id || obj.MPROID || obj.MproID || obj.MPROId || '').trim();
+        if (id) return id;
+        const link = obj.MproLink || obj.MPROLink || obj.mpro_link || "";
+        const m = String(link).match(/CreativeBriefs\/Edit\/(\d+)/i) || String(link).match(/\/(\d+)(?:\D|$)/);
+        return m ? m[1].trim() : "";
+      }
       
-      // 1. Direct Properties
-      let link = logOrTask.CreativeLink || logOrTask.creative_link || logOrTask.CreativeWorkLink || "";
-      if (link) return link;
-      
-      // 2. Helper to parse text/notes
+      // Helper to extract ONLY explicit creative work links/IDs from text (strictly avoiding brief IDs)
       function extractFromNote(str) {
         if (!str) return "";
         let m = str.match(/\[Creative Link:\s*([^\]]+)\]/i);
@@ -11032,56 +11073,46 @@ textarea.form-control {
         m = str.match(/(https?:\/\/[^\s"'<>]*(?:CreativeWorks)[^\s"'<>]*)/i);
         if (m) return m[1].trim();
         
-        m = str.match(/(?:creative\s*work\s*link|creative\s*link|work\s*link|creative\s*work|creative|link|work)[:=\s]+#?(\d{5,})/i);
+        m = str.match(/(?:creative\s*work\s*link|creative\s*link|work\s*link|creative\s*work)[:=\s]+#?(\d{4,})/i);
         if (m) return m[1].trim();
         
-        m = str.match(/CreativeWorks\/Edit\/(\d+)/i);
-        if (m) return CREATIVE_WORKS_BASE_URL + m[1];
-        
-        m = str.match(/#(\d{5,})/);
-        if (m) return m[1].trim();
-
         return "";
       }
-      
-      const noteTxt = logOrTask.Note || logOrTask.note || "";
-      link = extractFromNote(noteTxt);
+
+      // Priority 1: Direct Property on item
+      let link = logOrTask.CreativeLink || logOrTask.creative_link || logOrTask.CreativeWorkLink || "";
       if (link) return link;
-      
+
+      // Priority 2: Explicit Creative Link in Item's Note
+      link = extractFromNote(logOrTask.Note || logOrTask.note || "");
+      if (link) return link;
+
+      // Priority 3: Item's MproLink if it points to CreativeWorks
       const mproL = logOrTask.MproLink || logOrTask.MPROLink || logOrTask.mpro_link || "";
       if (mproL && mproL.includes('CreativeWorks')) {
         return mproL;
       }
-      
-      // 3. Cross-reference using MPRO ID
-      const mproId = String(logOrTask.MproId || logOrTask.mpro_id || logOrTask.MPROID || logOrTask.MproID || logOrTask.MPROId || '').trim();
-      if (mproId && window.state) {
-        if (window.state.assignments && Array.isArray(window.state.assignments)) {
-          const t = window.state.assignments.find(a => String(a.MPROID || a.mpro_id || a.MproId || '').trim() === mproId);
-          if (t && t !== logOrTask) {
-            link = t.CreativeLink || t.creative_link || t.CreativeWorkLink || extractFromNote(t.Note || "") || "";
-            if (!link && t.MPROLink && t.MPROLink.includes('CreativeWorks')) link = t.MPROLink;
-            if (link) return link;
-          }
-        }
-        if (window.state.dailyLogs && Array.isArray(window.state.dailyLogs)) {
-          const l = window.state.dailyLogs.find(dl => String(dl.MproId || dl.mpro_id || dl.MproID || '').trim() === mproId);
-          if (l && l !== logOrTask) {
-            link = l.CreativeLink || l.creative_link || l.CreativeWorkLink || extractFromNote(l.Note || "") || "";
-            if (!link && l.MproLink && l.MproLink.includes('CreativeWorks')) link = l.MproLink;
-            if (link) return link;
-          }
-        }
-        if (window.state.myLogs && Array.isArray(window.state.myLogs)) {
-          const l = window.state.myLogs.find(dl => String(dl.MproId || dl.mpro_id || dl.MproID || '').trim() === mproId);
-          if (l && l !== logOrTask) {
-            link = l.CreativeLink || l.creative_link || l.CreativeWorkLink || extractFromNote(l.Note || "") || "";
-            if (!link && l.MproLink && l.MproLink.includes('CreativeWorks')) link = l.MproLink;
-            if (link) return link;
+
+      // Priority 4: Cross-reference matching Task or Daily Log by MPRO ID
+      const targetMproId = getMproId(logOrTask);
+      if (targetMproId && window.state) {
+        const checkList = [];
+        if (window.state.assignments && Array.isArray(window.state.assignments)) checkList.push(...window.state.assignments);
+        if (window.state.dailyLogs && Array.isArray(window.state.dailyLogs)) checkList.push(...window.state.dailyLogs);
+        if (window.state.myLogs && Array.isArray(window.state.myLogs)) checkList.push(...window.state.myLogs);
+
+        for (let i = 0; i < checkList.length; i++) {
+          const item = checkList[i];
+          if (item && item !== logOrTask && getMproId(item) === targetMproId) {
+            let foundLink = item.CreativeLink || item.creative_link || item.CreativeWorkLink || extractFromNote(item.Note || item.note || "") || "";
+            if (!foundLink && item.MproLink && item.MproLink.includes('CreativeWorks')) {
+              foundLink = item.MproLink;
+            }
+            if (foundLink) return foundLink;
           }
         }
       }
-      
+
       return "";
     };
 
@@ -11093,6 +11124,56 @@ textarea.form-control {
       if (res.link && (rawVal !== res.link) && (/^\d+$/.test(rawVal) || rawVal.startsWith('#') || !rawVal.startsWith('http'))) {
         el.value = res.link;
       }
+    };
+
+    // Centralized Assignment Deduplicator
+    window.deduplicateAssignments = function(taskList) {
+      if (!taskList || !Array.isArray(taskList)) return [];
+      const map = new Map();
+
+      taskList.forEach(function(t) {
+        if (!t) return;
+        const mproId = String(t.MPROID || t.MproId || t.mpro_id || t.MproID || t.MPROId || '').trim();
+        const assigned = String(t.AssignedTo || t.MemberName || t.member_name || '').trim().toLowerCase();
+        
+        const key = mproId ? (mproId + '___' + assigned) : (t.TaskID || t.task_id || Math.random().toString());
+
+        if (!map.has(key)) {
+          map.set(key, Object.assign({}, t));
+        } else {
+          const existing = map.get(key);
+          
+          // Creative Link
+          const exLink = existing.CreativeLink || existing.creative_link || existing.CreativeWorkLink || "";
+          const newLink = t.CreativeLink || t.creative_link || t.CreativeWorkLink || "";
+          if (!exLink && newLink) {
+            existing.CreativeLink = newLink;
+          }
+          
+          // Quantity
+          const q1 = Number(existing.Quantity || existing.quantity) || 0;
+          const q2 = Number(t.Quantity || t.quantity) || 0;
+          existing.Quantity = Math.max(q1, q2);
+
+          // Completed Qty
+          const cq1 = Number(existing.CompletedQty || existing.completed_qty) || 0;
+          const cq2 = Number(t.CompletedQty || t.completed_qty) || 0;
+          existing.CompletedQty = Math.max(cq1, cq2);
+
+          // Status: prefer WORK SUBMITTED or APPROVED over TODAY'S MPRO WORK SUBMISSION
+          const st1 = String(existing.Status || existing.status || '').toLowerCase();
+          const st2 = String(t.Status || t.status || '').toLowerCase();
+          if (st1.includes('today') && (st2.includes('work submitted') || st2.includes('approved') || st2.includes('completed'))) {
+            existing.Status = t.Status;
+          }
+
+          // Dates & Deadline
+          if (!existing.AssignDate && t.AssignDate) existing.AssignDate = t.AssignDate;
+          if (!existing.Deadline && t.Deadline) existing.Deadline = t.Deadline;
+        }
+      });
+
+      return Array.from(map.values());
     };
 
     // Centralized Smart MPRO Processor
@@ -13317,6 +13398,8 @@ textarea.form-control {
         });
       }
 
+      userTasks = window.deduplicateAssignments(userTasks);
+
       if (userTasks.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 30px;">No assigned tasks found for ${loggedMember || 'you'}.</td></tr>`;
         return;
@@ -13361,8 +13444,7 @@ textarea.form-control {
             </td>
             <td>
               ${(function() {
-                const creativeMatch = (task.Note || '').match(/\[Creative Link:\s*(https?:\/\/[^\]]+)\]/i);
-                let rawLink = task.CreativeLink || task.creative_link || task.CreativeWorkLink || (creativeMatch ? creativeMatch[1] : '');
+                let rawLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(task) : (task.CreativeLink || task.creative_link || '');
                 if (!rawLink) return `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
                 const processed = window.processCreativeWorkInput(rawLink);
                 const finalLink = processed.link || rawLink;
