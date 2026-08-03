@@ -2130,7 +2130,7 @@ textarea.form-control {
         <div class="logo-box">⚡</div>
         <div class="logo-text">
           <h2>Team Bidyut</h2>
-          <span style="color: var(--text-muted); font-weight: 700; font-size: 11px;">Content Tracker <span style="background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 4px; font-weight: 900; font-family: 'Outfit', sans-serif;">v22.9</span></span>
+          <span style="color: var(--text-muted); font-weight: 700; font-size: 11px;">Content Tracker <span style="background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 6px; border-radius: 4px; font-weight: 900; font-family: 'Outfit', sans-serif;">v23.1</span></span>
         </div>
       </div>
       
@@ -2754,16 +2754,17 @@ textarea.form-control {
                   <div class="form-group">
                     <label for="logStatus" style="font-size: 14px; font-weight: 700; color: #f59e0b;">Work Status</label>
                     <select id="logStatus" style="font-size: 14px; padding: 12px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-weight: 700;">
-                      <option value="Not Started">Not Started</option>
+                      <option value="Work Submitted">Work Submitted</option>
+                      <option value="Today's MPRO Work Submission:">Today's MPRO Work Submission:</option>
+                      <option value="HOM Approved">HOM Approved</option>
+                      <option value="Static Approved">Static Approved</option>
+                      <option value="BM Ok - HoM Pending">BM Ok - HoM Pending</option>
                       <option value="Work in Progress">Work in Progress</option>
                       <option value="Running">Running</option>
                       <option value="Motion Running">Motion Running</option>
                       <option value="BM NOT RESPONDING">BM NOT RESPONDING</option>
                       <option value="Revision">Revision</option>
-                      <option value="Work Submitted">Work Submitted</option>
-                      <option value="BM Ok - HoM Pending">BM Ok - HoM Pending</option>
-                      <option value="HOM Approved">HOM Approved</option>
-                      <option value="Static Approved">Static Approved</option>
+                      <option value="Not Started">Not Started</option>
                       <option value="Cancelled">Cancelled</option>
                       <option value="Hold">Hold</option>
                     </select>
@@ -5472,7 +5473,8 @@ textarea.form-control {
               const stLower = (status || "Not Started").toLowerCase();
               if (stLower.includes("submit")) {
                 updateData.submit_date = new Date().toISOString().split('T')[0];
-              } else if (stLower.includes("approved") || stLower.includes("completed") || stLower.includes("pass") || stLower.includes("ok")) {
+              }
+              if (stLower.includes("approved") || stLower.includes("completed") || stLower.includes("pass") || stLower.includes("ok") || stLower.includes("hom")) {
                 updateData.approve_date = new Date().toISOString().split('T')[0];
               }
               
@@ -5640,18 +5642,24 @@ textarea.form-control {
                 const { data: existing, error: fetchErr } = await supabaseClient
                   .from('assignments')
                   .select('task_id, quantity, completed_qty')
-                  .eq('mpro_id', mId)
+                  .or(`mpro_id.eq.${mId},task_id.eq.${mId},task_id.eq.T-${mId}`)
                   .maybeSingle();
                 
                 if (!fetchErr && existing) {
+                  const updateObj = {
+                    status: logData.status || "Work Submitted",
+                    brands: logData.brand || "",
+                    mpro_link: mLink,
+                    submit_date: logData.date || new Date().toISOString().split('T')[0]
+                  };
+                  if (logData.creativeLink) updateObj.creative_link = logData.creativeLink;
+                  const stL = (logData.status || "").toLowerCase();
+                  if (stL.includes("approved") || stL.includes("completed") || stL.includes("hom") || stL.includes("pass") || stL.includes("ok")) {
+                    updateObj.approve_date = new Date().toISOString().split('T')[0];
+                  }
                   await supabaseClient
                     .from('assignments')
-                    .update({
-                      status: logData.status || "Today's MPRO Work Submission:",
-                      brands: logData.brand || "",
-                      mpro_link: mLink,
-                      submit_date: logData.date || new Date().toISOString().split('T')[0]
-                    })
+                    .update(updateObj)
                     .eq('task_id', existing.task_id);
                 } else {
                   const generatedTaskId = "T-" + Math.floor(100000 + Math.random() * 900000);
@@ -5768,13 +5776,26 @@ textarea.form-control {
               if (logData.mproId) {
                 const mId = String(logData.mproId).trim();
                 const mLink = String(logData.mproLink).trim();
-                await supabaseClient
-                  .from('assignments')
-                  .update({
-                    mpro_link: mLink,
-                    status: "Today's MPRO Work Submission:"
-                  })
-                  .eq('mpro_id', mId);
+                const updateObj = {
+                  mpro_link: mLink,
+                  status: logData.status || "Work Submitted",
+                  brands: logData.brand || ""
+                };
+                if (logData.creativeLink) updateObj.creative_link = logData.creativeLink;
+                const stL = (logData.status || "").toLowerCase();
+                if (stL.includes("approved") || stL.includes("completed") || stL.includes("hom") || stL.includes("pass") || stL.includes("ok")) {
+                  updateObj.approve_date = new Date().toISOString().split('T')[0];
+                }
+
+                // Query all assignments matching mpro_id or task_id or mpro_link
+                const { data: matchedRows } = await supabaseClient.from('assignments').select('task_id').or(`mpro_id.eq.${mId},task_id.eq.${mId},task_id.eq.T-${mId}`);
+                if (matchedRows && matchedRows.length > 0) {
+                  for (const r of matchedRows) {
+                    await supabaseClient.from('assignments').update(updateObj).eq('task_id', r.task_id);
+                  }
+                } else {
+                  await supabaseClient.from('assignments').update(updateObj).eq('mpro_id', mId);
+                }
                 
                 await syncAssignmentCompletedQty(mId);
               }
@@ -7279,6 +7300,51 @@ textarea.form-control {
 
 
 // --- utils.js ---
+function setSmartSelectValue(selectEl, rawVal, defaultVal) {
+      if (typeof selectEl === 'string') selectEl = document.getElementById(selectEl);
+      if (!selectEl) return;
+
+      const val = String(rawVal || '').trim();
+      if (!val) {
+        selectEl.value = defaultVal || "Work Submitted";
+        return;
+      }
+
+      selectEl.value = val;
+      if (selectEl.value === val) return;
+
+      const valLower = val.toLowerCase();
+      for (let i = 0; i < selectEl.options.length; i++) {
+        const optVal = selectEl.options[i].value;
+        if (optVal.toLowerCase() === valLower) {
+          selectEl.value = optVal;
+          return;
+        }
+      }
+
+      for (let i = 0; i < selectEl.options.length; i++) {
+        const optVal = selectEl.options[i].value;
+        const optLower = optVal.toLowerCase();
+        if (valLower.includes('hom') && optLower.includes('hom')) {
+          selectEl.value = optVal;
+          return;
+        }
+        if (valLower.includes('submit') && optLower.includes('submit')) {
+          selectEl.value = optVal;
+          return;
+        }
+        if (valLower.includes('progress') && optLower.includes('progress')) {
+          selectEl.value = optVal;
+          return;
+        }
+      }
+
+      const newOpt = document.createElement('option');
+      newOpt.value = val;
+      newOpt.innerText = val;
+      selectEl.appendChild(newOpt);
+      selectEl.value = val;
+    }
 
     function populateCycleDropdown() {
       const sel = document.getElementById('leaderboardCycleSelect');
@@ -9146,7 +9212,11 @@ textarea.form-control {
         assignDate: document.getElementById('logAssignDate').value || document.getElementById('logDate').value,
         assignQty: document.getElementById('logAssignQty') ? document.getElementById('logAssignQty').value : "",
         brand: document.getElementById('logBrand') ? document.getElementById('logBrand').value : "",
-        status: document.getElementById('logStatus') && document.getElementById('logStatus').value ? document.getElementById('logStatus').value : "Work Submitted"
+        status: (function() {
+          const el = document.getElementById('logStatus');
+          const val = el ? String(el.value || '').trim() : '';
+          return val || "Work Submitted";
+        })()
       };
       
       if (!logData.memberName) {
@@ -9191,34 +9261,49 @@ textarea.form-control {
         showToast("Operation failed: " + err.message, "error");
       };
       
+      if (logData.mproId) {
+        const cleanMproId = String(logData.mproId).trim();
+        const matched = (state.assignments && Array.isArray(state.assignments)) ? state.assignments.find(function(a) {
+          const mId = String(a.MPROID || a.mpro_id || a.MproId || '').trim();
+          const tId = String(a.TaskID || a.task_id || '').trim();
+          const link = String(a.MPROLink || a.MproLink || a.mpro_link || '').trim();
+          return (mId && mId === cleanMproId) || (tId && tId.includes(cleanMproId)) || (link && link.includes(cleanMproId));
+        }) : null;
+        
+        if (matched) {
+          if (logData.status) matched.Status = logData.status;
+          if (logData.brand) matched.Group = logData.brand;
+          if (logData.creativeLink) matched.CreativeLink = logData.creativeLink;
+          const stL = (logData.status || "").toLowerCase();
+          if (stL.includes("approved") || stL.includes("completed") || stL.includes("hom") || stL.includes("pass") || stL.includes("ok")) {
+            const nowYMD = new Date().toISOString().split('T')[0];
+            matched.ApproveDate = nowYMD;
+            matched.approve_date = nowYMD;
+          }
+        } else if (!isEdit) {
+          const isSocialPost = Number(logData.socialPost || 0) > 0;
+          const typeTag = isSocialPost ? '[Type: Social Media Post]' : '[Type: Full Content]';
+          const autoNote = logData.note ? (logData.note.includes('[Type:') ? logData.note : `${logData.note} ${typeTag}`) : typeTag;
+          google.script.run.assignTask({
+            assignDate: logData.assignDate,
+            assignedTo: [logData.memberName],
+            mproId: logData.mproId,
+            mproLink: logData.mproLink,
+            group: logData.brand,
+            quantity: logData.assignQty,
+            status: logData.status,
+            deadline: "",
+            note: autoNote
+          });
+        }
+      }
+
       if (isEdit) {
         google.script.run
           .withSuccessHandler(successCb)
           .withFailureHandler(failureCb)
           .updateDailyLog(Number(rowIndex), logData, targetMemberName, targetPin);
       } else {
-        if (logData.mproId) {
-          const matched = (state.assignments && Array.isArray(state.assignments)) ? state.assignments.find(function(a) {
-            const mId = String(a.MPROID || a.mpro_id || a.MproId || '').trim();
-            return mId && mId === String(logData.mproId).trim();
-          }) : null;
-          if (!matched) {
-            const isSocialPost = Number(logData.socialPost || 0) > 0;
-            const typeTag = isSocialPost ? '[Type: Social Media Post]' : '[Type: Full Content]';
-            const autoNote = logData.note ? (logData.note.includes('[Type:') ? logData.note : `${logData.note} ${typeTag}`) : typeTag;
-            google.script.run.assignTask({
-              assignDate: logData.assignDate,
-              assignedTo: [logData.memberName],
-              mproId: logData.mproId,
-              mproLink: logData.mproLink,
-              group: logData.brand,
-              quantity: logData.assignQty,
-              status: logData.status,
-              deadline: "",
-              note: autoNote
-            });
-          }
-        }
         google.script.run
           .withSuccessHandler(successCb)
           .withFailureHandler(failureCb)
@@ -9759,6 +9844,9 @@ textarea.form-control {
     }
     
     async function submitStatusUpdate() {
+      const submitBtn = document.getElementById('btnSubmitStatus');
+      if (submitBtn) submitBtn.disabled = true;
+
       const taskId = document.getElementById('statusTaskId').value;
       const status = document.getElementById('statusSelect').value;
       const mproLink = document.getElementById('statusMproLink').value;
@@ -9826,8 +9914,7 @@ textarea.form-control {
           const { error: logErr } = await supabaseClient.from('daily_logs').insert(dailyLogData);
           if (logErr) throw logErr;
           
-          // Sync assignment fields to Supabase assignments table
-          await supabaseClient.from('assignments').update({
+          const assignUpdateObj = {
             quantity: newTotalQty,
             completed_qty: newCompletedQty,
             status: status,
@@ -9835,7 +9922,14 @@ textarea.form-control {
             mpro_link: mproLink,
             creative_link: finalStatusCreativeLink,
             brands: brand
-          }).eq('task_id', taskId);
+          };
+          const stL = (status || "").toLowerCase();
+          if (stL.includes("approved") || stL.includes("completed") || stL.includes("pass") || stL.includes("ok") || stL.includes("hom")) {
+            assignUpdateObj.approve_date = new Date().toISOString().split('T')[0];
+          }
+
+          // Sync assignment fields to Supabase assignments table
+          await supabaseClient.from('assignments').update(assignUpdateObj).eq('task_id', taskId);
           
           // Log daily work row in Google Sheets
           google.script.run.logDailyWork({
@@ -10426,10 +10520,23 @@ textarea.form-control {
         elRankBadge.setAttribute('style', `font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px; margin-top: 8px; display: inline-block; ${rankStyle}`);
       }
       
+      function cleanMemberNameForComparison(str) {
+        return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      }
+
+      function isSameMemberName(n1, n2) {
+        if (!n1 || !n2) return false;
+        const c1 = cleanMemberNameForComparison(n1);
+        const c2 = cleanMemberNameForComparison(n2);
+        if (!c1 || !c2) return false;
+        if (c1 === c2) return true;
+        return c1.includes(c2) || c2.includes(c1);
+      }
+
       const logs = (state.dailyLogs || []).filter(function(log) {
-        if (!loggedMember && state.userRole === 'ADMIN') return true;
-        const name = String(log.MemberName || '').trim().toLowerCase();
-        return name === loggedMemberLower || name.includes(loggedMemberLower) || loggedMemberLower.includes(name);
+        if (!loggedMember) return true;
+        const name = log.MemberName || log.member_name || log.Name || '';
+        return isSameMemberName(name, loggedMember);
       });
 
       let totalQty = 0;
@@ -10440,14 +10547,14 @@ textarea.form-control {
       const counts = { c6: 0, c10: 0, c15: 0, c20: 0, c30: 0, c1m: 0 };
 
       logs.forEach(function(l) {
-        if (l.Date) activeDaysSet.add(String(l.Date).split('T')[0]);
-        const c6 = Number(l.Content6s || 0);
-        const c10 = Number(l.Content10s || 0);
-        const c15 = Number(l.Content15s || 0);
-        const c20 = Number(l.Content20s || 0);
-        const c30 = Number(l.Content30s || 0);
-        const c1m = Number(l.Content1m || 0);
-        const sp = Number(l.SocialPost || 0);
+        if (l.Date || l.date) activeDaysSet.add(String(l.Date || l.date).split('T')[0]);
+        const c6 = Number(l.Content6s || l.content_6s || 0);
+        const c10 = Number(l.Content10s || l.content_10s || 0);
+        const c15 = Number(l.Content15s || l.content_15s || 0);
+        const c20 = Number(l.Content20s || l.content_20s || 0);
+        const c30 = Number(l.Content30s || l.content_30s || 0);
+        const c1m = Number(l.Content1m || l.content_1m || 0);
+        const sp = Number(l.SocialPost || l.social_post || 0);
 
         counts.c6 += c6;
         counts.c10 += c10;
@@ -10464,25 +10571,51 @@ textarea.form-control {
 
       // Filter assignments for logged in member
       const memberAssignments = (state.assignments || []).filter(function(t) {
-        const assignedLower = String(t.AssignedTo || '').trim().toLowerCase();
-        return !loggedMember ? (state.userRole === 'ADMIN') : (assignedLower === loggedMemberLower || assignedLower.includes(loggedMemberLower) || loggedMemberLower.includes(assignedLower));
+        if (!loggedMember) return true;
+        const name = t.AssignedTo || t.MemberName || t.assigned_to || t.member_name || '';
+        return isSameMemberName(name, loggedMember);
       });
 
+      const approvedMproSet = new Set();
       let submittedCount = 0;
       let approvedCount = 0;
       let pendingTasks = [];
 
       memberAssignments.forEach(function(t) {
-        const st = (t.Status || '').toLowerCase();
-        const isApproved = st.includes('approved') || st.includes('completed') || st.includes('ok') || st.includes('pass');
-        const isSubmitted = st.includes('submit');
+        const st = (t.Status || t.status || '').toLowerCase();
+        const note = (t.Note || t.note || '').toLowerCase();
+        const mId = String(t.MPROID || t.mpro_id || t.MproId || t.TaskID || t.task_id || '').trim();
+        const hasLogHom = logs.some(function(l) {
+          const lMpro = String(l.MproId || l.mpro_id || l.MPROID || '').trim();
+          const lNote = String(l.Note || l.note || '').toLowerCase();
+          const lStatus = String(l.Status || l.status || '').toLowerCase();
+          return (lMpro && mId && (lMpro === mId || mId.includes(lMpro))) && 
+                 (lStatus.includes('hom') || lNote.includes('hom approved') || lNote.includes('hom'));
+        });
 
+        const isApproved = (st.includes('hom') && st.includes('approved')) || st.includes('static approved') || (st.includes('approved') && !st.includes('pending')) || st.includes('completed') || note.includes('hom approved') || hasLogHom;
+        const isSubmitted = st.includes('submit') && !isApproved;
+
+        if (isApproved && mId) approvedMproSet.add(mId);
         if (isSubmitted) submittedCount++;
         if (isApproved) approvedCount++;
         if (!isApproved) {
           pendingTasks.push(t);
         }
       });
+
+      logs.forEach(function(l) {
+        const lMpro = String(l.MproId || l.mpro_id || l.MPROID || '').trim();
+        const lNote = String(l.Note || l.note || '').toLowerCase();
+        const lStatus = String(l.Status || l.status || '').toLowerCase();
+        if (lMpro && (lStatus.includes('hom') || lNote.includes('hom approved') || lNote.includes('hom'))) {
+          approvedMproSet.add(lMpro);
+        }
+      });
+
+      if (approvedMproSet.size > approvedCount) {
+        approvedCount = approvedMproSet.size;
+      }
 
       // Sort pending tasks by oldest AssignDate
       pendingTasks.sort((a, b) => new Date(a.AssignDate || '2099-01-01') - new Date(b.AssignDate || '2099-01-01'));
@@ -11005,14 +11138,20 @@ textarea.form-control {
 
       tbody.innerHTML = filtered.map(function(t) {
         const mproId = t.MPROID || t.MproId || t.MPROId || t.mpro_id || t.TaskID || '';
-        let rawCreativeLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
+        let linksList = (typeof window.extractAllCreativeWorkLinks === 'function') ? window.extractAllCreativeWorkLinks(t) : [];
+        if (linksList.length === 0) {
+          let rawSingle = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(t) : (t.CreativeLink || t.creative_link || "");
+          if (rawSingle) linksList = [rawSingle];
+        }
+
         let creativeWorkBadge = `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
-        
-        if (rawCreativeLink) {
-          const processed = window.processCreativeWorkInput(rawCreativeLink);
-          const finalLink = processed.link || rawCreativeLink;
-          const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
-          creativeWorkBadge = `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 3px 9px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+        if (linksList.length > 0) {
+          creativeWorkBadge = linksList.map(function(rawL) {
+            const processed = window.processCreativeWorkInput(rawL);
+            const finalLink = processed.link || rawL;
+            const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+            return `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 3px 9px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(236, 72, 153, 0.35); transition: transform 0.15s; margin-right: 3px; margin-bottom: 2px;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+          }).join('');
         }
 
         const briefLink = t.MPROLink || t.MproLink || (mproId ? ("http://mpro.prangroup.com:4000/CreativeBriefs/Edit/" + mproId) : "#");
@@ -11023,10 +11162,17 @@ textarea.form-control {
 
         let statusBadgeClass = 'status-pending';
         const st = (t.Status || '').toLowerCase();
+        const note = (t.Note || '').toLowerCase();
+        const isHomApproved = (st.includes('hom') && st.includes('approved')) || st.includes('static approved') || (st.includes('approved') && !st.includes('pending')) || st.includes('completed') || note.includes('hom approved');
+        const approveDateVal = t.ApproveDate || t.approve_date || "";
+
         if (st.includes('submit')) statusBadgeClass = 'status-submitted';
-        else if (st.includes('approved') || st.includes('completed') || st.includes('ok')) statusBadgeClass = 'status-approved';
+        else if (isHomApproved) statusBadgeClass = 'status-approved';
         else if (st.includes('running') || st.includes('progress')) statusBadgeClass = 'status-running';
         else if (st.includes('revision')) statusBadgeClass = 'status-revision';
+
+        const displayStatusText = isHomApproved ? '✅ HOM Approved' : t.Status;
+        const approveDateHtml = (isHomApproved && approveDateVal) ? `<div style="font-size: 10px; color: #10b981; font-weight: 800; margin-top: 3px;">Approved: ${approveDateVal}</div>` : '';
 
         return `
           <tr>
@@ -11036,7 +11182,10 @@ textarea.form-control {
             <td style="font-weight: 700;">${brandName}</td>
             <td><span style="font-size: 11px; padding: 2px 7px; background: rgba(255,255,255,0.06); border-radius: 4px; font-weight: 700;">${taskType}</span></td>
             <td style="font-weight: 800; text-align: center;">${t.Quantity || 1}</td>
-            <td><span class="status-badge ${statusBadgeClass}">${t.Status}</span></td>
+            <td>
+              <span class="status-badge ${statusBadgeClass}">${displayStatusText}</span>
+              ${approveDateHtml}
+            </td>
             <td style="font-size: 12px;">${t.calculatedDeadline || t.Deadline || '-'}</td>
             <td>
               <button class="btn btn-outline btn-xs" onclick="closeMemberDetailsModal(); openStatusModal('${taskIdVal}')" style="font-size: 11px; padding: 3px 8px; font-weight: 700;">📝 Update</button>
@@ -11145,6 +11294,62 @@ textarea.form-control {
       return "";
     };
 
+    // Smart Multi-Creative Link Extractor for Multiple Quantities under 1 Brief
+    window.extractAllCreativeWorkLinks = function(logOrTask) {
+      if (!logOrTask) return [];
+      const linksSet = new Set();
+
+      function getMproId(obj) {
+        if (!obj) return "";
+        let id = String(obj.MproId || obj.mpro_id || obj.MPROID || obj.MproID || obj.MPROId || '').trim();
+        if (id) return id;
+        const link = obj.MproLink || obj.MPROLink || obj.mpro_link || "";
+        const m = String(link).match(/CreativeBriefs\/Edit\/(\d+)/i) || String(link).match(/\/(\d+)(?:\D|$)/);
+        return m ? m[1].trim() : "";
+      }
+      
+      function extractFromNote(str) {
+        if (!str) return [];
+        const res = [];
+        const matches = str.match(/\[Creative Link:\s*([^\]]+)\]/gi);
+        if (matches) {
+          matches.forEach(function(m) {
+            const inner = m.replace(/\[Creative Link:\s*/i, '').replace(/\]$/, '').trim();
+            if (inner) res.push(inner);
+          });
+        }
+        const urlMatches = str.match(/(https?:\/\/[^\s"'<>]*(?:CreativeWorks)[^\s"'<>]*)/gi);
+        if (urlMatches) {
+          urlMatches.forEach(function(u) { if (u) res.push(u.trim()); });
+        }
+        return res;
+      }
+
+      let directLink = logOrTask.CreativeLink || logOrTask.creative_link || logOrTask.CreativeWorkLink || "";
+      if (directLink) linksSet.add(directLink);
+
+      extractFromNote(logOrTask.Note || logOrTask.note || "").forEach(function(l) { linksSet.add(l); });
+
+      const targetMproId = getMproId(logOrTask);
+      if (targetMproId && window.state) {
+        const checkList = [];
+        if (window.state.assignments && Array.isArray(window.state.assignments)) checkList.push(...window.state.assignments);
+        if (window.state.dailyLogs && Array.isArray(window.state.dailyLogs)) checkList.push(...window.state.dailyLogs);
+        if (window.state.myLogs && Array.isArray(window.state.myLogs)) checkList.push(...window.state.myLogs);
+
+        for (let i = 0; i < checkList.length; i++) {
+          const item = checkList[i];
+          if (item && getMproId(item) === targetMproId) {
+            let foundLink = item.CreativeLink || item.creative_link || item.CreativeWorkLink || "";
+            if (foundLink) linksSet.add(foundLink);
+            extractFromNote(item.Note || item.note || "").forEach(function(l) { linksSet.add(l); });
+          }
+        }
+      }
+
+      return Array.from(linksSet);
+    };
+
     window.handleLogCreativeLinkInput = function(el) {
       if (!el) el = document.getElementById('logCreativeLink');
       if (!el || !el.value) return;
@@ -11189,11 +11394,15 @@ textarea.form-control {
           const cq2 = Number(t.CompletedQty || t.completed_qty) || 0;
           existing.CompletedQty = Math.max(cq1, cq2);
 
-          // Status: prefer WORK SUBMITTED or APPROVED over TODAY'S MPRO WORK SUBMISSION
+          // Status: prefer updated status over "Today's MPRO Work Submission:"
           const st1 = String(existing.Status || existing.status || '').toLowerCase();
           const st2 = String(t.Status || t.status || '').toLowerCase();
-          if (st1.includes('today') && (st2.includes('work submitted') || st2.includes('approved') || st2.includes('completed'))) {
+          if (st2 && (st1.includes('today') || st2.includes('hom') || st2.includes('approved') || st2.includes('completed'))) {
             existing.Status = t.Status;
+          }
+          if (t.ApproveDate || t.approve_date) {
+            existing.ApproveDate = t.ApproveDate || t.approve_date;
+            existing.approve_date = t.ApproveDate || t.approve_date;
           }
 
           // Dates & Deadline
@@ -11364,7 +11573,7 @@ textarea.form-control {
           const brandSelect = document.getElementById('logBrand');
           const statusSelect = document.getElementById('logStatus');
           if (brandSelect) brandSelect.value = matched.Group || "";
-          if (statusSelect) statusSelect.value = matched.Status || "";
+          if (statusSelect) setSmartSelectValue(statusSelect, matched.Status || "Work Submitted");
         }
         if (assignDateInput) {
           assignDateInput.removeAttribute('required');
@@ -11390,7 +11599,7 @@ textarea.form-control {
           const brandSelect = document.getElementById('logBrand');
           const statusSelect = document.getElementById('logStatus');
           if (brandSelect) brandSelect.value = "";
-          if (statusSelect) statusSelect.value = "Work Submitted";
+          if (statusSelect) setSmartSelectValue(statusSelect, "Work Submitted");
         }
         if (assignDateInput) {
           assignDateInput.setAttribute('required', 'true');
@@ -13473,12 +13682,18 @@ textarea.form-control {
             </td>
             <td>
               ${(function() {
-                let rawLink = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(task) : (task.CreativeLink || task.creative_link || '');
-                if (!rawLink) return `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
-                const processed = window.processCreativeWorkInput(rawLink);
-                const finalLink = processed.link || rawLink;
-                const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
-                return `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 5px 12px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+                let linksList = (typeof window.extractAllCreativeWorkLinks === 'function') ? window.extractAllCreativeWorkLinks(task) : [];
+                if (linksList.length === 0) {
+                  let rawSingle = (typeof window.extractCreativeWorkLink === 'function') ? window.extractCreativeWorkLink(task) : (task.CreativeLink || task.creative_link || '');
+                  if (rawSingle) linksList = [rawSingle];
+                }
+                if (linksList.length === 0) return `<span style="color: var(--text-muted); font-family: monospace;">-</span>`;
+                return linksList.map(function(rawL) {
+                  const processed = window.processCreativeWorkInput(rawL);
+                  const finalLink = processed.link || rawL;
+                  const displayId = processed.id ? `#${processed.id}` : 'Work ↗';
+                  return `<a href="${finalLink}" target="_blank" style="color: #ffffff; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); font-weight: 800; text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.35); transition: transform 0.15s; margin-right: 3px; margin-bottom: 2px;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='none';" title="Open Creative Work ${displayId}">🎨 ${displayId} ↗</a>`;
+                }).join('');
               })()}
             </td>
             <td><span class="status-badge" style="background-color:${isSocialPost ? 'rgba(236, 72, 153, 0.15)' : 'rgba(0,0,0,0.1)'}; color:${isSocialPost ? '#f472b6' : 'var(--text-main)'}; border: 1px solid ${isSocialPost ? 'rgba(236, 72, 153, 0.3)' : 'var(--border-color)'};">${task.Group || '-'}</span></td>
@@ -13506,7 +13721,15 @@ textarea.form-control {
                 </div>
               </div>
             </td>
-            <td><span class="status-badge ${stClass}">${task.Status}</span></td>
+            <td>
+              ${(function() {
+                const isHomApproved = (st.includes('hom') && st.includes('approved')) || st.includes('static approved') || (st.includes('approved') && !st.includes('pending')) || st.includes('completed') || (task.Note || '').toLowerCase().includes('hom approved');
+                const approveDateVal = task.ApproveDate || task.approve_date || "";
+                const displayStatusText = isHomApproved ? '✅ HOM Approved' : task.Status;
+                const approveDateHtml = (isHomApproved && approveDateVal) ? `<div style="font-size: 10px; color: #10b981; font-weight: 800; margin-top: 3px;">Approved: ${approveDateVal}</div>` : '';
+                return `<span class="status-badge ${stClass}">${displayStatusText}</span>${approveDateHtml}`;
+              })()}
+            </td>
             <td style="color:var(--accent-pink); font-weight:600;">${task.calculatedDeadline || task.Deadline || '-'}</td>
             <td style="font-weight:600;">${task.AssignedTo}</td>
             <td style="font-size:12px; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${cleanNoteText(task.Note)}">${cleanNoteText(task.Note) || '-'}</td>
